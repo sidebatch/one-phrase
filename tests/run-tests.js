@@ -71,6 +71,11 @@ ok(html.includes("une-phrase-vault") && html.includes("vaultReady"), "IndexedDB 
 ok(html.includes('speechSynthesis') && html.includes('.cancel()') && html.includes('setTimeout'), "TTS: cancel 후 지연 재생 (Android 경합 방지)");
 ok(html.includes('fr-FR'), "TTS 언어 fr-FR");
 
+console.log("\n[단계 이어가기]");
+ok(html.includes("function setStep(n){ currentStep = n; progress.step = n; saveProgress(); }"), "단계 이동 시 기록에 단계 저장 (setStep)");
+ok(html.includes("currentStep = [1,2,3].includes(progress.step) ? progress.step : 1;"), "다시 열면 저장된 단계로 복원");
+ok(/progress\.index\+\+;\s*\n\s*progress\.step = 1;/.test(html), "문장 완료 시 다음 문장은 1단계부터 (기록 단계 초기화)");
+
 console.log("\n[버전·파일]");
 const ver = html.match(/const APP_VERSION = "([^"]+)"/)[1];
 ok(read("README.md").includes("v" + ver), "README 버전 일치 (v" + ver + ")");

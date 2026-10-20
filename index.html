@@ -54,7 +54,7 @@ summary{font-weight:800;cursor:pointer}
 </head>
 <body>
 <div class="wrap">
-<div class="brand">UNE PHRASE · 버전 1.1.0</div>
+<div class="brand">UNE PHRASE · 버전 1.1.1</div>
 <h1>한 문장 프랑스어</h1>
 <p class="lead">고르지 마세요. <b>켜면 바로 오늘의 한 문장</b>이 나와요. 읽고, 따라 쓰고, 가리고 쓰면 끝 — 1분이면 한 문장이 내 것이 됩니다.</p>
 <p class="progress" id="progressLine">불러오는 중…</p>
@@ -107,11 +107,11 @@ summary{font-weight:800;cursor:pointer}
 </details>
 </div>
 
-<footer>Une Phrase v1.1.0 · 문장은 전부 미리 만들어져 있습니다 — 직접 만들 필요 없이 공부만 하세요.<br>보호 상태: <span id="vaultFooter">확인 중…</span></footer>
+<footer>Une Phrase v1.1.1 · 문장은 전부 미리 만들어져 있습니다 — 직접 만들 필요 없이 공부만 하세요.<br>보호 상태: <span id="vaultFooter">확인 중…</span></footer>
 </div>
 <script>
 "use strict";
-const APP_VERSION = "1.1.0";
+const APP_VERSION = "1.1.1";
 const STORAGE_KEY = "une-phrase-progress-v1";
 const ITEMS = [
 {id:1,fr:"Je cherche un appartement près du métro parce que je n'ai pas de voiture.",ko:"나는 차가 없어서 지하철 근처 아파트를 찾고 있다.",chunks:[["Je cherche un appartement","아파트를 찾고 있다"],["près du métro","지하철 근처에"],["parce que je n'ai pas de voiture","차가 없기 때문에"]],pattern:"이유는 뒤에 붙인다: …parce que + 문장 → 연결어 parce que (왜냐하면)",words:[["appartement","아파트"],["près de","~ 근처에"]],topic:"일상",level:"B1",tef:"EO 말하기 · CE 읽기"},
@@ -242,6 +242,7 @@ async function initStorage(){
   vaultReady = true;
   if(chosen && JSON.stringify(chosen)!==JSON.stringify(localData)){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); }catch(e){} }
   vaultSet(STORAGE_KEY, JSON.stringify(progress));
+  currentStep = [1,2,3].includes(progress.step) ? progress.step : 1;
   renderVaultState();
 }
 function renderVaultState(){
@@ -269,6 +270,7 @@ function speakFr(text){
 
 /* ---------- 학습 흐름 ---------- */
 let currentStep = 1;
+function setStep(n){ currentStep = n; progress.step = n; saveProgress(); }
 function currentItem(){ return ITEMS[Math.min(progress.index, ITEMS.length-1)]; }
 function esc(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
 function renderProgress(){
@@ -300,7 +302,7 @@ function renderStudy(){
   document.getElementById("studyCard").innerHTML = h;
   document.getElementById("doneBox").innerHTML = "";
   const lb = document.getElementById("listenBtn"); if(lb) lb.onclick = ()=>speakFr(it.fr);
-  const g2 = document.getElementById("goStep2"); if(g2) g2.onclick = ()=>{ currentStep=2; renderStudy(); };
+  const g2 = document.getElementById("goStep2"); if(g2) g2.onclick = ()=>{ setStep(2); renderStudy(); };
   const cb = document.getElementById("checkBtn"); if(cb) cb.onclick = checkTyping;
   const hb = document.getElementById("hintBtn"); if(hb) hb.onclick = ()=>{ document.getElementById("hint").innerHTML = '<p class="lead">첫 단어: <b>'+esc(it.fr.split(" ")[0])+'</b> · 덩어리: '+it.chunks.map(c=>esc(c[0])).join(" / ")+'</p>'; };
   renderProgress();
@@ -311,7 +313,7 @@ function checkTyping(){
   const fb = document.getElementById("fb");
   if(isCorrect(input, it.fr)){
     fb.innerHTML = '<div class="feedback ok">✓ 맞았어요! 정답: '+esc(it.fr)+'</div>';
-    if(currentStep===2){ currentStep=3; setTimeout(renderStudy, 900); }
+    if(currentStep===2){ setStep(3); setTimeout(renderStudy, 900); }
     else { completeSentence(); }
   } else {
     fb.innerHTML = '<div class="feedback bad">아직 달라요. 정답과 비교해 보세요:<br><b>'+esc(it.fr)+'</b></div>';
@@ -321,11 +323,12 @@ function completeSentence(){
   const it = currentItem();
   if(!progress.completed.includes(it.id)){ progress.completed.push(it.id); progress.doneDates.push(todayKey()); }
   if(progress.index < ITEMS.length-1) progress.index++;
+  progress.step = 1;
   saveProgress(); renderVaultState(); renderProgress();
   document.getElementById("doneBox").innerHTML = '<div class="card donebox"><div class="big">🎉 한 문장 완료!</div><p>오늘 '+countToday(progress)+'문장째예요. 여기까지 해도 충분합니다.</p><button class="primary" id="oneMoreBtn">한 문장 더 →</button></div>';
-  document.getElementById("oneMoreBtn").onclick = ()=>{ currentStep=1; renderStudy(); window.scrollTo({top:0,behavior:"smooth"}); };
+  document.getElementById("oneMoreBtn").onclick = ()=>{ setStep(1); renderStudy(); window.scrollTo({top:0,behavior:"smooth"}); };
 }
-function goToItem(idx, step){ progress.index = idx; currentStep = step||1; saveProgress(); showTab("study"); renderStudy(); window.scrollTo({top:0,behavior:"smooth"}); }
+function goToItem(idx, step){ progress.index = idx; setStep(step||1); showTab("study"); renderStudy(); window.scrollTo({top:0,behavior:"smooth"}); }
 
 /* ---------- 탭 ---------- */
 function showTab(name){
@@ -356,11 +359,11 @@ document.getElementById("tabBtnStudy").onclick = ()=>showTab("study");
 document.getElementById("tabBtnBrowse").onclick = ()=>{ showTab("browse"); renderBrowse(); };
 document.getElementById("tabBtnWords").onclick = ()=>{ showTab("words"); renderWords(); };
 document.getElementById("tabBtnAbout").onclick = ()=>showTab("about");
-document.getElementById("stepBtn1").onclick = ()=>{ currentStep=1; renderStudy(); };
-document.getElementById("stepBtn2").onclick = ()=>{ currentStep=2; renderStudy(); };
-document.getElementById("stepBtn3").onclick = ()=>{ currentStep=3; renderStudy(); };
-document.getElementById("prevBtn").onclick = ()=>{ if(progress.index>0){ progress.index--; currentStep=1; saveProgress(); renderStudy(); } };
-document.getElementById("nextBtn").onclick = ()=>{ if(progress.index<ITEMS.length-1){ progress.index++; currentStep=1; saveProgress(); renderStudy(); } };
+document.getElementById("stepBtn1").onclick = ()=>{ setStep(1); renderStudy(); };
+document.getElementById("stepBtn2").onclick = ()=>{ setStep(2); renderStudy(); };
+document.getElementById("stepBtn3").onclick = ()=>{ setStep(3); renderStudy(); };
+document.getElementById("prevBtn").onclick = ()=>{ if(progress.index>0){ progress.index--; setStep(1); renderStudy(); } };
+document.getElementById("nextBtn").onclick = ()=>{ if(progress.index<ITEMS.length-1){ progress.index++; setStep(1); renderStudy(); } };
 document.getElementById("listenBtn2").onclick = ()=>speakFr(currentItem().fr);
 document.getElementById("exportBtn").onclick = ()=>{
   const blob = new Blob([JSON.stringify(progress,null,2)],{type:"application/json"});
