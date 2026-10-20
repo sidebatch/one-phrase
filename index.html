@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1C3A71">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Une Phrase — 한 문장 프랑스어 | 켜자마자 한 문장, TEF Canada</title>
+<meta name="description" content="고르는 고민 없이, 켜자마자 미리 만들어진 프랑스어 한 문장을 읽고·따라 쓰고·가리고 쓰며 공부하는 앱. TEF Canada 전 영역 연결.">
+<meta property="og:title" content="Une Phrase — 한 문장 프랑스어">
+<meta property="og:description" content="켜자마자 한 문장. TEF Canada와 일상 프랑스어를 3단계로 공부하는 앱.">
+<meta property="og:url" content="https://sidebatch.github.io/une-phrase/">
+<style>
+:root{--blue:#1c3a71;--gold:#c98a1b;--ink:#1c1c1e;--sub:#6b6b70;--bg:#fffdf8;--card:#fff;--line:#e8e2d8;--soft:#eef2fa;--ok:#1a7a2e;--bad:#b3261e}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif;background:var(--bg);color:var(--ink);line-height:1.55}
+.wrap{max-width:720px;margin:0 auto;padding:18px 16px 64px}
+.brand{font-weight:900;color:var(--blue);letter-spacing:.05em;font-size:14px}
+h1{font-size:27px;line-height:1.25;margin:6px 0 4px}
+.lead{color:var(--sub);font-size:15px;margin:0 0 8px}
+.tabs{display:flex;gap:8px;margin:14px 0;flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}
+.tabbtn{flex:0 0 auto;background:#fff;color:var(--ink);border:1.5px solid var(--line);border-radius:999px;padding:9px 14px;font-size:14px;font-weight:800;cursor:pointer;font:inherit}
+.tabbtn.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.card{background:var(--card);border:1.5px solid var(--line);border-radius:18px;padding:18px;margin:12px 0}
+.meta{font-size:13px;color:var(--sub);font-weight:700}
+.fr{font-size:22px;font-weight:800;line-height:1.4;margin:8px 0 4px}
+.ko{font-size:16px;color:var(--ink);margin:0 0 10px}
+.chunk{display:inline-block;background:var(--soft);border-radius:10px;padding:6px 10px;margin:3px 4px 3px 0;font-size:15px}
+.chunk b{display:block;font-size:15px}
+.chunk span{font-size:13px;color:var(--sub)}
+.pattern{background:#fff8e6;border:1.5px solid #f0dfa8;border-radius:12px;padding:10px 12px;font-size:14px;margin:10px 0}
+.words{font-size:14px;margin:8px 0}
+.stepnav{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}
+.stepbtn{flex:1;min-width:100px;background:#fff;color:var(--ink);border:1.5px solid var(--line);border-radius:12px;padding:10px 6px;font-size:14px;font-weight:800;cursor:pointer;font:inherit}
+.stepbtn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+button.primary{background:var(--blue);color:#fff;border:1.5px solid var(--blue);border-radius:999px;padding:11px 20px;font-size:15px;font-weight:800;cursor:pointer;font:inherit}
+button.ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line);border-radius:999px;padding:10px 16px;font-size:14px;font-weight:700;cursor:pointer;font:inherit}
+textarea,input[type=text]{width:100%;font:inherit;font-size:17px;padding:12px;border:1.5px solid var(--line);border-radius:12px;background:#fff}
+.feedback{font-size:15px;margin:10px 0;padding:10px 12px;border-radius:12px}
+.feedback.ok{background:#e6f4ea;color:var(--ok)}
+.feedback.bad{background:#fdecea;color:var(--bad)}
+.progress{font-size:14px;color:var(--sub);font-weight:700}
+.donebox{text-align:center;padding:28px 16px}
+.donebox .big{font-size:24px;font-weight:900;margin:8px 0}
+.listitem{border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;margin:8px 0;background:#fff;cursor:pointer;width:100%;text-align:left;font:inherit;color:var(--ink)}
+.listitem .done{color:var(--ok);font-weight:800}
+footer{color:var(--sub);font-size:13px;margin-top:28px;border-top:1px solid var(--line);padding-top:14px}
+details{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;margin:10px 0}
+summary{font-weight:800;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="brand">UNE PHRASE · 버전 1.0.0</div>
+<h1>한 문장 프랑스어</h1>
+<p class="lead">고르지 마세요. <b>켜면 바로 오늘의 한 문장</b>이 나와요. 읽고, 따라 쓰고, 가리고 쓰면 끝 — 1분이면 한 문장이 내 것이 됩니다.</p>
+<p class="progress" id="progressLine">불러오는 중…</p>
+<div class="tabs">
+<button class="tabbtn on" id="tabBtnStudy">공부하기</button>
+<button class="tabbtn" id="tabBtnBrowse">주제별 보기</button>
+<button class="tabbtn" id="tabBtnWords">단어 모아보기</button>
+<button class="tabbtn" id="tabBtnAbout">설명 · 보관 상태</button>
+</div>
+
+<div id="tab-study">
+<div class="stepnav">
+<button class="stepbtn on" id="stepBtn1">1 · 읽어보기</button>
+<button class="stepbtn" id="stepBtn2">2 · 따라 쓰기</button>
+<button class="stepbtn" id="stepBtn3">3 · 가리고 쓰기</button>
+</div>
+<div class="card" id="studyCard"></div>
+<div id="doneBox"></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+<button class="ghost" id="prevBtn">← 이전 문장</button>
+<button class="ghost" id="nextBtn">다음 문장 →</button>
+<button class="ghost" id="listenBtn2">🔊 다시 듣기</button>
+</div>
+</div>
+
+<div id="tab-browse" hidden>
+<p class="lead">주제를 눌러 문장을 골라 공부할 수도 있어요. 기본은 공부하기 탭에서 순서대로 이어집니다.</p>
+<div id="topicFilter" style="display:flex;gap:6px;flex-wrap:wrap;margin:10px 0"></div>
+<div id="browseList"></div>
+</div>
+
+<div id="tab-words" hidden>
+<p class="lead">문장에서 나온 핵심 단어만 모았어요. 단어를 누르면 프랑스어 발음이 나옵니다.</p>
+<div id="wordsList"></div>
+</div>
+
+<div id="tab-about" hidden>
+<details open><summary>어떻게 쓰나요 — 3단계</summary>
+<p>1 · 읽어보기: 문장과 뜻 덩어리를 보고, 듣기 버튼으로 소리를 확인합니다.<br>2 · 따라 쓰기: 문장을 보면서 그대로 타이핑합니다. 손이 철자를 기억합니다.<br>3 · 가리고 쓰기: 한국어 뜻만 보고 프랑스어 문장 전체를 씁니다. 이 단계가 진짜 암기입니다.</p>
+<p>기본 흐름은 <b>한 문장만</b>입니다. 한 문장을 끝내면 완료 화면이 나오고, 원하면 “한 문장 더”를 누르세요.</p>
+</details>
+<details><summary>이 문장들이 TEF Canada와 어떻게 연결되나요</summary>
+<p>EO 말하기: 의견 문장과 일상 설명 문장을 그대로 말하기 재료로 씁니다.<br>EE 쓰기: je pense que, d'une part… 같은 의견 구조와 연결어를 문장째로 익힙니다.<br>CE 읽기: 지문에 자주 나오는 표현과 관계절 구조를 문장 단위로 먼저 익힙니다.<br>CO 듣기: 듣기 버튼으로 문장 소리를 반복해 듣고, 가리고 쓰기로 받아쓰기까지 연결합니다.<br>각 문장 카드에 어떤 영역에 도움이 되는지 표시해 뒀습니다.</p>
+</details>
+<details><summary>진행 기록은 어떻게 보관되나요</summary>
+<p id="vaultState">보관 상태 확인 중…</p>
+<p>기록은 이 기기의 브라우저 저장소에 저장되고, 같은 내용을 IndexedDB 보관함에도 복사해 둡니다. 브라우저가 저장소를 비워도 보관함에서 복구합니다. 단, 브라우저에서 “사이트 데이터 전체 삭제”를 하면 보관함도 함께 지워집니다. 그 경우를 막을 완전한 방법은 아직 없습니다.</p>
+<button class="ghost" id="exportBtn">기록 내보내기 (JSON)</button>
+<button class="ghost" id="resetBtn">기록 전체 지우기</button>
+</details>
+</div>
+
+<footer>Une Phrase v1.0.0 · 문장은 전부 미리 만들어져 있습니다 — 직접 만들 필요 없이 공부만 하세요.<br>보호 상태: <span id="vaultFooter">확인 중…</span></footer>
+</div>
+<script>
+"use strict";
+const APP_VERSION = "1.0.0";
+const STORAGE_KEY = "une-phrase-progress-v1";
+const ITEMS = [
+{id:1,fr:"Je cherche un appartement près du métro parce que je n'ai pas de voiture.",ko:"나는 차가 없어서 지하철 근처 아파트를 찾고 있다.",chunks:[["Je cherche un appartement","아파트를 찾고 있다"],["près du métro","지하철 근처에"],["parce que je n'ai pas de voiture","차가 없기 때문에"]],pattern:"이유는 뒤에 붙인다: …parce que + 문장 → 연결어 parce que (왜냐하면)",words:[["appartement","아파트"],["près de","~ 근처에"]],topic:"일상",level:"B1",tef:"EO 말하기 · CE 읽기"},
+{id:2,fr:"Depuis que nous avons déménagé, le quartier est beaucoup plus calme.",ko:"이사한 뒤로 동네가 훨씬 더 조용해졌다.",chunks:[["Depuis que nous avons déménagé","우리가 이사한 뒤로"],["le quartier","동네는"],["est beaucoup plus calme","훨씬 더 조용하다"]],pattern:"…한 뒤로 계속 그렇다: Depuis que + 문장 → 표현 depuis que (~한 뒤로)",words:[["déménager","이사하다"],["quartier","동네, 구역"]],topic:"일상",level:"B1",tef:"EO 말하기 · EE 쓰기"},
+{id:3,fr:"Il faut que je fasse les courses avant que les magasins ferment.",ko:"가게가 닫기 전에 장을 봐야 한다.",chunks:[["Il faut que je fasse les courses","장을 봐야 한다"],["avant que les magasins ferment","가게가 닫기 전에"]],pattern:"il faut que 뒤에서는 동사가 바뀐다: fasse, ferment → 접속법 (subjonctif)",words:[["faire les courses","장을 보다"],["magasin","가게"]],topic:"일상",level:"B2",tef:"EE 쓰기 · CE 읽기"},
+{id:4,fr:"Tous les matins, je prends un café en lisant les nouvelles sur mon téléphone.",ko:"매일 아침 나는 전화기로 뉴스를 읽으면서 커피를 마신다.",chunks:[["Tous les matins","매일 아침"],["je prends un café","커피를 마신다"],["en lisant les nouvelles","뉴스를 읽으면서"]],pattern:"동시에 하기: en + ~ant (en lisant = 읽으면서) → 제롱디프 (gérondif)",words:[["les nouvelles","뉴스"],["tous les matins","매일 아침"]],topic:"일상",level:"B1",tef:"EO 말하기 · CO 듣기"},
+{id:5,fr:"Notre propriétaire va augmenter le loyer le mois prochain.",ko:"우리 집주인이 다음 달에 월세를 올릴 예정이다.",chunks:[["Notre propriétaire","우리 집주인은"],["va augmenter le loyer","월세를 올릴 것이다"],["le mois prochain","다음 달에"]],pattern:"가까운 미래는 va + 동사원형: va augmenter → 근접미래 (futur proche)",words:[["propriétaire","집주인"],["loyer","월세, 임대료"]],topic:"일상",level:"A2",tef:"EO 말하기 · CE 읽기"},
+{id:6,fr:"Je préfère habiter dans un quartier où il y a des parcs et des commerces.",ko:"나는 공원과 상점이 있는 동네에 사는 것을 선호한다.",chunks:[["Je préfère habiter","사는 것을 선호한다"],["dans un quartier où","~인 동네에"],["il y a des parcs et des commerces","공원과 상점이 있다"]],pattern:"장소를 꾸밀 때 où를 쓴다: un quartier où il y a… → 관계대명사 où (장소)",words:[["préférer","선호하다"],["commerce","상점, 상업"]],topic:"일상",level:"B1",tef:"EE 쓰기 · EO 말하기"},
+{id:7,fr:"Le week-end, nous aimons nous promener au bord du lac avec nos amis.",ko:"주말에 우리는 친구들과 호숫가를 산책하는 것을 좋아한다.",chunks:[["Le week-end","주말에"],["nous aimons nous promener","산책하는 것을 좋아한다"],["au bord du lac","호숫가에서"]],pattern:"au bord de + 장소 = ~의 가장자리, ~가 → 표현 au bord du lac (호숫가)",words:[["se promener","산책하다"],["lac","호수"]],topic:"일상",level:"A2",tef:"EO 말하기"},
+{id:8,fr:"Je cherche un emploi dans le domaine de la restauration depuis deux mois.",ko:"나는 두 달째 요식업 분야에서 일자리를 찾고 있다.",chunks:[["Je cherche un emploi","일자리를 찾고 있다"],["dans le domaine de la restauration","요식업 분야에서"],["depuis deux mois","두 달째, 두 달 전부터"]],pattern:"계속되는 기간은 depuis + 기간, 동사는 현재형 → 표현 depuis (…째, …부터 계속)",words:[["emploi","일자리, 고용"],["domaine","분야"]],topic:"직장",level:"A2",tef:"EO 말하기 · EE 쓰기"},
+{id:9,fr:"Mon horaire de travail change chaque semaine, ce qui n'est pas toujours facile.",ko:"내 근무 시간은 매주 바뀌는데, 그게 항상 쉽지는 않다.",chunks:[["Mon horaire de travail change","근무 시간이 바뀐다"],["chaque semaine","매주"],["ce qui n'est pas toujours facile","그게 항상 쉽지는 않다"]],pattern:"앞 문장 전체를 받아 이어 말하기: …, ce qui… → 관계대명사 ce qui (…라는 것)",words:[["horaire","시간표, 근무 시간"],["chaque","각각의, 매"]],topic:"직장",level:"B1",tef:"EE 쓰기 · CE 읽기"},
+{id:10,fr:"Pour postuler à ce poste, il faut envoyer un curriculum vitæ et une lettre de motivation.",ko:"이 직책에 지원하려면 이력서와 자기소개서를 보내야 한다.",chunks:[["Pour postuler à ce poste","이 직책에 지원하기 위해"],["il faut envoyer","보내야 한다"],["un curriculum vitæ et une lettre de motivation","이력서와 자기소개서"]],pattern:"목적은 문장 맨 앞: Pour + 동사원형 → 표현 pour + infinitif (…하기 위해)",words:[["postuler","지원하다"],["poste","직책, 자리"]],topic:"직장",level:"B1",tef:"CE 읽기 · EE 쓰기"},
+{id:11,fr:"Pendant mon entretien, on m'a demandé pourquoi je voulais travailler dans cette entreprise.",ko:"면접 중에 왜 이 회사에서 일하고 싶은지 질문을 받았다.",chunks:[["Pendant mon entretien","면접 중에"],["on m'a demandé","질문을 받았다"],["pourquoi je voulais travailler","왜 일하고 싶어 하는지"]],pattern:"남의 질문을 옮길 때는 시제가 한 칸 뒤로: veux → voulais → 간접화법 (discours indirect)",words:[["entretien","면접, 인터뷰"],["entreprise","회사, 기업"]],topic:"직장",level:"B2",tef:"CE 읽기 · EO 말하기"},
+{id:12,fr:"Même si le salaire n'est pas très élevé, l'ambiance au travail est agréable.",ko:"월급이 그리 높지 않아도 직장 분위기는 좋다.",chunks:[["Même si le salaire n'est pas très élevé","월급이 높지 않아도"],["l'ambiance au travail","직장 분위기는"],["est agréable","좋다, 쾌적하다"]],pattern:"양보는 même si로 시작한다: Même si…, … → 연결어 même si (…해도, …이지만)",words:[["salaire","월급, 급여"],["ambiance","분위기"]],topic:"직장",level:"B1",tef:"EO 말하기 · EE 쓰기"},
+{id:13,fr:"Je dois finir ce rapport avant vendredi, sinon mon patron ne sera pas content.",ko:"금요일까지 이 보고서를 끝내야 한다. 그렇지 않으면 상사가 좋아하지 않을 것이다.",chunks:[["Je dois finir ce rapport","이 보고서를 끝내야 한다"],["avant vendredi","금요일까지"],["sinon mon patron ne sera pas content","그렇지 않으면 상사가 안 좋아할 것이다"]],pattern:"경고는 sinon으로 잇는다: …, sinon… → 연결어 sinon (그렇지 않으면)",words:[["rapport","보고서"],["patron","상사, 사장"]],topic:"직장",level:"A2",tef:"EO 말하기"},
+{id:14,fr:"Grâce à cette formation, j'ai appris à utiliser de nouveaux logiciels.",ko:"이 교육 덕분에 새로운 소프트웨어 사용법을 배웠다.",chunks:[["Grâce à cette formation","이 교육 덕분에"],["j'ai appris à utiliser","사용법을 배웠다"],["de nouveaux logiciels","새로운 소프트웨어를"]],pattern:"좋은 이유는 grâce à, 나쁜 이유는 à cause de → 전치사 grâce à (… 덕분에)",words:[["formation","교육, 연수"],["logiciel","소프트웨어"]],topic:"직장",level:"B1",tef:"EO 말하기 · CE 읽기"},
+{id:15,fr:"Je me sens fatigué ces jours-ci, alors je vais prendre rendez-vous chez le médecin.",ko:"요즘 피곤해서 병원 예약을 하려고 한다.",chunks:[["Je me sens fatigué","피곤하게 느껴진다"],["ces jours-ci","요즘"],["je vais prendre rendez-vous chez le médecin","병원 예약을 하려고 한다"]],pattern:"예약은 prendre rendez-vous를 통째로 쓴다 → 표현 prendre rendez-vous (예약하다)",words:[["fatigué","피곤한"],["médecin","의사"]],topic:"건강",level:"A2",tef:"EO 말하기 · CO 듣기"},
+{id:16,fr:"Pour rester en bonne santé, il est important de dormir suffisamment et de manger équilibré.",ko:"건강을 유지하려면 충분히 자고 균형 있게 먹는 것이 중요하다.",chunks:[["Pour rester en bonne santé","건강을 유지하기 위해"],["il est important de","…하는 것이 중요하다"],["dormir suffisamment et manger équilibré","충분히 자고 균형 있게 먹기"]],pattern:"평가 문장은 il est important de + 동사원형 → 구문 il est important de (…하는 것이 중요하다)",words:[["santé","건강"],["suffisamment","충분히"]],topic:"건강",level:"B1",tef:"EE 쓰기 · EO 말하기"},
+{id:17,fr:"Le médecin m'a conseillé de boire plus d'eau et de faire de l'exercice régulièrement.",ko:"의사는 물을 더 마시고 규칙적으로 운동하라고 조언했다.",chunks:[["Le médecin m'a conseillé de","의사는 내게 조언했다"],["boire plus d'eau","물을 더 마시라고"],["faire de l'exercice régulièrement","규칙적으로 운동하라고"]],pattern:"조언은 conseiller de + 동사원형 → 동사 conseiller de (…하라고 조언하다)",words:[["conseiller","조언하다"],["exercice","운동"]],topic:"건강",level:"B1",tef:"CE 읽기 · EO 말하기"},
+{id:18,fr:"Depuis que je fais du sport trois fois par semaine, je me sens beaucoup mieux.",ko:"일주일에 세 번 운동한 뒤로 몸이 훨씬 좋아졌다.",chunks:[["Depuis que je fais du sport","운동을 한 뒤로"],["trois fois par semaine","일주일에 세 번"],["je me sens beaucoup mieux","훨씬 좋아졌다"]],pattern:"빈도는 fois par semaine로 센다: trois fois par semaine → 표현 횟수 말하기",words:[["sport","운동, 스포츠"],["fois","번, 회"]],topic:"건강",level:"B1",tef:"EO 말하기"},
+{id:19,fr:"Si vous avez de la fièvre, vous devriez rester à la maison et vous reposer.",ko:"열이 있으면 집에 머물며 쉬어야 합니다.",chunks:[["Si vous avez de la fièvre","열이 있으면"],["vous devriez rester à la maison","집에 머물러야 합니다"],["et vous reposer","그리고 쉬어야 합니다"]],pattern:"부드러운 조언은 devriez (devoir의 조건법) → 정중한 권유 vous devriez (…하셔야 합니다)",words:[["fièvre","열"],["se reposer","쉬다"]],topic:"건강",level:"A2",tef:"EO 말하기 · CE 읽기"},
+{id:20,fr:"L'hiver au Canada est très froid, donc il faut bien se couvrir avant de sortir.",ko:"캐나다의 겨울은 매우 추워서 나가기 전에 따뜻하게 입어야 한다.",chunks:[["L'hiver au Canada est très froid","캐나다 겨울은 매우 춥다"],["donc il faut bien se couvrir","그래서 따뜻하게 입어야 한다"],["avant de sortir","나가기 전에"]],pattern:"결론은 donc으로 잇는다: …, donc… → 연결어 donc (그래서)",words:[["hiver","겨울"],["se couvrir","따뜻하게 입다"]],topic:"건강",level:"A2",tef:"EO 말하기 · CO 듣기"},
+{id:21,fr:"J'apprends le français tous les jours parce que je veux améliorer mon niveau pour l'examen.",ko:"시험을 위해 실력을 높이고 싶어서 매일 프랑스어를 공부한다.",chunks:[["J'apprends le français tous les jours","매일 프랑스어를 공부한다"],["parce que je veux améliorer mon niveau","실력을 높이고 싶기 때문에"],["pour l'examen","시험을 위해"]],pattern:"목표는 pour + 명사: pour l'examen → 전치사 pour (…을 위해)",words:[["améliorer","향상시키다"],["niveau","수준, 레벨"]],topic:"교육",level:"A2",tef:"EO 말하기"},
+{id:22,fr:"Les cours en ligne me permettent d'étudier à mon rythme, même après le travail.",ko:"온라인 수업 덕분에 퇴근 후에도 내 속도로 공부할 수 있다.",chunks:[["Les cours en ligne me permettent de","온라인 수업이 가능하게 한다"],["étudier à mon rythme","내 속도로 공부하기를"],["même après le travail","퇴근 후에도"]],pattern:"가능하게 해 주다: permettre de + 동사원형 → 동사 permettre de (…할 수 있게 하다)",words:[["cours","수업"],["rythme","속도, 리듬"]],topic:"교육",level:"B1",tef:"EE 쓰기 · CE 읽기"},
+{id:23,fr:"Au collège, j'ai suivi un programme en informatique qui durait deux ans.",ko:"컬리지에서 2년짜리 컴퓨터 프로그래밍 과정을 들었다.",chunks:[["Au collège","컬리지에서"],["j'ai suivi un programme en informatique","컴퓨터 과정을 들었다"],["qui durait deux ans","2년 동안 이어진"]],pattern:"과거에 계속되던 설명은 qui + 반과거: qui durait… → 관계대명사 qui + imparfait",words:[["programme","과정, 프로그램"],["informatique","컴퓨터, 정보학"]],topic:"교육",level:"B1",tef:"EO 말하기 · CE 읽기"},
+{id:24,fr:"Il est essentiel de pratiquer régulièrement si on veut progresser en langue.",ko:"언어 실력을 늘리려면 규칙적으로 연습하는 것이 필수다.",chunks:[["Il est essentiel de pratiquer régulièrement","규칙적으로 연습하는 것이 필수다"],["si on veut progresser","늘리고 싶다면"],["en langue","언어에서"]],pattern:"조건은 뒤에 si로 붙인다: …, si on veut… → 연결어 si (…라면)",words:[["essentiel","필수적인"],["progresser","진전하다, 늘다"]],topic:"교육",level:"B1",tef:"EE 쓰기"},
+{id:25,fr:"Mes professeurs m'ont beaucoup aidé quand j'avais des difficultés avec les devoirs.",ko:"숙제가 어려울 때 선생님들이 나를 많이 도와주셨다.",chunks:[["Mes professeurs m'ont beaucoup aidé","선생님들이 많이 도와주셨다"],["quand j'avais des difficultés","어려움이 있을 때"],["avec les devoirs","숙제에서"]],pattern:"과거 배경은 반과거로 깐다: quand j'avais… → 시간 표현 quand + imparfait",words:[["professeur","선생님, 교수"],["devoirs","숙제"]],topic:"교육",level:"B1",tef:"EO 말하기 · CE 읽기"},
+{id:26,fr:"Après avoir obtenu mon diplôme, j'aimerais trouver un emploi dans mon domaine.",ko:"졸업장을 딴 뒤에 내 분야에서 일자리를 찾고 싶다.",chunks:[["Après avoir obtenu mon diplôme","졸업장을 딴 뒤에"],["j'aimerais trouver un emploi","일자리를 찾고 싶다"],["dans mon domaine","내 분야에서"]],pattern:"…한 뒤에: Après avoir + 과거분사 (avoir obtenu) → 구문 après avoir + participe passé",words:[["diplôme","졸업장, 학위"],["obtenir","얻다, 취득하다"]],topic:"교육",level:"B2",tef:"EE 쓰기 · EO 말하기"},
+{id:27,fr:"En ville, je préfère prendre les transports en commun plutôt que de conduire.",ko:"시내에서는 운전보다 대중교통을 타는 것을 선호한다.",chunks:[["En ville","시내에서는"],["je préfère prendre les transports en commun","대중교통을 타는 것을 선호한다"],["plutôt que de conduire","운전하는 것보다"]],pattern:"비교 선택은 plutôt que de + 동사원형 → 표현 plutôt que (…보다 차라리)",words:[["transports en commun","대중교통"],["conduire","운전하다"]],topic:"교통",level:"B1",tef:"EO 말하기 · EE 쓰기"},
+{id:28,fr:"Le bus était en retard à cause de la neige, alors je suis arrivé en retard au travail.",ko:"눈 때문에 버스가 늦어서 직장에 지각했다.",chunks:[["Le bus était en retard","버스가 늦었다"],["à cause de la neige","눈 때문에"],["je suis arrivé en retard au travail","직장에 지각했다"]],pattern:"나쁜 이유는 à cause de, 좋은 이유는 grâce à → 전치사 à cause de (… 때문에)",words:[["en retard","늦은, 지각한"],["neige","눈"]],topic:"교통",level:"A2",tef:"EO 말하기 · CO 듣기"},
+{id:29,fr:"Pour aller à l'aéroport, le moyen le plus rapide est de prendre le métro.",ko:"공항에 가려면 가장 빠른 방법은 지하철을 타는 것이다.",chunks:[["Pour aller à l'aéroport","공항에 가기 위해"],["le moyen le plus rapide","가장 빠른 방법은"],["est de prendre le métro","지하철을 타는 것이다"]],pattern:"최상급은 le plus + 형용사: le plus rapide → 최상급 (superlatif)",words:[["aéroport","공항"],["moyen","방법, 수단"]],topic:"교통",level:"B1",tef:"CE 읽기 · EO 말하기"},
+{id:30,fr:"Il y a souvent des embouteillages le matin sur les grandes routes de Toronto.",ko:"토론토의 큰 도로에서는 아침에 교통 체증이 자주 있다.",chunks:[["Il y a souvent des embouteillages","교통 체증이 자주 있다"],["le matin","아침에"],["sur les grandes routes de Toronto","토론토 큰 도로에서"]],pattern:"있다/없다는 il y a로 시작한다 → 표현 il y a (…가 있다)",words:[["embouteillage","교통 체증"],["route","도로"]],topic:"교통",level:"A2",tef:"EO 말하기 · CO 듣기"},
+{id:31,fr:"Depuis la semaine dernière, je vais au travail à vélo quand il fait beau.",ko:"지난주부터 날씨가 좋으면 자전거로 출근한다.",chunks:[["Depuis la semaine dernière","지난주부터"],["je vais au travail à vélo","자전거로 출근한다"],["quand il fait beau","날씨가 좋으면"]],pattern:"날씨는 il fait beau처럼 il로 시작한다 → 날씨 표현 il fait beau (날씨가 좋다)",words:[["vélo","자전거"],["beau (temps)","좋은 (날씨)"]],topic:"교통",level:"A2",tef:"EO 말하기"},
+{id:32,fr:"La ville prévoit de construire de nouvelles pistes cyclables dans les prochaines années.",ko:"시는 앞으로 몇 년 안에 새 자전거 도로를 만들 계획이다.",chunks:[["La ville prévoit de construire","시는 만들 계획이다"],["de nouvelles pistes cyclables","새 자전거 도로를"],["dans les prochaines années","앞으로 몇 년 안에"]],pattern:"공식 계획은 prévoir de + 동사원형 → 동사 prévoir de (…할 계획이다)",words:[["ville","도시, 시"],["piste cyclable","자전거 도로"]],topic:"교통",level:"B2",tef:"CE 읽기 · EE 쓰기"},
+{id:33,fr:"Pour protéger l'environnement, nous trions nos déchets et nous recyclons le plastique.",ko:"환경을 보호하기 위해 우리는 쓰레기를 분리하고 플라스틱을 재활용한다.",chunks:[["Pour protéger l'environnement","환경을 보호하기 위해"],["nous trions nos déchets","쓰레기를 분리한다"],["nous recyclons le plastique","플라스틱을 재활용한다"]],pattern:"목적이 두 개면 동사를 나란히 잇는다: trions…, recyclons… → 병렬 구조",words:[["environnement","환경"],["déchets","쓰레기"]],topic:"환경",level:"B1",tef:"EE 쓰기 · CE 읽기"},
+{id:34,fr:"Le changement climatique a des effets visibles, comme des étés plus chauds qu'avant.",ko:"기후 변화는 예전보다 더 더운 여름 같은, 눈에 보이는 영향을 미친다.",chunks:[["Le changement climatique","기후 변화는"],["a des effets visibles","눈에 보이는 영향이 있다"],["comme des étés plus chauds qu'avant","예전보다 더 더운 여름처럼"]],pattern:"비교는 plus … que: plus chauds qu'avant → 비교급 plus + 형용사 + que",words:[["changement climatique","기후 변화"],["été","여름"]],topic:"환경",level:"B1",tef:"CE 읽기 · EE 쓰기"},
+{id:35,fr:"Il faudrait que tout le monde fasse un petit effort pour économiser l'énergie.",ko:"모두가 에너지를 절약하기 위해 작은 노력을 해야 한다.",chunks:[["Il faudrait que tout le monde fasse","모두가 해야 한다"],["un petit effort","작은 노력을"],["pour économiser l'énergie","에너지를 절약하기 위해"]],pattern:"부드러운 당위: il faudrait que + 접속법 (fasse) → 구문 il faudrait que (…해야 한다)",words:[["énergie","에너지"],["économiser","절약하다"]],topic:"환경",level:"B2",tef:"EE 쓰기"},
+{id:36,fr:"Dans mon quartier, il y a un jardin communautaire où les voisins cultivent des légumes.",ko:"우리 동네에는 이웃들이 채소를 기르는 공동 텃밭이 있다.",chunks:[["Dans mon quartier","우리 동네에는"],["il y a un jardin communautaire","공동 텃밭이 있다"],["où les voisins cultivent des légumes","이웃들이 채소를 기르는"]],pattern:"장소 설명은 où로 잇는다: un jardin où… → 관계대명사 où",words:[["jardin","정원, 텃밭"],["voisin","이웃"]],topic:"환경",level:"B1",tef:"EO 말하기 · CE 읽기"},
+{id:37,fr:"Au lieu de jeter les vieux vêtements, on peut les donner à des organismes de charité.",ko:"헌 옷을 버리는 대신 자선 단체에 기부할 수 있다.",chunks:[["Au lieu de jeter les vieux vêtements","헌 옷을 버리는 대신"],["on peut les donner","기부할 수 있다"],["à des organismes de charité","자선 단체에"]],pattern:"대안은 au lieu de + 동사원형 → 표현 au lieu de (… 대신에)",words:[["vêtement","옷"],["jeter","버리다"]],topic:"환경",level:"B1",tef:"EE 쓰기 · EO 말하기"},
+{id:38,fr:"Les énergies renouvelables, comme l'énergie solaire, sont de plus en plus utilisées au Canada.",ko:"태양 에너지 같은 재생 에너지는 캐나다에서 점점 더 많이 사용되고 있다.",chunks:[["Les énergies renouvelables","재생 에너지는"],["comme l'énergie solaire","태양 에너지처럼"],["sont de plus en plus utilisées","점점 더 많이 사용된다"]],pattern:"점점 더: de plus en plus + … → 표현 de plus en plus (점점 더)",words:[["renouvelable","재생 가능한"],["solaire","태양의"]],topic:"환경",level:"B1",tef:"CE 읽기"},
+{id:39,fr:"Je passe beaucoup de temps sur mon téléphone, surtout pour lire des messages et regarder des vidéos.",ko:"나는 전화기로 메시지를 읽고 영상을 보는 데 많은 시간을 보낸다.",chunks:[["Je passe beaucoup de temps","많은 시간을 보낸다"],["sur mon téléphone","전화기로"],["surtout pour lire des messages","특히 메시지를 읽으려고"]],pattern:"특히는 surtout로 콕 집는다 → 부사 surtout (특히)",words:[["passer du temps","시간을 보내다"],["message","메시지"]],topic:"기술",level:"A2",tef:"EO 말하기"},
+{id:40,fr:"Grâce à Internet, on peut rester en contact avec sa famille même à l'étranger.",ko:"인터넷 덕분에 해외에 있어도 가족과 연락을 유지할 수 있다.",chunks:[["Grâce à Internet","인터넷 덕분에"],["on peut rester en contact","연락을 유지할 수 있다"],["avec sa famille même à l'étranger","해외에 있어도 가족과"]],pattern:"연락 유지는 rester en contact를 통째로 → 표현 rester en contact (연락을 유지하다)",words:[["étranger (à l')","해외, 외국"],["contact","연락, 접촉"]],topic:"기술",level:"B1",tef:"EO 말하기 · CE 읽기"},
+{id:41,fr:"Il faut faire attention aux informations qu'on partage sur les réseaux sociaux.",ko:"소셜 미디어에 공유하는 정보는 조심해야 한다.",chunks:[["Il faut faire attention","조심해야 한다"],["aux informations qu'on partage","우리가 공유하는 정보에"],["sur les réseaux sociaux","소셜 미디어에서"]],pattern:"사물을 받는 관계절은 que: les informations qu'on partage → 관계대명사 que",words:[["information","정보"],["réseaux sociaux","소셜 미디어"]],topic:"기술",level:"B1",tef:"CE 읽기 · EE 쓰기"},
+{id:42,fr:"Mon ordinateur est tombé en panne hier, alors je n'ai pas pu finir mon travail.",ko:"어제 컴퓨터가 고장 나서 일을 끝내지 못했다.",chunks:[["Mon ordinateur est tombé en panne","컴퓨터가 고장 났다"],["hier","어제"],["je n'ai pas pu finir mon travail","일을 끝내지 못했다"]],pattern:"고장은 tomber en panne을 통째로 → 표현 tomber en panne (고장 나다)",words:[["ordinateur","컴퓨터"],["panne","고장"]],topic:"기술",level:"B1",tef:"EO 말하기"},
+{id:43,fr:"Les applications mobiles rendent la vie quotidienne plus pratique, par exemple pour payer ou se déplacer.",ko:"모바일 앱은 결제나 이동 같은 일상생활을 더 편리하게 만든다.",chunks:[["Les applications mobiles rendent","모바일 앱은 만든다"],["la vie quotidienne plus pratique","일상생활을 더 편리하게"],["par exemple pour payer","예를 들면 결제하기"]],pattern:"…하게 만들다: rendre + 명사 + 형용사 → 동사 rendre (…하게 만들다)",words:[["application","앱, 애플리케이션"],["quotidien","일상의"]],topic:"기술",level:"B1",tef:"EE 쓰기 · CE 읽기"},
+{id:44,fr:"De nos jours, de plus en plus de gens travaillent à distance depuis leur maison.",ko:"요즘 점점 더 많은 사람들이 집에서 원격으로 일한다.",chunks:[["De nos jours","요즘에는"],["de plus en plus de gens","점점 더 많은 사람들이"],["travaillent à distance","원격으로 일한다"]],pattern:"글의 시작은 De nos jours로 연다 (요즘에는) → 도입 표현 de nos jours",words:[["à distance","원격으로"],["gens","사람들"]],topic:"기술",level:"B1",tef:"EE 쓰기 · EO 말하기"},
+{id:45,fr:"Je me suis installé au Canada il y a plusieurs années pour commencer une nouvelle vie.",ko:"나는 몇 년 전 새로운 삶을 시작하기 위해 캐나다에 정착했다.",chunks:[["Je me suis installé au Canada","캐나다에 정착했다"],["il y a plusieurs années","몇 년 전에"],["pour commencer une nouvelle vie","새로운 삶을 시작하기 위해"]],pattern:"…년 전에: il y a + 기간 (과거 방향) → 표현 il y a (… 전에)",words:[["s'installer","정착하다"],["vie","삶, 인생"]],topic:"이민",level:"B1",tef:"EO 말하기"},
+{id:46,fr:"Au début, s'adapter à un nouveau pays n'était pas facile, surtout à cause de la langue.",ko:"처음에는 새 나라에 적응하는 것이 쉽지 않았고, 특히 언어 때문이었다.",chunks:[["Au début","처음에는"],["s'adapter à un nouveau pays","새 나라에 적응하는 것이"],["n'était pas facile","쉽지 않았다"]],pattern:"적응은 s'adapter à + 대상 → 동사 s'adapter à (…에 적응하다)",words:[["s'adapter","적응하다"],["pays","나라"]],topic:"이민",level:"B1",tef:"EO 말하기 · EE 쓰기"},
+{id:47,fr:"Pour obtenir la résidence permanente, il faut préparer plusieurs documents importants.",ko:"영주권을 얻으려면 중요한 서류 여러 개를 준비해야 한다.",chunks:[["Pour obtenir la résidence permanente","영주권을 얻기 위해"],["il faut préparer","준비해야 한다"],["plusieurs documents importants","중요한 서류 여러 개를"]],pattern:"관공서 단어는 통째로: la résidence permanente → 명사구 résidence permanente (영주권)",words:[["résidence permanente","영주권"],["document","서류"]],topic:"이민",level:"B1",tef:"CE 읽기 · EO 말하기"},
+{id:48,fr:"Ce que j'aime le plus au Canada, c'est la diversité des cultures qu'on y trouve.",ko:"캐나다에서 내가 가장 좋아하는 것은 그곳에서 만날 수 있는 문화의 다양성이다.",chunks:[["Ce que j'aime le plus","내가 가장 좋아하는 것은"],["au Canada","캐나다에서"],["c'est la diversité des cultures","문화의 다양성이다"]],pattern:"강조 문장 틀: Ce que…, c'est… → 강조 구문 ce que … c'est (…는 바로 …이다)",words:[["diversité","다양성"],["culture","문화"]],topic:"이민",level:"B2",tef:"EO 말하기 · EE 쓰기"},
+{id:49,fr:"Même loin de ma famille, je me sens bien accueilli dans ma communauté.",ko:"가족과 멀리 떨어져 있어도 우리 커뮤니티에서 환영받는 느낌이 든다.",chunks:[["Même loin de ma famille","가족과 멀리 있어도"],["je me sens bien accueilli","환영받는 느낌이 든다"],["dans ma communauté","우리 커뮤니티에서"]],pattern:"…에도 불구하고는 même + … 로 줄인다 → 표현 même loin de (멀리 있어도)",words:[["accueilli","환영받는"],["communauté","커뮤니티, 공동체"]],topic:"이민",level:"B1",tef:"EO 말하기"},
+{id:50,fr:"L'hiver canadien m'a surpris la première année, mais je m'y suis habitué peu à peu.",ko:"캐나다의 겨울은 첫해에 나를 놀라게 했지만, 조금씩 익숙해졌다.",chunks:[["L'hiver canadien m'a surpris","캐나다 겨울이 나를 놀라게 했다"],["la première année","첫해에"],["je m'y suis habitué peu à peu","조금씩 익숙해졌다"]],pattern:"조금씩은 peu à peu를 뒤에 붙인다 → 부사 peu à peu (조금씩)",words:[["surprendre","놀라게 하다"],["s'habituer","익숙해지다"]],topic:"이민",level:"B1",tef:"EO 말하기 · CE 읽기"},
+{id:51,fr:"Si je pouvais choisir, j'aimerais rester à Toronto parce que j'y ai beaucoup d'amis.",ko:"선택할 수 있다면 토론토에 머물고 싶다. 거기에 친구가 많기 때문이다.",chunks:[["Si je pouvais choisir","선택할 수 있다면"],["j'aimerais rester à Toronto","토론토에 머물고 싶다"],["parce que j'y ai beaucoup d'amis","거기에 친구가 많기 때문에"]],pattern:"가정은 Si + 반과거, 결과는 조건법: si je pouvais…, j'aimerais… → 가정 구문 si + imparfait",words:[["choisir","선택하다"],["rester","머물다"]],topic:"이민",level:"B2",tef:"EO 말하기 · EE 쓰기"},
+{id:52,fr:"Je pense que les transports en commun devraient être moins chers pour les étudiants.",ko:"대중교통은 학생들에게 더 저렴해야 한다고 생각한다.",chunks:[["Je pense que","…라고 생각한다"],["les transports en commun devraient être moins chers","대중교통은 더 저렴해야 한다"],["pour les étudiants","학생들에게"]],pattern:"의견 시작 틀: Je pense que + 문장 → 의견 표현 je pense que (…라고 생각한다)",words:[["étudiant","학생"],["cher","비싼"]],topic:"의견",level:"B1",tef:"EO 말하기 · EE 쓰기"},
+{id:53,fr:"Il me semble que travailler à la maison a des avantages et des inconvénients.",ko:"재택근무에는 장점과 단점이 있는 것 같다.",chunks:[["Il me semble que","…인 것 같다"],["travailler à la maison","집에서 일하는 것은"],["a des avantages et des inconvénients","장점과 단점이 있다"]],pattern:"단정하지 않는 의견: Il me semble que… → 완곡 표현 il me semble que (…인 것 같다)",words:[["avantage","장점"],["inconvénient","단점"]],topic:"의견",level:"B1",tef:"EE 쓰기 · EO 말하기"},
+{id:54,fr:"D'une part, la technologie facilite la vie, d'autre part, elle peut nous rendre dépendants.",ko:"한편으로 기술은 생활을 편하게 하지만, 다른 한편으로는 우리를 의존하게 만들 수 있다.",chunks:[["D'une part","한편으로"],["la technologie facilite la vie","기술은 생활을 편하게 한다"],["d'autre part, elle peut nous rendre dépendants","다른 한편으로는 의존하게 만들 수 있다"]],pattern:"양쪽 보기 틀: D'une part…, d'autre part… → 대조 표현 d'une part / d'autre part",words:[["technologie","기술"],["dépendant","의존적인"]],topic:"의견",level:"B2",tef:"EE 쓰기"},
+{id:55,fr:"À mon avis, il est plus important d'être en bonne santé que d'être riche.",ko:"내 생각에는 부유한 것보다 건강한 것이 더 중요하다.",chunks:[["À mon avis","내 생각에는"],["il est plus important d'être en bonne santé","건강한 것이 더 중요하다"],["que d'être riche","부유한 것보다"]],pattern:"의견 앞에 붙이기: À mon avis, … → 의견 표현 à mon avis (내 생각에는)",words:[["avis","의견"],["riche","부유한"]],topic:"의견",level:"B1",tef:"EO 말하기 · EE 쓰기"},
+{id:56,fr:"Je ne suis pas tout à fait d'accord avec cette idée, parce qu'elle ne tient pas compte de la réalité.",ko:"이 생각에 완전히 동의하지는 않는데, 현실을 고려하지 않기 때문이다.",chunks:[["Je ne suis pas tout à fait d'accord","완전히 동의하지는 않는다"],["avec cette idée","이 생각에"],["elle ne tient pas compte de la réalité","현실을 고려하지 않는다"]],pattern:"부드러운 반대: pas tout à fait d'accord → 완곡한 반대 표현",words:[["d'accord","동의하는"],["réalité","현실"]],topic:"의견",level:"B2",tef:"EO 말하기 · EE 쓰기"},
+{id:57,fr:"On pourrait dire que les petits commerces jouent un rôle essentiel dans un quartier.",ko:"작은 상점들이 동네에서 필수적인 역할을 한다고 말할 수 있을 것이다.",chunks:[["On pourrait dire que","…라고 말할 수 있을 것이다"],["les petits commerces jouent un rôle essentiel","작은 상점들이 필수적인 역할을 한다"],["dans un quartier","동네에서"]],pattern:"여지를 남기는 말하기: On pourrait dire que… (could에 해당) → 완곡 표현 on pourrait dire que",words:[["rôle","역할"],["jouer un rôle","역할을 하다"]],topic:"의견",level:"B1",tef:"EE 쓰기 · EO 말하기"},
+{id:58,fr:"Selon moi, les enfants devraient passer moins de temps devant les écrans.",ko:"내 생각에 아이들은 화면 앞에서 보내는 시간을 줄여야 한다.",chunks:[["Selon moi","내 생각에"],["les enfants devraient passer moins de temps","아이들은 시간을 덜 보내야 한다"],["devant les écrans","화면 앞에서"]],pattern:"근거 있는 의견 시작: Selon moi, … → 의견 표현 selon moi (내 생각에)",words:[["enfant","아이"],["écran","화면"]],topic:"의견",level:"B1",tef:"EE 쓰기 · EO 말하기"},
+{id:59,fr:"En conclusion, je crois que ce changement serait bénéfique pour la plupart des gens.",ko:"결론적으로, 이 변화가 대부분의 사람들에게 유익할 것이라고 믿는다.",chunks:[["En conclusion","결론적으로"],["je crois que ce changement serait bénéfique","이 변화가 유익할 것이라고 믿는다"],["pour la plupart des gens","대부분의 사람들에게"]],pattern:"결론 시작: En conclusion, je crois que… + 조건법 serait → 결론 표현 en conclusion",words:[["changement","변화"],["bénéfique","유익한"]],topic:"의견",level:"B1",tef:"EE 쓰기"},
+{id:60,fr:"Je voudrais prendre rendez-vous pour renouveler mon permis de conduire.",ko:"운전면허를 갱신하기 위해 예약하고 싶습니다.",chunks:[["Je voudrais prendre rendez-vous","예약하고 싶습니다"],["pour renouveler","갱신하기 위해"],["mon permis de conduire","내 운전면허를"]],pattern:"정중한 요청은 je voudrais (want가 아니라 would like) → 정중 표현 je voudrais",words:[["renouveler","갱신하다"],["permis de conduire","운전면허"]],topic:"약속",level:"A2",tef:"EO 말하기 · CO 듣기"},
+{id:61,fr:"Pourriez-vous me dire quels documents je dois apporter pour ma demande ?",ko:"제 신청을 위해 어떤 서류를 가져와야 하는지 알려주실 수 있나요?",chunks:[["Pourriez-vous me dire","알려주실 수 있나요"],["quels documents je dois apporter","어떤 서류를 가져와야 하는지"],["pour ma demande","내 신청을 위해"]],pattern:"가장 정중한 질문: Pourriez-vous… ? → 정중 표현 pourriez-vous (…해 주실 수 있나요)",words:[["apporter","가져오다"],["demande","신청, 요청"]],topic:"약속",level:"B1",tef:"EO 말하기 · CE 읽기"},
+{id:62,fr:"L'employé m'a expliqué que le traitement de ma demande prendrait environ deux semaines.",ko:"직원은 내 신청 처리에 약 2주가 걸릴 것이라고 설명했다.",chunks:[["L'employé m'a expliqué que","직원이 설명해 줬다"],["le traitement de ma demande prendrait","내 신청 처리가 걸릴 것이라고"],["environ deux semaines","약 2주"]],pattern:"미래 일을 옮길 때는 조건법: prendra → prendrait → 과거 속 미래 (futur dans le passé)",words:[["employé","직원"],["traitement","처리"]],topic:"약속",level:"B2",tef:"CE 읽기"},
+{id:63,fr:"Je vous appelle pour confirmer notre rendez-vous de demain à dix heures.",ko:"내일 10시 약속을 확인하려고 전화드립니다.",chunks:[["Je vous appelle","전화드립니다"],["pour confirmer notre rendez-vous","약속을 확인하기 위해"],["de demain à dix heures","내일 10시"]],pattern:"전화 시작 문장: Je vous appelle pour + 동사원형 → 전화 표현 je vous appelle pour",words:[["confirmer","확인하다"],["rendez-vous","약속, 예약"]],topic:"약속",level:"A2",tef:"EO 말하기 · CO 듣기"},
+{id:64,fr:"En cas de problème, vous pouvez contacter le service à la clientèle par téléphone ou par courriel.",ko:"문제가 생기면 고객 서비스에 전화나 이메일로 연락할 수 있다.",chunks:[["En cas de problème","문제가 생기면"],["vous pouvez contacter le service à la clientèle","고객 서비스에 연락할 수 있다"],["par téléphone ou par courriel","전화나 이메일로"]],pattern:"안내문 시작: En cas de + 명사 → 표현 en cas de (…인 경우에)",words:[["contacter","연락하다"],["courriel","이메일 (캐나다 프랑스어)"]],topic:"약속",level:"B1",tef:"CE 읽기"},
+{id:65,fr:"Il faut remplir ce formulaire et le remettre au comptoir avant la fin de la journée.",ko:"이 양식을 작성해서 오늘 안에 접수처에 제출해야 한다.",chunks:[["Il faut remplir ce formulaire","이 양식을 작성해야 한다"],["le remettre au comptoir","접수처에 제출하고"],["avant la fin de la journée","오늘 안에"]],pattern:"할 일을 나란히: remplir…, remettre… → 관공서 동사 remplir (작성하다) / remettre (제출하다)",words:[["formulaire","양식"],["comptoir","접수처, 카운터"]],topic:"약속",level:"B1",tef:"CE 읽기 · EO 말하기"},
+{id:66,fr:"Excusez-moi, je cherche le bureau des passeports, c'est bien à cet étage ?",ko:"실례합니다, 여권 사무실을 찾고 있는데 이 층이 맞나요?",chunks:[["Excusez-moi","실례합니다"],["je cherche le bureau des passeports","여권 사무실을 찾고 있다"],["c'est bien à cet étage ?","이 층이 맞나요?"]],pattern:"길 묻기 시작: Excusez-moi, je cherche… → 정중 표현 excusez-moi, je cherche",words:[["bureau","사무실"],["passeport","여권"]],topic:"약속",level:"A2",tef:"EO 말하기 · CO 듣기"}
+];
+/* ---------- 순수 함수 (테스트 대상) ---------- */
+function normalizeForCompare(s){
+  return (s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/['’]/g,"'").replace(/[^a-z0-9' ]/g," ").replace(/\s+/g," ").trim();
+}
+function isCorrect(input, target){ return normalizeForCompare(input) === normalizeForCompare(target); }
+function activityOf(p){ if(!p) return -1; return (p.completed?p.completed.length:0)*100000 + (p.index||0); }
+function pickRestore(localData, vaultData){
+  if(!vaultData) return localData;
+  if(!localData) return vaultData;
+  return activityOf(vaultData) > activityOf(localData) ? vaultData : localData;
+}
+function todayKey(){ return new Date().toLocaleDateString("en-CA"); }
+function countToday(p){ if(!p||!p.doneDates) return 0; return p.doneDates.filter(d=>d===todayKey()).length; }
+
+/* ---------- 보관함 (IndexedDB 미러) ---------- */
+let vaultReady = false;
+let persistGranted = null;
+const DB_NAME = "une-phrase-vault";
+function idbOpen(){ return new Promise((res,rej)=>{ const r=indexedDB.open(DB_NAME,1); r.onupgradeneeded=()=>{ r.result.createObjectStore("kv"); }; r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }); }
+async function vaultGet(key){ try{ const db=await idbOpen(); return await new Promise((res,rej)=>{ const tx=db.transaction("kv","readonly").objectStore("kv").get(key); tx.onsuccess=()=>res(tx.result||null); tx.onerror=()=>rej(tx.error); }); }catch(e){ return null; } }
+async function vaultSet(key,val){ if(!vaultReady) return; try{ const db=await idbOpen(); await new Promise((res,rej)=>{ const tx=db.transaction("kv","readwrite").objectStore("kv").put(val,key); tx.onsuccess=()=>res(); tx.onerror=()=>rej(tx.error); }); }catch(e){} }
+async function vaultDelete(key){ try{ const db=await idbOpen(); await new Promise((res,rej)=>{ const tx=db.transaction("kv","readwrite").objectStore("kv").delete(key); tx.onsuccess=()=>res(); tx.onerror=()=>rej(tx.error); }); }catch(e){} }
+
+/* ---------- 상태 ---------- */
+function defaultProgress(){ return { index:0, completed:[], doneDates:[], step:1 }; }
+let progress = defaultProgress();
+function loadLocal(){ try{ const raw=localStorage.getItem(STORAGE_KEY); return raw?JSON.parse(raw):null; }catch(e){ return null; } }
+function saveProgress(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); }catch(e){}
+  vaultSet(STORAGE_KEY, JSON.stringify(progress));
+}
+async function initStorage(){
+  try{ if(navigator.storage && navigator.storage.persist){ persistGranted = await navigator.storage.persist(); } }catch(e){}
+  const localData = loadLocal();
+  const vaultRaw = await vaultGet(STORAGE_KEY);
+  let vaultData = null; try{ vaultData = vaultRaw?JSON.parse(vaultRaw):null; }catch(e){}
+  const chosen = pickRestore(localData, vaultData);
+  if(chosen){ progress = Object.assign(defaultProgress(), chosen); }
+  vaultReady = true;
+  if(chosen && JSON.stringify(chosen)!==JSON.stringify(localData)){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); }catch(e){} }
+  vaultSet(STORAGE_KEY, JSON.stringify(progress));
+  renderVaultState();
+}
+function renderVaultState(){
+  const txt = persistGranted===true ? "영구 보관 요청 허용됨 · IndexedDB 보관함 사용 중" : persistGranted===false ? "영구 보관 요청 미허용 · IndexedDB 보관함 사용 중 (브라우저가 비울 수 있음)" : "IndexedDB 보관함 사용 중";
+  const a=document.getElementById("vaultState"); if(a) a.textContent = "현재 상태: "+txt+" · 완료한 문장 "+progress.completed.length+"개";
+  const b=document.getElementById("vaultFooter"); if(b) b.textContent = txt;
+}
+
+/* ---------- 음성 (Android 경합 방지: cancel 후 짧게 대기) ---------- */
+let speakTimer = null;
+function speakFr(text){
+  try{
+    if(!("speechSynthesis" in window)) return;
+    window.speechSynthesis.cancel();
+    if(speakTimer) clearTimeout(speakTimer);
+    speakTimer = setTimeout(()=>{
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "fr-FR"; u.rate = 0.92;
+      const voices = window.speechSynthesis.getVoices().filter(v=>v.lang && v.lang.toLowerCase().startsWith("fr"));
+      if(voices.length) u.voice = voices[0];
+      window.speechSynthesis.speak(u);
+    }, 120);
+  }catch(e){}
+}
+
+/* ---------- 학습 흐름 ---------- */
+let currentStep = 1;
+function currentItem(){ return ITEMS[Math.min(progress.index, ITEMS.length-1)]; }
+function esc(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+function renderProgress(){
+  document.getElementById("progressLine").textContent = "지금까지 "+progress.completed.length+" / "+ITEMS.length+"문장 완료 · 오늘 "+countToday(progress)+"문장 · 현재 "+(progress.index+1)+"번째 문장";
+}
+function renderStudy(){
+  const it = currentItem();
+  document.querySelectorAll(".stepbtn").forEach((b,i)=>b.classList.toggle("on", i+1===currentStep));
+  const done = progress.completed.includes(it.id);
+  let h = "";
+  h += '<div class="meta">'+esc(it.topic)+' · '+esc(it.level)+' · 도움되는 영역: '+esc(it.tef)+(done?' · ✓ 완료한 문장':'')+'</div>';
+  if(currentStep===1){
+    h += '<div class="fr">'+esc(it.fr)+'</div><p class="ko">'+esc(it.ko)+'</p>';
+    h += '<div>'+it.chunks.map(c=>'<span class="chunk"><b>'+esc(c[0])+'</b><span>'+esc(c[1])+'</span></span>').join("")+'</div>';
+    h += '<div class="pattern">'+esc(it.pattern)+'</div>';
+    h += '<div class="words">핵심 단어: '+it.words.map(w=>'<b>'+esc(w[0])+'</b> '+esc(w[1])).join(" · ")+'</div>';
+    h += '<button class="primary" id="listenBtn">🔊 듣기</button> <button class="ghost" id="goStep2">다음: 2 · 따라 쓰기 →</button>';
+  } else if(currentStep===2){
+    h += '<div class="fr">'+esc(it.fr)+'</div><p class="ko">'+esc(it.ko)+'</p>';
+    h += '<p class="lead">위 문장을 보면서 그대로 타이핑하세요.</p>';
+    h += '<textarea id="typeInput" rows="3" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><div id="fb"></div>';
+    h += '<button class="primary" id="checkBtn">확인하기</button> <button class="ghost" id="listenBtn">🔊 듣기</button>';
+  } else {
+    h += '<p class="ko" style="font-size:19px;font-weight:700">'+esc(it.ko)+'</p>';
+    h += '<p class="lead">프랑스어 문장은 가려져 있어요. 뜻만 보고 문장 전체를 써 보세요. 악센트(é, è 등)가 달라도 뜻이 맞으면 정답으로 셉니다.</p>';
+    h += '<textarea id="typeInput" rows="3" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><div id="fb"></div>';
+    h += '<button class="primary" id="checkBtn">확인하기</button> <button class="ghost" id="hintBtn">힌트: 첫 단어 보기</button> <div id="hint"></div>';
+  }
+  document.getElementById("studyCard").innerHTML = h;
+  document.getElementById("doneBox").innerHTML = "";
+  const lb = document.getElementById("listenBtn"); if(lb) lb.onclick = ()=>speakFr(it.fr);
+  const g2 = document.getElementById("goStep2"); if(g2) g2.onclick = ()=>{ currentStep=2; renderStudy(); };
+  const cb = document.getElementById("checkBtn"); if(cb) cb.onclick = checkTyping;
+  const hb = document.getElementById("hintBtn"); if(hb) hb.onclick = ()=>{ document.getElementById("hint").innerHTML = '<p class="lead">첫 단어: <b>'+esc(it.fr.split(" ")[0])+'</b> · 덩어리: '+it.chunks.map(c=>esc(c[0])).join(" / ")+'</p>'; };
+  renderProgress();
+}
+function checkTyping(){
+  const it = currentItem();
+  const input = document.getElementById("typeInput").value;
+  const fb = document.getElementById("fb");
+  if(isCorrect(input, it.fr)){
+    fb.innerHTML = '<div class="feedback ok">✓ 맞았어요! 정답: '+esc(it.fr)+'</div>';
+    if(currentStep===2){ currentStep=3; setTimeout(renderStudy, 900); }
+    else { completeSentence(); }
+  } else {
+    fb.innerHTML = '<div class="feedback bad">아직 달라요. 정답과 비교해 보세요:<br><b>'+esc(it.fr)+'</b></div>';
+  }
+}
+function completeSentence(){
+  const it = currentItem();
+  if(!progress.completed.includes(it.id)){ progress.completed.push(it.id); progress.doneDates.push(todayKey()); }
+  if(progress.index < ITEMS.length-1) progress.index++;
+  saveProgress(); renderVaultState(); renderProgress();
+  document.getElementById("doneBox").innerHTML = '<div class="card donebox"><div class="big">🎉 한 문장 완료!</div><p>오늘 '+countToday(progress)+'문장째예요. 여기까지 해도 충분합니다.</p><button class="primary" id="oneMoreBtn">한 문장 더 →</button></div>';
+  document.getElementById("oneMoreBtn").onclick = ()=>{ currentStep=1; renderStudy(); window.scrollTo({top:0,behavior:"smooth"}); };
+}
+function goToItem(idx, step){ progress.index = idx; currentStep = step||1; saveProgress(); showTab("study"); renderStudy(); window.scrollTo({top:0,behavior:"smooth"}); }
+
+/* ---------- 탭 ---------- */
+function showTab(name){
+  ["study","browse","words","about"].forEach(t=>{ document.getElementById("tab-"+t).hidden = t!==name; });
+  document.getElementById("tabBtnStudy").classList.toggle("on", name==="study");
+  document.getElementById("tabBtnBrowse").classList.toggle("on", name==="browse");
+  document.getElementById("tabBtnWords").classList.toggle("on", name==="words");
+  document.getElementById("tabBtnAbout").classList.toggle("on", name==="about");
+}
+let browseTopic = "전체";
+function renderBrowse(){
+  const topics = ["전체"].concat([...new Set(ITEMS.map(i=>i.topic))]);
+  document.getElementById("topicFilter").innerHTML = topics.map(t=>'<button class="tabbtn'+(t===browseTopic?" on":"")+'" data-topic="'+esc(t)+'">'+esc(t)+'</button>').join("");
+  document.querySelectorAll("[data-topic]").forEach(b=>b.onclick=()=>{ browseTopic=b.getAttribute("data-topic"); renderBrowse(); });
+  const list = ITEMS.filter(i=>browseTopic==="전체"||i.topic===browseTopic);
+  document.getElementById("browseList").innerHTML = list.map(i=>'<button class="listitem" data-idx="'+(i.id-1)+'"><b>'+i.id+'. '+esc(i.fr)+'</b><br><span style="color:var(--sub);font-size:14px">'+esc(i.ko)+' · '+esc(i.topic)+' · '+esc(i.level)+(progress.completed.includes(i.id)?' · <span class="done">✓ 완료</span>':'')+'</span></button>').join("");
+  document.querySelectorAll("[data-idx]").forEach(b=>b.onclick=()=>goToItem(parseInt(b.getAttribute("data-idx"),10),1));
+}
+function renderWords(){
+  const map = new Map();
+  ITEMS.forEach(i=>i.words.forEach(w=>{ if(!map.has(w[0])) map.set(w[0], w[1]); }));
+  document.getElementById("wordsList").innerHTML = [...map.entries()].sort((a,b)=>a[0].localeCompare(b[0],"fr")).map(e=>'<button class="listitem" data-word="'+esc(e[0])+'"><b>'+esc(e[0])+'</b> — '+esc(e[1])+'</button>').join("");
+  document.querySelectorAll("[data-word]").forEach(b=>b.onclick=()=>speakFr(b.getAttribute("data-word")));
+}
+
+/* ---------- 이벤트 ---------- */
+document.getElementById("tabBtnStudy").onclick = ()=>showTab("study");
+document.getElementById("tabBtnBrowse").onclick = ()=>{ showTab("browse"); renderBrowse(); };
+document.getElementById("tabBtnWords").onclick = ()=>{ showTab("words"); renderWords(); };
+document.getElementById("tabBtnAbout").onclick = ()=>showTab("about");
+document.getElementById("stepBtn1").onclick = ()=>{ currentStep=1; renderStudy(); };
+document.getElementById("stepBtn2").onclick = ()=>{ currentStep=2; renderStudy(); };
+document.getElementById("stepBtn3").onclick = ()=>{ currentStep=3; renderStudy(); };
+document.getElementById("prevBtn").onclick = ()=>{ if(progress.index>0){ progress.index--; currentStep=1; saveProgress(); renderStudy(); } };
+document.getElementById("nextBtn").onclick = ()=>{ if(progress.index<ITEMS.length-1){ progress.index++; currentStep=1; saveProgress(); renderStudy(); } };
+document.getElementById("listenBtn2").onclick = ()=>speakFr(currentItem().fr);
+document.getElementById("exportBtn").onclick = ()=>{
+  const blob = new Blob([JSON.stringify(progress,null,2)],{type:"application/json"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "une-phrase-progress.json"; a.click();
+};
+document.getElementById("resetBtn").onclick = async ()=>{
+  if(!confirm("기록을 전부 지울까요? 보관함 복사본도 함께 지워집니다.")) return;
+  progress = defaultProgress(); currentStep = 1;
+  try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+  vaultReady = true; await vaultDelete(STORAGE_KEY);
+  renderVaultState(); renderStudy(); alert("기록을 지웠습니다.");
+};
+if("serviceWorker" in navigator){ navigator.serviceWorker.register("./sw.js").catch(()=>{}); }
+initStorage().then(()=>{ renderStudy(); });
+</script>
+</body>
+</html>
