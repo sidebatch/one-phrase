@@ -14,63 +14,107 @@
 <meta property="og:description" content="켜자마자 한 문장. TEF Canada와 일상 프랑스어를 3단계로 공부하는 앱.">
 <meta property="og:url" content="https://sidebatch.github.io/une-phrase/">
 <style>
-:root{--blue:#1c3a71;--gold:#c98a1b;--ink:#1c1c1e;--sub:#6b6b70;--bg:#fffdf8;--card:#fff;--line:#e8e2d8;--line-soft:#e7e0d0;--soft:#eef2fa;--ok:#1a7a2e;--bad:#b3261e}
+:root{
+--blue:#1c3a71;--blue2:#3d68b9;--gold:#c98a1b;--ink:#1c1c1e;--sub:#65656c;--bg:#fffdf8;--card:#fff;
+--line:#e8e2d8;--line-soft:#e9e2d2;--soft:#eef2fa;--ok:#1a7a2e;--bad:#b3261e;
+--track:#e2e9f5;--done-bg:#eef4ff;--done-line:#c7d8f6;--done-chip:#e1ebfd;
+--sp1:4px;--sp2:8px;--sp3:12px;--sp4:16px;--sp5:24px;--sp6:32px;
+--r-sm:10px;--r-md:12px;--r-lg:18px;--r-xl:20px;--r-pill:999px;
+--shadow:0 1px 2px rgba(60,50,20,.04),0 6px 18px rgba(60,50,20,.05);
+--ease:cubic-bezier(.22,.8,.3,1)
+}
 *{box-sizing:border-box}
-body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif;background:var(--bg);color:var(--ink);line-height:1.55}
-.wrap{max-width:720px;margin:0 auto;padding:18px 16px 64px}
-.masthead{border:0;border-radius:20px;padding:16px 16px 13px;background:linear-gradient(180deg,#eef2fa 0%,#fffdf8 92%);margin-bottom:2px;box-shadow:0 1px 3px rgba(60,50,20,.04)}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;-webkit-tap-highlight-color:transparent}
+button{touch-action:manipulation}
+button:focus-visible,summary:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.12);opacity:1}100%{transform:scale(1);opacity:1}}
+@keyframes grow{from{width:0}}
+.wrap{max-width:720px;margin:0 auto;padding:18px 16px calc(64px + env(safe-area-inset-bottom))}
+.masthead{border:0;border-radius:var(--r-xl);padding:var(--sp4) var(--sp4) 13px;background:linear-gradient(180deg,#eef2fa 0%,#fffdf8 92%);margin-bottom:2px;box-shadow:var(--shadow)}
 .brandrow{display:flex;align-items:center;gap:9px}
-.logo{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;flex:0 0 auto;border-radius:10px;background:var(--blue);color:#fff;font-size:19px;font-weight:900;line-height:1;box-shadow:inset 0 -3px 0 rgba(0,0,0,.22)}
+.logo{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;flex:0 0 auto;border-radius:var(--r-sm);background:var(--blue);color:#fff;font-size:19px;font-weight:900;line-height:1;box-shadow:inset 0 -3px 0 rgba(0,0,0,.22)}
 .wordmark{flex:1;min-width:0;font-weight:900;color:var(--blue);letter-spacing:.14em;font-size:15px;white-space:nowrap;overflow:hidden}
-.verpill{flex:0 0 auto;font-size:11.5px;font-weight:700;color:var(--blue);background:#fff;border:1px solid #ccd7ee;border-radius:999px;padding:3px 9px;white-space:nowrap}
+.verpill{flex:0 0 auto;font-size:11.5px;font-weight:700;color:var(--blue);background:#fff;border:1px solid #ccd7ee;border-radius:var(--r-pill);padding:3px 9px;white-space:nowrap}
 h1{font-size:26px;line-height:1.25;margin:11px 0 3px;letter-spacing:-.01em}
 .masthead .progress{margin:7px 0 0;padding-top:9px;border-top:1px dashed var(--line)}
-.lead{color:var(--sub);font-size:15px;margin:0 0 8px}
+.progress{font-size:14px;color:var(--sub);font-weight:700}
+.progress-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.progress-top #progressLine{flex:1;min-width:0}
+.todaychip{flex:0 0 auto;font-size:12.5px;font-weight:800;color:var(--sub);background:var(--soft);border:1px solid #d7e0f0;padding:3px 10px;border-radius:var(--r-pill);transition:background-color .25s ease,color .25s ease}
+.todaychip.hot{color:#fff;background:var(--blue);border-color:var(--blue)}
+.pbar{height:10px;background:var(--track);border-radius:var(--r-pill);overflow:hidden;margin-top:var(--sp2)}
+.pfill{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--blue2));border-radius:var(--r-pill);transition:width .7s var(--ease)}
+.progress-sub{display:flex;align-items:center;justify-content:space-between;margin-top:6px;font-size:12.5px;font-weight:700}
+.progress-pct{color:var(--blue);font-weight:800}
+.lead{color:var(--sub);font-size:15px;margin:0 0 var(--sp2)}
 .tabs{display:flex;gap:6px;margin:14px 0;flex-wrap:nowrap}
-.tabbtn{flex:0 0 auto;background:#fff;color:var(--ink);border:1px solid var(--line-soft);border-radius:999px;padding:9px 14px;font-size:14px;font-weight:800;cursor:pointer;font:inherit}
+.tabbtn{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;min-height:38px;background:#fff;color:var(--ink);border:1px solid var(--line-soft);border-radius:var(--r-pill);padding:9px 14px;font-size:14px;font-weight:800;cursor:pointer;font:inherit;transition:transform .12s var(--ease),background-color .18s ease,border-color .18s ease}
 .tabbtn.on{background:var(--blue);color:#fff;border-color:var(--blue)}
-.tabs .tabbtn{flex:1 1 0;min-width:0;padding:9px 2px;font-size:13px;text-align:center;white-space:nowrap}
-.card{background:var(--card);border:1px solid var(--line-soft);border-radius:18px;padding:18px;margin:12px 0;box-shadow:0 1px 3px rgba(60,50,20,.05)}
+.tabs .tabbtn{flex:1 1 0;min-width:0;min-height:44px;padding:9px 2px;font-size:13px;text-align:center;white-space:nowrap}
+.tabbtn:active,.stepbtn:active,button.primary:active,button.ghost:active{transform:scale(.97)}
+.listitem:active{transform:scale(.99)}
+@media (hover:hover){.tabbtn:not(.on):hover,.stepbtn:not(.on):hover,button.ghost:hover{background:#f7f3ea}.listitem:hover{border-color:#d8cfba}}
+#tab-study,#tab-browse,#tab-words,#tab-about{animation:fadeUp .25s var(--ease)}
+.card{background:var(--card);border:1px solid var(--line-soft);border-radius:var(--r-lg);padding:18px;margin:var(--sp3) 0;box-shadow:var(--shadow)}
 .meta{font-size:13px;color:var(--sub);font-weight:700}
-.fr{font-size:22px;font-weight:800;line-height:1.4;margin:8px 0 4px}
+.donebadge{display:inline-block;background:var(--done-chip);color:var(--blue);border-radius:var(--r-pill);padding:1px 9px;font-size:12px;font-weight:800;vertical-align:1px;margin-left:2px}
+.fr{font-size:22px;font-weight:800;line-height:1.4;margin:var(--sp2) 0 4px}
 .ko{font-size:16px;color:var(--ink);margin:0 0 10px}
-.chunk{display:inline-block;background:var(--soft);border-radius:10px;padding:6px 10px;margin:3px 4px 3px 0;font-size:15px}
+.chunk{display:inline-block;background:var(--soft);border-radius:var(--r-sm);padding:6px 10px;margin:3px 4px 3px 0;font-size:15px}
 .chunk b{display:block;font-size:15px}
 .chunk span{font-size:13px;color:var(--sub)}
-.pattern{background:#fff8e6;border:1px solid #eee1b9;border-radius:12px;padding:10px 12px;font-size:14px;margin:10px 0}
-.words{font-size:14px;margin:8px 0}
-.stepnav{display:flex;gap:6px;margin:12px 0;flex-wrap:nowrap}
-.stepbtn{flex:1 1 0;min-width:0;background:#fff;color:var(--ink);border:1px solid var(--line-soft);border-radius:12px;padding:10px 2px;font-size:13px;font-weight:800;cursor:pointer;font:inherit;white-space:nowrap;text-align:center}
+.pattern{background:#fff8e6;border:1px solid #eee1b9;border-radius:var(--r-md);padding:10px 12px;font-size:14px;margin:10px 0}
+.words{font-size:14px;margin:var(--sp2) 0}
+.stepnav{display:flex;gap:6px;margin:var(--sp3) 0;flex-wrap:nowrap}
+.stepbtn{flex:1 1 0;min-width:0;min-height:44px;display:flex;align-items:center;justify-content:center;background:#fff;color:var(--ink);border:1px solid var(--line-soft);border-radius:var(--r-md);padding:10px 2px;font-size:13px;font-weight:800;cursor:pointer;font:inherit;white-space:nowrap;text-align:center;transition:transform .12s var(--ease),background-color .18s ease,border-color .18s ease}
 .stepbtn.on{background:var(--blue);color:#fff;border-color:var(--blue)}
-button.primary{background:var(--blue);color:#fff;border:1.5px solid var(--blue);border-radius:999px;padding:11px 20px;font-size:15px;font-weight:800;cursor:pointer;font:inherit}
-button.ghost{background:#fff;color:var(--ink);border:1px solid var(--line-soft);border-radius:999px;padding:10px 16px;font-size:14px;font-weight:700;cursor:pointer;font:inherit}
-textarea,input[type=text]{width:100%;font:inherit;font-size:17px;padding:12px;border:1px solid var(--line-soft);border-radius:12px;background:#fff}
+button.primary{min-height:44px;background:var(--blue);color:#fff;border:1.5px solid var(--blue);border-radius:var(--r-pill);padding:11px 20px;font-size:15px;font-weight:800;cursor:pointer;font:inherit;transition:transform .12s var(--ease),background-color .18s ease}
+button.ghost{min-height:44px;background:#fff;color:var(--ink);border:1px solid var(--line-soft);border-radius:var(--r-pill);padding:10px 16px;font-size:14px;font-weight:700;cursor:pointer;font:inherit;transition:transform .12s var(--ease),background-color .18s ease}
+textarea,input[type=text]{width:100%;font:inherit;font-size:17px;padding:12px;border:1px solid var(--line-soft);border-radius:var(--r-md);background:#fff}
 textarea:focus,input[type=text]:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(28,58,113,.13);outline:none}
-.feedback{font-size:15px;margin:10px 0;padding:10px 12px;border-radius:12px}
+.feedback{font-size:15px;margin:10px 0;padding:10px 12px;border-radius:var(--r-md)}
 .feedback.ok{background:#e6f4ea;color:var(--ok)}
 .feedback.bad{background:#fdecea;color:var(--bad)}
-.progress{font-size:14px;color:var(--sub);font-weight:700}
-.donebox{text-align:center;padding:28px 16px}
-.donebox .big{font-size:24px;font-weight:900;margin:8px 0}
-.listitem{border:1px solid var(--line-soft);border-radius:12px;padding:12px 14px;margin:8px 0;background:#fff;cursor:pointer;width:100%;text-align:left;font:inherit;color:var(--ink)}
-.listitem .done{color:var(--ok);font-weight:800}
-footer{margin-top:34px;border-top:1px solid var(--line-soft);padding:20px 16px 0;text-align:center}
+.donebox{text-align:center;padding:28px 16px;animation:fadeUp .3s var(--ease)}
+.donecircle{width:64px;height:64px;margin:2px auto 10px;border-radius:50%;background:var(--blue);color:#fff;font-size:32px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(28,58,113,.28);animation:pop .45s var(--ease)}
+.donebox .big{font-size:24px;font-weight:900;margin:var(--sp2) 0}
+.donebox p{color:var(--sub);font-weight:700}
+.donebar{max-width:320px;margin:12px auto 4px}
+.donebar .pfill{animation:grow .8s var(--ease)}
+.donepct{font-size:13px;font-weight:800;color:var(--blue);margin-bottom:14px}
+.listitem{display:flex;align-items:flex-start;gap:10px;border:1px solid var(--line-soft);border-radius:var(--r-md);padding:12px 14px;margin:var(--sp2) 0;background:#fff;cursor:pointer;width:100%;text-align:left;font:inherit;color:var(--ink);transition:transform .12s var(--ease),background-color .18s ease,border-color .18s ease}
+.li-check{flex:0 0 auto;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--line);color:transparent;display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;margin-top:1px;background:#fff}
+.li-body{flex:1;min-width:0}
+.li-sub{display:block;color:var(--sub);font-size:14px;margin-top:2px}
+.listitem.isdone{background:var(--done-bg);border-color:var(--done-line)}
+.listitem.isdone .li-check{background:var(--blue);border-color:var(--blue);color:#fff;animation:pop .3s var(--ease)}
+.listitem .done{color:var(--blue);font-weight:800}
+.worditem{align-items:center;justify-content:space-between}
+.worditem.learned{background:#f4f8ff}
+.wlearned{flex:0 0 auto;font-size:12px;font-weight:800;color:var(--blue);background:var(--done-chip);border-radius:var(--r-pill);padding:2px 9px}
+footer{margin-top:var(--sp6);border-top:1px solid var(--line-soft);padding:20px 16px 0;text-align:center}
 .footbrand{display:flex;align-items:center;justify-content:center;gap:8px}
 .footlogo{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:7px;background:var(--blue);color:#fff;font-size:13px;font-weight:900;line-height:1}
 .footword{font-weight:900;color:var(--blue);letter-spacing:.1em;font-size:13.5px}
 .footko{font-size:13px;color:var(--sub);font-weight:700}
-.footmeta{margin-top:8px;font-size:12.5px;color:var(--sub)}
-.footmeta a{color:var(--sub);font-weight:700;text-decoration:underline;text-underline-offset:2px}
-details{background:#fff;border:1px solid var(--line-soft);border-radius:14px;padding:12px 14px;margin:10px 0}
+.footmeta{margin-top:var(--sp2);font-size:12.5px;color:var(--sub)}
+details{background:#fff;border:1px solid var(--line-soft);border-radius:var(--r-md);padding:12px 14px;margin:10px 0}
 summary{font-weight:800;cursor:pointer}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header class="masthead">
-<div class="brandrow"><span class="logo" aria-hidden="true">U</span><span class="wordmark">UNE PHRASE</span><span class="verpill">버전 1.13.1</span></div>
+<div class="brandrow"><span class="logo" aria-hidden="true">U</span><span class="wordmark">UNE PHRASE</span><span class="verpill">버전 1.14.0</span></div>
 <h1>한 문장 프랑스어</h1>
-<p class="progress" id="progressLine">불러오는 중…</p>
+<div class="progress" id="progressArea">
+<div class="progress-top"><span id="progressLine">불러오는 중…</span><span class="todaychip" id="todayChip">오늘 0문장</span></div>
+<div class="pbar" id="pbar" role="progressbar" aria-label="전체 진행률" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="pfill" id="pfill"></div></div>
+<div class="progress-sub"><span class="progress-pct" id="progressPct">전체 0%</span><span id="progressLeft"></span></div>
+</div>
 </header>
 <div class="tabs">
 <button class="tabbtn on" id="tabBtnStudy">공부하기</button>
@@ -101,7 +145,7 @@ summary{font-weight:800;cursor:pointer}
 </div>
 
 <div id="tab-words" hidden>
-<p class="lead">문장에서 나온 핵심 단어만 모았어요. 누르면 발음이 나옵니다.</p>
+<p class="lead">문장에서 나온 핵심 단어만 모았어요. 누르면 발음이 나옵니다. ✓ 학습 표시는 완료한 문장에서 나온 단어예요.</p>
 <div id="wordsList"></div>
 </div>
 
@@ -123,12 +167,12 @@ summary{font-weight:800;cursor:pointer}
 
 <footer>
 <div class="footbrand"><span class="footlogo" aria-hidden="true">U</span><span class="footword">UNE PHRASE</span><span class="footko">한 문장 프랑스어</span></div>
-<div class="footmeta">v1.13.1 · © 2026 sidebatch</div>
+<div class="footmeta">v1.14.0 · © 2026 sidebatch</div>
 </footer>
 </div>
 <script>
 "use strict";
-const APP_VERSION = "1.13.1";
+const APP_VERSION = "1.14.0";
 const STORAGE_KEY = "une-phrase-progress-v1";
 const ITEMS = [
 {id:1,fr:"Je cherche un appartement près du métro parce que je n'ai pas de voiture.",ko:"나는 차가 없어서 지하철 근처 아파트를 찾고 있다.",chunks:[["Je cherche un appartement","아파트를 찾고 있다"],["près du métro","지하철 근처에"],["parce que je n'ai pas de voiture","차가 없기 때문에"]],pattern:"이유는 뒤에 붙인다: …parce que + 문장 → 연결어 parce que (왜냐하면)",words:[["appartement","아파트"],["près de","~ 근처에"]],topic:"일상",level:"B1",tef:"EO 말하기 · CE 읽기"},
@@ -491,14 +535,25 @@ function setStep(n){ currentStep = n; progress.step = n; saveProgress(); }
 function currentItem(){ return ITEMS[Math.min(progress.index, ITEMS.length-1)]; }
 function esc(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
 function renderProgress(){
-  document.getElementById("progressLine").textContent = "지금까지 "+progress.completed.length+" / "+ITEMS.length+"문장 완료 · 오늘 "+countToday(progress)+"문장 · 현재 "+(progress.index+1)+"번째 문장";
+  const doneCount = progress.completed.length, total = ITEMS.length;
+  const pct = total ? Math.round(doneCount/total*100) : 0;
+  const today = countToday(progress);
+  document.getElementById("progressLine").textContent = "지금까지 "+doneCount+" / "+total+"문장 완료 · 현재 "+(progress.index+1)+"번째 문장";
+  const chip = document.getElementById("todayChip");
+  chip.textContent = "오늘 "+today+"문장";
+  chip.classList.toggle("hot", today>0);
+  const fill = document.getElementById("pfill");
+  requestAnimationFrame(()=>{ fill.style.width = pct+"%"; });
+  document.getElementById("pbar").setAttribute("aria-valuenow", pct);
+  document.getElementById("progressPct").textContent = "전체 "+pct+"%";
+  document.getElementById("progressLeft").textContent = doneCount>=total ? "전부 완료했어요" : (total-doneCount)+"문장 남음";
 }
 function renderStudy(){
   const it = currentItem();
   document.querySelectorAll(".stepbtn").forEach((b,i)=>b.classList.toggle("on", i+1===currentStep));
   const done = progress.completed.includes(it.id);
   let h = "";
-  h += '<div class="meta">'+esc(it.topic)+' · '+esc(it.level)+' · 도움되는 영역: '+esc(it.tef)+(done?' · ✓ 완료한 문장':'')+'</div>';
+  h += '<div class="meta">'+esc(it.topic)+' · '+esc(it.level)+' · 도움되는 영역: '+esc(it.tef)+(done?' <span class="donebadge">✓ 완료</span>':'')+'</div>';
   if(currentStep===1){
     h += '<div class="fr">'+esc(it.fr)+'</div><p class="ko">'+esc(it.ko)+'</p>';
     h += '<div>'+it.chunks.map(c=>'<span class="chunk"><b>'+esc(c[0])+'</b><span>'+esc(c[1])+'</span></span>').join("")+'</div>';
@@ -542,7 +597,8 @@ function completeSentence(){
   if(progress.index < ITEMS.length-1) progress.index++;
   progress.step = 1;
   saveProgress(); renderVaultState(); renderProgress();
-  document.getElementById("doneBox").innerHTML = '<div class="card donebox"><div class="big">🎉 한 문장 완료!</div><p>오늘 '+countToday(progress)+'문장째예요. 여기까지 해도 충분합니다.</p><button class="primary" id="oneMoreBtn">한 문장 더 →</button></div>';
+  const pctAll = Math.round(progress.completed.length/ITEMS.length*100);
+  document.getElementById("doneBox").innerHTML = '<div class="card donebox"><div class="donecircle" aria-hidden="true">✓</div><div class="big">한 문장 완료!</div><p>오늘 '+countToday(progress)+'문장째 · 지금까지 '+progress.completed.length+' / '+ITEMS.length+'문장</p><div class="pbar donebar"><div class="pfill" style="width:'+pctAll+'%"></div></div><div class="donepct">전체 '+pctAll+'%</div><button class="primary" id="oneMoreBtn">한 문장 더 →</button></div>';
   document.getElementById("oneMoreBtn").onclick = ()=>{ setStep(1); renderStudy(); window.scrollTo({top:0,behavior:"smooth"}); };
 }
 function goToItem(idx, step){ progress.index = idx; setStep(step||1); showTab("study"); renderStudy(); window.scrollTo({top:0,behavior:"smooth"}); }
@@ -561,13 +617,20 @@ function renderBrowse(){
   document.getElementById("topicFilter").innerHTML = topics.map(t=>'<button class="tabbtn'+(t===browseTopic?" on":"")+'" data-topic="'+esc(t)+'">'+esc(t)+'</button>').join("");
   document.querySelectorAll("[data-topic]").forEach(b=>b.onclick=()=>{ browseTopic=b.getAttribute("data-topic"); renderBrowse(); });
   const list = ITEMS.filter(i=>browseTopic==="전체"||i.topic===browseTopic);
-  document.getElementById("browseList").innerHTML = list.map(i=>'<button class="listitem" data-idx="'+(i.id-1)+'"><b>'+i.id+'. '+esc(i.fr)+'</b><br><span style="color:var(--sub);font-size:14px">'+esc(i.ko)+' · '+esc(i.topic)+' · '+esc(i.level)+(progress.completed.includes(i.id)?' · <span class="done">✓ 완료</span>':'')+'</span></button>').join("");
+  document.getElementById("browseList").innerHTML = list.map(i=>{
+    const isDone = progress.completed.includes(i.id);
+    return '<button class="listitem'+(isDone?" isdone":"")+'" data-idx="'+(i.id-1)+'"><span class="li-check" aria-hidden="true">✓</span><span class="li-body"><b>'+i.id+'. '+esc(i.fr)+'</b><span class="li-sub">'+esc(i.ko)+' · '+esc(i.topic)+' · '+esc(i.level)+(isDone?' · <span class="done">완료</span>':'')+'</span></span></button>';
+  }).join("");
   document.querySelectorAll("[data-idx]").forEach(b=>b.onclick=()=>goToItem(parseInt(b.getAttribute("data-idx"),10),1));
 }
 function renderWords(){
   const map = new Map();
-  ITEMS.forEach(i=>i.words.forEach(w=>{ if(!map.has(w[0])) map.set(w[0], w[1]); }));
-  document.getElementById("wordsList").innerHTML = [...map.entries()].sort((a,b)=>a[0].localeCompare(b[0],"fr")).map(e=>'<button class="listitem" data-word="'+esc(e[0])+'"><b>'+esc(e[0])+'</b> — '+esc(e[1])+'</button>').join("");
+  const learned = new Set();
+  ITEMS.forEach(i=>i.words.forEach(w=>{ if(!map.has(w[0])) map.set(w[0], w[1]); if(progress.completed.includes(i.id)) learned.add(w[0]); }));
+  document.getElementById("wordsList").innerHTML = [...map.entries()].sort((a,b)=>a[0].localeCompare(b[0],"fr")).map(e=>{
+    const isLearned = learned.has(e[0]);
+    return '<button class="listitem worditem'+(isLearned?" learned":"")+'" data-word="'+esc(e[0])+'"><span><b>'+esc(e[0])+'</b> — '+esc(e[1])+'</span>'+(isLearned?'<span class="wlearned">✓ 학습</span>':'')+'</button>';
+  }).join("");
   document.querySelectorAll("[data-word]").forEach(b=>b.onclick=()=>speakFr(b.getAttribute("data-word")));
 }
 

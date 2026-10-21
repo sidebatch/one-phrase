@@ -76,6 +76,16 @@ ok(html.includes("function setStep(n){ currentStep = n; progress.step = n; saveP
 ok(html.includes("currentStep = [1,2,3].includes(progress.step) ? progress.step : 1;"), "다시 열면 저장된 단계로 복원");
 ok(/progress\.index\+\+;\s*\n\s*progress\.step = 1;/.test(html), "문장 완료 시 다음 문장은 1단계부터 (기록 단계 초기화)");
 
+console.log("\n[완료 시각화·폴리시]");
+ok(html.includes('id="pfill"') && html.includes('role="progressbar"'), "헤더 전체 진행률 바 있음");
+ok(html.includes('id="todayChip"'), "오늘 완료 칩 있음");
+ok(html.includes("donecircle"), "완료 화면 큰 체크 서클 있음");
+ok(html.includes("isdone") && html.includes("li-check"), "주제별 목록 완료 행 표시(체크 배지) 있음");
+ok(html.includes("wlearned"), "단어 탭 학습 완료 표시 있음");
+ok(html.includes("prefers-reduced-motion"), "모션 최소화 설정 존중");
+ok(html.includes("env(safe-area-inset-bottom)"), "하단 safe-area 여백 있음");
+ok(html.includes("--sp1:4px") && html.includes("--r-md:12px"), "디자인 토큰(간격·반경) 변수 있음");
+
 console.log("\n[버전·파일]");
 const ver = html.match(/const APP_VERSION = "([^"]+)"/)[1];
 ok(read("README.md").includes("v" + ver), "README 버전 일치 (v" + ver + ")");
