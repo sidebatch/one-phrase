@@ -125,7 +125,7 @@ summary{font-weight:800;cursor:pointer}
 <body>
 <div class="wrap">
 <header class="masthead">
-<div class="brandrow"><span class="logo" aria-hidden="true">U</span><span class="wordmark">UNE PHRASE</span><span class="verpill">버전 1.15.0</span></div>
+<div class="brandrow"><span class="logo" aria-hidden="true">U</span><span class="wordmark">UNE PHRASE</span><span class="verpill">버전 1.16.0</span></div>
 <h1>한 문장 프랑스어</h1>
 <div class="progress" id="progressArea">
 <div class="progress-top"><span id="progressLine">불러오는 중…</span><span class="todaychip" id="todayChip">오늘 0문장</span></div>
@@ -180,6 +180,10 @@ summary{font-weight:800;cursor:pointer}
 <details><summary>레벨과 XP, 복습 퀴즈</summary>
 <p>새 문장을 처음 완료하면 +10 XP, 복습 퀴즈를 맞히면 +5 XP가 쌓이고 레벨이 오릅니다. 복습 퀴즈는 완료한 문장이 3개 이상이면 공부하기 탭 아래에 나타납니다. 한 주제를 전부 완료하면 주제별 탭의 정복 지도에서 “정복”으로 표시됩니다.</p>
 </details>
+<details><summary>효과음</summary>
+<p>따라 쓰기·가리고 쓰기와 복습 퀴즈에서 정답·오답 소리를 냅니다.</p>
+<button class="ghost" id="soundBtn">효과음 끄기</button>
+</details>
 <details><summary>진행 기록은 어떻게 보관되나요</summary>
 <p id="vaultState">보관 상태 확인 중…</p>
 <p>기록은 이 기기의 브라우저 저장소에 저장되고, 같은 내용을 IndexedDB 보관함에도 복사해 둡니다. 브라우저가 저장소를 비워도 보관함에서 복구합니다. 단, 브라우저에서 “사이트 데이터 전체 삭제”를 하면 보관함도 함께 지워집니다. 그 경우를 막을 완전한 방법은 아직 없습니다.</p>
@@ -190,12 +194,12 @@ summary{font-weight:800;cursor:pointer}
 
 <footer>
 <div class="footbrand"><span class="footlogo" aria-hidden="true">U</span><span class="footword">UNE PHRASE</span><span class="footko">한 문장 프랑스어</span></div>
-<div class="footmeta">v1.15.0 · © 2026 sidebatch</div>
+<div class="footmeta">v1.16.0 · © 2026 sidebatch</div>
 </footer>
 </div>
 <script>
 "use strict";
-const APP_VERSION = "1.15.0";
+const APP_VERSION = "1.16.0";
 const STORAGE_KEY = "une-phrase-progress-v1";
 const ITEMS = [
 {id:1,fr:"Je cherche un appartement près du métro parce que je n'ai pas de voiture.",ko:"나는 차가 없어서 지하철 근처 아파트를 찾고 있다.",chunks:[["Je cherche un appartement","아파트를 찾고 있다"],["près du métro","지하철 근처에"],["parce que je n'ai pas de voiture","차가 없기 때문에"]],pattern:"이유는 뒤에 붙인다: …parce que + 문장 → 연결어 parce que (왜냐하면)",words:[["appartement","아파트"],["près de","~ 근처에"]],topic:"일상",level:"B1",tef:"EO 말하기 · CE 읽기"},
@@ -213,13 +217,13 @@ const ITEMS = [
 {id:13,fr:"Je dois finir ce rapport avant vendredi, sinon mon patron ne sera pas content.",ko:"금요일까지 이 보고서를 끝내야 한다. 그렇지 않으면 상사가 좋아하지 않을 것이다.",chunks:[["Je dois finir ce rapport","이 보고서를 끝내야 한다"],["avant vendredi","금요일까지"],["sinon mon patron ne sera pas content","그렇지 않으면 상사가 안 좋아할 것이다"]],pattern:"경고는 sinon으로 잇는다: …, sinon… → 연결어 sinon (그렇지 않으면)",words:[["rapport","보고서"],["patron","상사, 사장"]],topic:"직장",level:"A2",tef:"EO 말하기"},
 {id:14,fr:"Grâce à cette formation, j'ai appris à utiliser de nouveaux logiciels.",ko:"이 교육 덕분에 새로운 소프트웨어 사용법을 배웠다.",chunks:[["Grâce à cette formation","이 교육 덕분에"],["j'ai appris à utiliser","사용법을 배웠다"],["de nouveaux logiciels","새로운 소프트웨어를"]],pattern:"좋은 이유는 grâce à, 나쁜 이유는 à cause de → 전치사 grâce à (… 덕분에)",words:[["formation","교육, 연수"],["logiciel","소프트웨어"]],topic:"직장",level:"B1",tef:"EO 말하기 · CE 읽기"},
 {id:15,fr:"Je me sens fatigué ces jours-ci, alors je vais prendre rendez-vous chez le médecin.",ko:"요즘 피곤해서 병원 예약을 하려고 한다.",chunks:[["Je me sens fatigué","피곤하게 느껴진다"],["ces jours-ci","요즘"],["je vais prendre rendez-vous chez le médecin","병원 예약을 하려고 한다"]],pattern:"예약은 prendre rendez-vous를 통째로 쓴다 → 표현 prendre rendez-vous (예약하다)",words:[["fatigué","피곤한"],["médecin","의사"]],topic:"건강",level:"A2",tef:"EO 말하기 · CO 듣기"},
-{id:16,fr:"Pour rester en bonne santé, il est important de dormir suffisamment et de manger équilibré.",ko:"건강을 유지하려면 충분히 자고 균형 있게 먹는 것이 중요하다.",chunks:[["Pour rester en bonne santé","건강을 유지하기 위해"],["il est important de","…하는 것이 중요하다"],["dormir suffisamment et manger équilibré","충분히 자고 균형 있게 먹기"]],pattern:"평가 문장은 il est important de + 동사원형 → 구문 il est important de (…하는 것이 중요하다)",words:[["santé","건강"],["suffisamment","충분히"]],topic:"건강",level:"B1",tef:"EE 쓰기 · EO 말하기"},
+{id:16,fr:"Pour rester en bonne santé, il est important de dormir suffisamment et de manger équilibré.",ko:"건강을 유지하려면 충분히 자고 균형 있게 먹는 것이 중요하다.",chunks:[["Pour rester en bonne santé","건강을 유지하기 위해"],["il est important de","…하는 것이 중요하다"],["dormir suffisamment et de manger équilibré","충분히 자고 균형 있게 먹기"]],pattern:"평가 문장은 il est important de + 동사원형 → 구문 il est important de (…하는 것이 중요하다)",words:[["santé","건강"],["suffisamment","충분히"]],topic:"건강",level:"B1",tef:"EE 쓰기 · EO 말하기"},
 {id:17,fr:"Le médecin m'a conseillé de boire plus d'eau et de faire de l'exercice régulièrement.",ko:"의사는 물을 더 마시고 규칙적으로 운동하라고 조언했다.",chunks:[["Le médecin m'a conseillé de","의사는 내게 조언했다"],["boire plus d'eau","물을 더 마시라고"],["faire de l'exercice régulièrement","규칙적으로 운동하라고"]],pattern:"조언은 conseiller de + 동사원형 → 동사 conseiller de (…하라고 조언하다)",words:[["conseiller","조언하다"],["exercice","운동"]],topic:"건강",level:"B1",tef:"CE 읽기 · EO 말하기"},
 {id:18,fr:"Depuis que je fais du sport trois fois par semaine, je me sens beaucoup mieux.",ko:"일주일에 세 번 운동한 뒤로 몸이 훨씬 좋아졌다.",chunks:[["Depuis que je fais du sport","운동을 한 뒤로"],["trois fois par semaine","일주일에 세 번"],["je me sens beaucoup mieux","훨씬 좋아졌다"]],pattern:"빈도는 fois par semaine로 센다: trois fois par semaine → 표현 횟수 말하기",words:[["sport","운동, 스포츠"],["fois","번, 회"]],topic:"건강",level:"B1",tef:"EO 말하기"},
 {id:19,fr:"Si vous avez de la fièvre, vous devriez rester à la maison et vous reposer.",ko:"열이 있으면 집에 머물며 쉬어야 합니다.",chunks:[["Si vous avez de la fièvre","열이 있으면"],["vous devriez rester à la maison","집에 머물러야 합니다"],["et vous reposer","그리고 쉬어야 합니다"]],pattern:"부드러운 조언은 devriez (devoir의 조건법) → 정중한 권유 vous devriez (…하셔야 합니다)",words:[["fièvre","열"],["se reposer","쉬다"]],topic:"건강",level:"A2",tef:"EO 말하기 · CE 읽기"},
 {id:20,fr:"L'hiver au Canada est très froid, donc il faut bien se couvrir avant de sortir.",ko:"캐나다의 겨울은 매우 추워서 나가기 전에 따뜻하게 입어야 한다.",chunks:[["L'hiver au Canada est très froid","캐나다 겨울은 매우 춥다"],["donc il faut bien se couvrir","그래서 따뜻하게 입어야 한다"],["avant de sortir","나가기 전에"]],pattern:"결론은 donc으로 잇는다: …, donc… → 연결어 donc (그래서)",words:[["hiver","겨울"],["se couvrir","따뜻하게 입다"]],topic:"건강",level:"A2",tef:"EO 말하기 · CO 듣기"},
 {id:21,fr:"J'apprends le français tous les jours parce que je veux améliorer mon niveau pour l'examen.",ko:"시험을 위해 실력을 높이고 싶어서 매일 프랑스어를 공부한다.",chunks:[["J'apprends le français tous les jours","매일 프랑스어를 공부한다"],["parce que je veux améliorer mon niveau","실력을 높이고 싶기 때문에"],["pour l'examen","시험을 위해"]],pattern:"목표는 pour + 명사: pour l'examen → 전치사 pour (…을 위해)",words:[["améliorer","향상시키다"],["niveau","수준, 레벨"]],topic:"교육",level:"A2",tef:"EO 말하기"},
-{id:22,fr:"Les cours en ligne me permettent d'étudier à mon rythme, même après le travail.",ko:"온라인 수업 덕분에 퇴근 후에도 내 속도로 공부할 수 있다.",chunks:[["Les cours en ligne me permettent de","온라인 수업이 가능하게 한다"],["étudier à mon rythme","내 속도로 공부하기를"],["même après le travail","퇴근 후에도"]],pattern:"가능하게 해 주다: permettre de + 동사원형 → 동사 permettre de (…할 수 있게 하다)",words:[["cours","수업"],["rythme","속도, 리듬"]],topic:"교육",level:"B1",tef:"EE 쓰기 · CE 읽기"},
+{id:22,fr:"Les cours en ligne me permettent d'étudier à mon rythme, même après le travail.",ko:"온라인 수업 덕분에 퇴근 후에도 내 속도로 공부할 수 있다.",chunks:[["Les cours en ligne me permettent","온라인 수업이 가능하게 한다"],["d'étudier à mon rythme","내 속도로 공부하기를"],["même après le travail","퇴근 후에도"]],pattern:"가능하게 해 주다: permettre de + 동사원형 → 동사 permettre de (…할 수 있게 하다)",words:[["cours","수업"],["rythme","속도, 리듬"]],topic:"교육",level:"B1",tef:"EE 쓰기 · CE 읽기"},
 {id:23,fr:"Au collège, j'ai suivi un programme en informatique qui durait deux ans.",ko:"컬리지에서 2년짜리 컴퓨터 프로그래밍 과정을 들었다.",chunks:[["Au collège","컬리지에서"],["j'ai suivi un programme en informatique","컴퓨터 과정을 들었다"],["qui durait deux ans","2년 동안 이어진"]],pattern:"과거에 계속되던 설명은 qui + 반과거: qui durait… → 관계대명사 qui + imparfait",words:[["programme","과정, 프로그램"],["informatique","컴퓨터, 정보학"]],topic:"교육",level:"B1",tef:"EO 말하기 · CE 읽기"},
 {id:24,fr:"Il est essentiel de pratiquer régulièrement si on veut progresser en langue.",ko:"언어 실력을 늘리려면 규칙적으로 연습하는 것이 필수다.",chunks:[["Il est essentiel de pratiquer régulièrement","규칙적으로 연습하는 것이 필수다"],["si on veut progresser","늘리고 싶다면"],["en langue","언어에서"]],pattern:"조건은 뒤에 si로 붙인다: …, si on veut… → 연결어 si (…라면)",words:[["essentiel","필수적인"],["progresser","진전하다, 늘다"]],topic:"교육",level:"B1",tef:"EE 쓰기"},
 {id:25,fr:"Mes professeurs m'ont beaucoup aidé quand j'avais des difficultés avec les devoirs.",ko:"숙제가 어려울 때 선생님들이 나를 많이 도와주셨다.",chunks:[["Mes professeurs m'ont beaucoup aidé","선생님들이 많이 도와주셨다"],["quand j'avais des difficultés","어려움이 있을 때"],["avec les devoirs","숙제에서"]],pattern:"과거 배경은 반과거로 깐다: quand j'avais… → 시간 표현 quand + imparfait",words:[["professeur","선생님, 교수"],["devoirs","숙제"]],topic:"교육",level:"B1",tef:"EO 말하기 · CE 읽기"},
@@ -228,7 +232,7 @@ const ITEMS = [
 {id:28,fr:"Le bus était en retard à cause de la neige, alors je suis arrivé en retard au travail.",ko:"눈 때문에 버스가 늦어서 직장에 지각했다.",chunks:[["Le bus était en retard","버스가 늦었다"],["à cause de la neige","눈 때문에"],["je suis arrivé en retard au travail","직장에 지각했다"]],pattern:"나쁜 이유는 à cause de, 좋은 이유는 grâce à → 전치사 à cause de (… 때문에)",words:[["en retard","늦은, 지각한"],["neige","눈"]],topic:"교통",level:"A2",tef:"EO 말하기 · CO 듣기"},
 {id:29,fr:"Pour aller à l'aéroport, le moyen le plus rapide est de prendre le métro.",ko:"공항에 가려면 가장 빠른 방법은 지하철을 타는 것이다.",chunks:[["Pour aller à l'aéroport","공항에 가기 위해"],["le moyen le plus rapide","가장 빠른 방법은"],["est de prendre le métro","지하철을 타는 것이다"]],pattern:"최상급은 le plus + 형용사: le plus rapide → 최상급 (superlatif)",words:[["aéroport","공항"],["moyen","방법, 수단"]],topic:"교통",level:"B1",tef:"CE 읽기 · EO 말하기"},
 {id:30,fr:"Il y a souvent des embouteillages le matin sur les grandes routes de Toronto.",ko:"토론토의 큰 도로에서는 아침에 교통 체증이 자주 있다.",chunks:[["Il y a souvent des embouteillages","교통 체증이 자주 있다"],["le matin","아침에"],["sur les grandes routes de Toronto","토론토 큰 도로에서"]],pattern:"있다/없다는 il y a로 시작한다 → 표현 il y a (…가 있다)",words:[["embouteillage","교통 체증"],["route","도로"]],topic:"교통",level:"A2",tef:"EO 말하기 · CO 듣기"},
-{id:31,fr:"Depuis la semaine dernière, je vais au travail à vélo quand il fait beau.",ko:"지난주부터 날씨가 좋으면 자전거로 출근한다.",chunks:[["Depuis la semaine dernière","지난주부터"],["je vais au travail à vélo","자전거로 출근한다"],["quand il fait beau","날씨가 좋으면"]],pattern:"날씨는 il fait beau처럼 il로 시작한다 → 날씨 표현 il fait beau (날씨가 좋다)",words:[["vélo","자전거"],["beau (temps)","좋은 (날씨)"]],topic:"교통",level:"A2",tef:"EO 말하기"},
+{id:31,fr:"Depuis la semaine dernière, je vais au travail à vélo quand il fait beau.",ko:"지난주부터 날씨가 좋으면 자전거로 출근한다.",chunks:[["Depuis la semaine dernière","지난주부터"],["je vais au travail à vélo","자전거로 출근한다"],["quand il fait beau","날씨가 좋으면"]],pattern:"날씨는 il fait beau처럼 il로 시작한다 → 날씨 표현 il fait beau (날씨가 좋다)",words:[["vélo","자전거"],["il fait beau","날씨가 좋다"]],topic:"교통",level:"A2",tef:"EO 말하기"},
 {id:32,fr:"La ville prévoit de construire de nouvelles pistes cyclables dans les prochaines années.",ko:"시는 앞으로 몇 년 안에 새 자전거 도로를 만들 계획이다.",chunks:[["La ville prévoit de construire","시는 만들 계획이다"],["de nouvelles pistes cyclables","새 자전거 도로를"],["dans les prochaines années","앞으로 몇 년 안에"]],pattern:"공식 계획은 prévoir de + 동사원형 → 동사 prévoir de (…할 계획이다)",words:[["ville","도시, 시"],["piste cyclable","자전거 도로"]],topic:"교통",level:"B2",tef:"CE 읽기 · EE 쓰기"},
 {id:33,fr:"Pour protéger l'environnement, nous trions nos déchets et nous recyclons le plastique.",ko:"환경을 보호하기 위해 우리는 쓰레기를 분리하고 플라스틱을 재활용한다.",chunks:[["Pour protéger l'environnement","환경을 보호하기 위해"],["nous trions nos déchets","쓰레기를 분리한다"],["nous recyclons le plastique","플라스틱을 재활용한다"]],pattern:"목적이 두 개면 동사를 나란히 잇는다: trions…, recyclons… → 병렬 구조",words:[["environnement","환경"],["déchets","쓰레기"]],topic:"환경",level:"B1",tef:"EE 쓰기 · CE 읽기"},
 {id:34,fr:"Le changement climatique a des effets visibles, comme des étés plus chauds qu'avant.",ko:"기후 변화는 예전보다 더 더운 여름 같은, 눈에 보이는 영향을 미친다.",chunks:[["Le changement climatique","기후 변화는"],["a des effets visibles","눈에 보이는 영향이 있다"],["comme des étés plus chauds qu'avant","예전보다 더 더운 여름처럼"]],pattern:"비교는 plus … que: plus chauds qu'avant → 비교급 plus + 형용사 + que",words:[["changement climatique","기후 변화"],["été","여름"]],topic:"환경",level:"B1",tef:"CE 읽기 · EE 쓰기"},
@@ -245,7 +249,7 @@ const ITEMS = [
 {id:45,fr:"Je me suis installé au Canada il y a plusieurs années pour commencer une nouvelle vie.",ko:"나는 몇 년 전 새로운 삶을 시작하기 위해 캐나다에 정착했다.",chunks:[["Je me suis installé au Canada","캐나다에 정착했다"],["il y a plusieurs années","몇 년 전에"],["pour commencer une nouvelle vie","새로운 삶을 시작하기 위해"]],pattern:"…년 전에: il y a + 기간 (과거 방향) → 표현 il y a (… 전에)",words:[["s'installer","정착하다"],["vie","삶, 인생"]],topic:"이민",level:"B1",tef:"EO 말하기"},
 {id:46,fr:"Au début, s'adapter à un nouveau pays n'était pas facile, surtout à cause de la langue.",ko:"처음에는 새 나라에 적응하는 것이 쉽지 않았고, 특히 언어 때문이었다.",chunks:[["Au début","처음에는"],["s'adapter à un nouveau pays","새 나라에 적응하는 것이"],["n'était pas facile","쉽지 않았다"]],pattern:"적응은 s'adapter à + 대상 → 동사 s'adapter à (…에 적응하다)",words:[["s'adapter","적응하다"],["pays","나라"]],topic:"이민",level:"B1",tef:"EO 말하기 · EE 쓰기"},
 {id:47,fr:"Pour obtenir la résidence permanente, il faut préparer plusieurs documents importants.",ko:"영주권을 얻으려면 중요한 서류 여러 개를 준비해야 한다.",chunks:[["Pour obtenir la résidence permanente","영주권을 얻기 위해"],["il faut préparer","준비해야 한다"],["plusieurs documents importants","중요한 서류 여러 개를"]],pattern:"관공서 단어는 통째로: la résidence permanente → 명사구 résidence permanente (영주권)",words:[["résidence permanente","영주권"],["document","서류"]],topic:"이민",level:"B1",tef:"CE 읽기 · EO 말하기"},
-{id:48,fr:"Ce que j'aime le plus au Canada, c'est la diversité des cultures qu'on y trouve.",ko:"캐나다에서 내가 가장 좋아하는 것은 그곳에서 만날 수 있는 문화의 다양성이다.",chunks:[["Ce que j'aime le plus","내가 가장 좋아하는 것은"],["au Canada","캐나다에서"],["c'est la diversité des cultures","문화의 다양성이다"]],pattern:"강조 문장 틀: Ce que…, c'est… → 강조 구문 ce que … c'est (…는 바로 …이다)",words:[["diversité","다양성"],["culture","문화"]],topic:"이민",level:"B2",tef:"EO 말하기 · EE 쓰기"},
+{id:48,fr:"Ce que j'aime le plus au Canada, c'est la diversité des cultures qu'on y trouve.",ko:"캐나다에서 내가 가장 좋아하는 것은 그곳에서 만날 수 있는 문화의 다양성이다.",chunks:[["Ce que j'aime le plus","내가 가장 좋아하는 것은"],["au Canada","캐나다에서"],["c'est la diversité des cultures qu'on y trouve","그곳에서 만날 수 있는 문화의 다양성이다"]],pattern:"강조 문장 틀: Ce que…, c'est… → 강조 구문 ce que … c'est (…는 바로 …이다)",words:[["diversité","다양성"],["culture","문화"]],topic:"이민",level:"B2",tef:"EO 말하기 · EE 쓰기"},
 {id:49,fr:"Même loin de ma famille, je me sens bien accueilli dans ma communauté.",ko:"가족과 멀리 떨어져 있어도 우리 커뮤니티에서 환영받는 느낌이 든다.",chunks:[["Même loin de ma famille","가족과 멀리 있어도"],["je me sens bien accueilli","환영받는 느낌이 든다"],["dans ma communauté","우리 커뮤니티에서"]],pattern:"…에도 불구하고는 même + … 로 줄인다 → 표현 même loin de (멀리 있어도)",words:[["accueilli","환영받는"],["communauté","커뮤니티, 공동체"]],topic:"이민",level:"B1",tef:"EO 말하기"},
 {id:50,fr:"L'hiver canadien m'a surpris la première année, mais je m'y suis habitué peu à peu.",ko:"캐나다의 겨울은 첫해에 나를 놀라게 했지만, 조금씩 익숙해졌다.",chunks:[["L'hiver canadien m'a surpris","캐나다 겨울이 나를 놀라게 했다"],["la première année","첫해에"],["je m'y suis habitué peu à peu","조금씩 익숙해졌다"]],pattern:"조금씩은 peu à peu를 뒤에 붙인다 → 부사 peu à peu (조금씩)",words:[["surprendre","놀라게 하다"],["s'habituer","익숙해지다"]],topic:"이민",level:"B1",tef:"EO 말하기 · CE 읽기"},
 {id:51,fr:"Si je pouvais choisir, j'aimerais rester à Toronto parce que j'y ai beaucoup d'amis.",ko:"선택할 수 있다면 토론토에 머물고 싶다. 거기에 친구가 많기 때문이다.",chunks:[["Si je pouvais choisir","선택할 수 있다면"],["j'aimerais rester à Toronto","토론토에 머물고 싶다"],["parce que j'y ai beaucoup d'amis","거기에 친구가 많기 때문에"]],pattern:"가정은 Si + 반과거, 결과는 조건법: si je pouvais…, j'aimerais… → 가정 구문 si + imparfait",words:[["choisir","선택하다"],["rester","머물다"]],topic:"이민",level:"B2",tef:"EO 말하기 · EE 쓰기"},
@@ -326,7 +330,7 @@ const ITEMS = [
 {id:126,fr:"Au cas où vous ne pourriez pas venir, pourriez-vous prévenir le bureau avant midi afin que l'on puisse proposer votre place à quelqu'un d'autre ?",ko:"오실 수 없는 경우, 다른 사람에게 자리를 제안할 수 있도록 정오 전에 사무실에 알려 주실 수 있나요?",chunks:[["Au cas où vous ne pourriez pas venir","오실 수 없는 경우에"],["pourriez-vous prévenir le bureau avant midi","정오 전에 사무실에 알려 주실 수 있나요"],["afin que l'on puisse proposer votre place à quelqu'un d'autre","다른 사람에게 자리를 제안할 수 있도록"]],pattern:"목적을 접속법으로 잇는다: afin que l'on puisse… → 목적 표현 afin que + 접속법 (subjonctif)",words:[["prévenir","미리 알리다"],["afin que","…할 수 있도록, …하기 위해"]],topic:"약속",level:"B2",tef:"EO 말하기 · CE 읽기"},
 {id:127,fr:"Avant de sortir, je vérifie que j'ai mes clés, mon téléphone et ma carte de transport.",ko:"나가기 전에 열쇠, 전화기, 교통카드를 가지고 있는지 확인한다.",chunks:[["Avant de sortir","나가기 전에"],["je vérifie que j'ai","가지고 있는지 확인한다"],["mes clés, mon téléphone et ma carte de transport","열쇠, 전화기, 교통카드"]],pattern:"나가기 전 확인은 avant de + 동사원형으로 붙인다: avant de sortir → 표현 avant de (…하기 전에)",words:[["vérifier","확인하다"],["clé","열쇠"]],topic:"일상",level:"A2",tef:"EO 말하기 · CO 듣기"},
 {id:128,fr:"Le dimanche, nous cuisinons ensemble et nous mettons le reste au congélateur pour la semaine.",ko:"일요일에는 함께 요리하고 나머지를 한 주를 위해 냉동실에 넣는다.",chunks:[["Le dimanche","일요일에는"],["nous cuisinons ensemble","함께 요리하고"],["nous mettons le reste au congélateur","나머지를 냉동실에 넣는다"],["pour la semaine","한 주를 위해"]],pattern:"남은 것은 le reste라고 한다: mettre le reste au congélateur → 표현 le reste (나머지)",words:[["cuisiner","요리하다"],["congélateur","냉동실"]],topic:"일상",level:"A2",tef:"EO 말하기"},
-{id:129,fr:"Si je finis tôt, je peux aider mon collègue à préparer les commandes.",ko:"일찍 끝나면 동료가 주문을 준비하는 것을 도울 수 있다.",chunks:[["Si je finis tôt","일찍 끝나면"],["je peux aider mon collègue","동료를 도울 수 있다"],["à préparer les commandes","주문 준비를"]],pattern:"조건과 결과를 둘 다 현재로 말한다: si je finis…, je peux… → si 조건문 (현재)",words:[["collègue","동료"],["commande","주문"]],topic:"직장",level:"A2",tef:"EO 말하기 · EE 쓰기"},
+{id:129,fr:"Si je finis tôt, je peux aider mon collègue à préparer les commandes.",ko:"일찍 끝나면 동료의 주문 준비를 도울 수 있다.",chunks:[["Si je finis tôt","일찍 끝나면"],["je peux aider mon collègue","동료를 도울 수 있다"],["à préparer les commandes","주문 준비를"]],pattern:"조건과 결과를 둘 다 현재로 말한다: si je finis…, je peux… → si 조건문 (현재)",words:[["collègue","동료"],["commande","주문"]],topic:"직장",level:"A2",tef:"EO 말하기 · EE 쓰기"},
 {id:130,fr:"Je préfère noter les tâches importantes dès le matin pour ne rien oublier pendant le service.",ko:"근무 중에 아무것도 잊지 않도록 아침부터 중요한 일을 적어 두는 것을 선호한다.",chunks:[["Je préfère noter les tâches importantes","중요한 일을 적어 두는 것을 선호한다"],["dès le matin","아침부터 바로"],["pour ne rien oublier","아무것도 잊지 않기 위해"],["pendant le service","근무 중에"]],pattern:"잊지 않기 위해는 pour ne rien + 동사원형: pour ne rien oublier → 부정 목적 표현 pour ne rien (아무것도 …않기 위해)",words:[["tâche","일, 업무"],["noter","적다, 메모하다"]],topic:"직장",level:"B1",tef:"EE 쓰기 · EO 말하기"},
 {id:131,fr:"Quand j'ai mal au dos, je m'étire doucement et j'évite de porter des choses lourdes.",ko:"허리가 아플 때 부드럽게 스트레칭하고 무거운 것을 드는 것을 피한다.",chunks:[["Quand j'ai mal au dos","허리가 아플 때"],["je m'étire doucement","부드럽게 스트레칭하고"],["j'évite de porter des choses lourdes","무거운 것을 드는 것을 피한다"]],pattern:"아픈 곳은 avoir mal à + 부위, à와 le가 만나 au가 된다: mal au dos → 표현 avoir mal à (…가 아프다)",words:[["dos","등, 허리"],["s'étirer","스트레칭하다"]],topic:"건강",level:"A2",tef:"EO 말하기 · CO 듣기"},
 {id:132,fr:"Le médecin m'a conseillé de dormir davantage et de réduire le café pendant quelques semaines.",ko:"의사가 몇 주 동안 더 자고 커피를 줄이라고 권했다.",chunks:[["Le médecin m'a conseillé de","의사가 나에게 권했다"],["dormir davantage","더 자고"],["réduire le café","커피를 줄이라고"],["pendant quelques semaines","몇 주 동안"]],pattern:"권유는 conseillé de + 동사원형으로 이어진다: m'a conseillé de dormir → 표현 conseiller de (…하라고 권하다)",words:[["davantage","더 많이"],["réduire","줄이다"]],topic:"건강",level:"B1",tef:"CE 읽기 · EO 말하기"},
@@ -353,7 +357,7 @@ const ITEMS = [
 {id:153,fr:"Une fois que tu auras fini tes devoirs, tu pourras sortir jouer avec tes amis.",ko:"숙제를 다 끝내고 나면 친구들과 나가서 놀 수 있다.",chunks:[["Une fois que tu auras fini tes devoirs","숙제를 끝내고 나면"],["tu pourras sortir","나가도 될 것이다, 나갈 수 있다"],["jouer avec tes amis","친구들과 놀려고"]],pattern:"먼저 끝날 일은 한 단계 앞당긴다: Une fois que tu auras fini… → 미래완료 (futur antérieur)",words:[["devoir","숙제"],["sortir","나가다"]],topic:"교육",level:"B2",tef:"EE 쓰기 · EO 말하기"},
 {id:154,fr:"Il se peut que les cours soient annulés demain à cause de la tempête de neige.",ko:"눈보라 때문에 내일 수업이 취소될 수도 있다.",chunks:[["Il se peut que","…일 수도 있다"],["les cours soient annulés demain","내일 수업이 취소되다"],["à cause de la tempête de neige","눈보라 때문에"]],pattern:"가능성은 열어 두고 말한다: Il se peut que + 접속법 (soient) → 표현 il se peut que (…일 수도 있다)",words:[["annuler","취소하다"],["tempête","폭풍, 눈보라"]],topic:"교육",level:"B2",tef:"EO 말하기 · CO 듣기"},
 {id:155,fr:"Si le train avait été à l'heure, nous ne serions pas arrivés en retard à la gare.",ko:"기차가 제시간에 왔더라면 우리는 역에 늦게 도착하지 않았을 것이다.",chunks:[["Si le train avait été à l'heure","기차가 제시간에 왔더라면"],["nous ne serions pas arrivés en retard","늦게 도착하지 않았을 것이다"],["à la gare","역에"]],pattern:"지나간 반사실은 부정도 함께 뒤로: Si + 대과거, … ne serions pas arrivés → 조건법 과거 (conditionnel passé)",words:[["à l'heure","제시간에"],["gare","역"]],topic:"교통",level:"B2",tef:"EE 쓰기 · CE 읽기"},
-{id:156,fr:"Les travaux ayant duré plus longtemps que prévu, la rue restera fermée jusqu'à lundi.",ko:"공사가 예상보다 오래 걸려서 그 길은 월요일까지 닫힌 채로 있을 것이다.",chunks:[["Les travaux ayant duré plus longtemps que prévu","공사가 예상보다 오래 걸려서"],["la rue restera fermée","그 길은 닫힌 채로 있을 것이다"],["jusqu'à lundi","월요일까지"]],pattern:"이유를 앞 덩어리로 줄인다: Les travaux ayant duré…, … → 현재분사 구문 (participe présent)",words:[["travaux","공사"],["prévu","예상된, 예정된"]],topic:"교통",level:"B2",tef:"CE 읽기 · EE 쓰기"},
+{id:156,fr:"Les travaux ayant duré plus longtemps que prévu, la rue restera fermée jusqu'à lundi.",ko:"공사가 예상보다 오래 걸려서 그 길은 월요일까지 닫힌 채로 있을 것이다.",chunks:[["Les travaux ayant duré plus longtemps que prévu","공사가 예상보다 오래 걸려서"],["la rue restera fermée","그 길은 닫힌 채로 있을 것이다"],["jusqu'à lundi","월요일까지"]],pattern:"이유를 앞 덩어리로 줄인다: Les travaux ayant duré…, … → 분사 구문 ayant + 과거분사 (participe passé composé)",words:[["travaux","공사"],["prévu","예상된, 예정된"]],topic:"교통",level:"B2",tef:"CE 읽기 · EE 쓰기"},
 {id:157,fr:"Quoi que l'on fasse, il serait difficile de changer ses habitudes du jour au lendemain.",ko:"무엇을 하든 습관을 하루아침에 바꾸기는 어려울 것이다.",chunks:[["Quoi que l'on fasse","무엇을 하든"],["il serait difficile de changer","바꾸기는 어려울 것이다"],["ses habitudes du jour au lendemain","습관을 하루아침에"]],pattern:"무엇을 하든: Quoi que + 접속법 (fasse), 단정은 serait로 누른다 → 양보 표현 quoi que",words:[["habitude","습관"],["du jour au lendemain","하루아침에"]],topic:"환경",level:"B2",tef:"EE 쓰기 · EO 말하기"},
 {id:158,fr:"Les bouteilles en plastique sont triées puis recyclées par les habitants du quartier.",ko:"플라스틱병은 동네 주민들이 분리한 뒤 재활용한다.",chunks:[["Les bouteilles en plastique","플라스틱병은"],["sont triées puis recyclées","분리된 뒤 재활용된다"],["par les habitants du quartier","동네 주민들에 의해"]],pattern:"행위자는 par 뒤로 보낸다: sont triées par… → 수동태 (passif)",words:[["bouteille","병"],["habitant","주민"]],topic:"환경",level:"B2",tef:"CE 읽기 · EE 쓰기"},
 {id:159,fr:"Bien que cette application soit gratuite, certaines fonctions pourraient ne pas être disponibles sans abonnement.",ko:"이 앱이 무료이긴 하지만 일부 기능은 구독 없이는 쓸 수 없을지도 모른다.",chunks:[["Bien que cette application soit gratuite","이 앱이 무료이긴 하지만"],["certaines fonctions pourraient ne pas être disponibles","일부 기능은 쓸 수 없을지도 모른다"],["sans abonnement","구독 없이는"]],pattern:"양보 뒤 가능성은 열어 둔다: pourraient ne pas être… → hedging pourrait (…일지도 모른다)",words:[["application","앱, 애플리케이션"],["abonnement","구독"]],topic:"기술",level:"B2",tef:"EO 말하기 · EE 쓰기"},
@@ -396,7 +400,7 @@ const ITEMS = [
 {id:196,fr:"Quand je voyage en train, je réserve ma place à l'avance pour être sûr d'avoir un siège près de la fenêtre.",ko:"기차로 여행할 때 창가 자리를 확실히 얻으려고 미리 자리를 예약한다.",chunks:[["Quand je voyage en train","기차로 여행할 때"],["je réserve ma place à l'avance","미리 자리를 예약한다"],["pour être sûr d'avoir un siège près de la fenêtre","창가 자리를 확실히 얻으려고"]],pattern:"확신은 être sûr de + 동사원형: pour être sûr d'avoir un siège → 표현 être sûr de (…할 것이 확실하다)",words:[["réserver","예약하다"],["siège","좌석, 자리"]],topic:"교통",level:"B1",tef:"EO 말하기 · EE 쓰기"},
 {id:197,fr:"Dans notre immeuble, nous avons commencé à composter les restes de nourriture pour réduire nos déchets.",ko:"우리 건물에서는 쓰레기를 줄이려고 음식물 찌꺼기를 퇴비로 만들기 시작했다.",chunks:[["Dans notre immeuble","우리 건물에서는"],["nous avons commencé à composter les restes de nourriture","음식물 찌꺼기를 퇴비로 만들기 시작했다"],["pour réduire nos déchets","쓰레기를 줄이려고"]],pattern:"시작은 commencer à + 동사원형: nous avons commencé à composter → 표현 commencer à (…하기 시작하다)",words:[["composter","퇴비로 만들다"],["déchets","쓰레기"]],topic:"환경",level:"B1",tef:"CE 읽기 · EE 쓰기"},
 {id:198,fr:"Plutôt que de prendre la voiture pour un petit trajet, je marche quand la distance le permet.",ko:"짧은 거리를 갈 때 차를 타기보다는, 거리가 허락하면 걷는다.",chunks:[["Plutôt que de prendre la voiture","차를 타기보다는"],["pour un petit trajet","짧은 거리를 갈 때"],["je marche quand la distance le permet","거리가 허락하면 걷는다"]],pattern:"문장 맨 앞에서도 plutôt que de + 동사원형: Plutôt que de prendre…, je marche → 표현 plutôt que de (…하기보다는)",words:[["trajet","이동 거리, 여정"],["distance","거리"]],topic:"환경",level:"B1",tef:"EO 말하기 · EE 쓰기"},
-{id:199,fr:"Grâce aux appels vidéo, je peux parler avec ma famille en Corée sans payer de frais supplémentaires.",ko:"영상 통화 덕분에 추가 요금을 내지 않고 한국에 있는 가족과 이야기할 수 있다.",chunks:[["Grâce aux appels vidéo","영상 통화 덕분에"],["je peux parler avec ma famille en Corée","한국에 있는 가족과 이야기할 수 있다"],["sans payer de frais supplémentaires","추가 요금을 내지 않고"]],pattern:"…하지 않고는 sans + 동사원형: sans payer de frais → 표현 sans + infinitif (…하지 않고)",words:[["appel vidéo","영상 통화"],["frais","요금, 비용"]],topic:"기술",level:"B1",tef:"EO 말하기 · CE 읽기"},
+{id:199,fr:"Grâce aux appels vidéo, je peux parler avec ma famille en Corée sans payer de frais supplémentaires.",ko:"영상 통화 덕분에 추가 요금을 내지 않고 한국에 있는 가족과 이야기할 수 있다.",chunks:[["Grâce aux appels vidéo","영상 통화 덕분에"],["je peux parler avec ma famille en Corée","한국에 있는 가족과 이야기할 수 있다"],["sans payer de frais supplémentaires","추가 요금을 내지 않고"]],pattern:"…하지 않고: sans + 동사원형: sans payer de frais → 표현 sans + infinitif (…하지 않고)",words:[["appel vidéo","영상 통화"],["frais","요금, 비용"]],topic:"기술",level:"B1",tef:"EO 말하기 · CE 읽기"},
 {id:200,fr:"Quand une application demande trop d'informations personnelles, je préfère ne pas l'installer.",ko:"앱이 개인 정보를 너무 많이 요구하면 설치하지 않는 것을 선호한다.",chunks:[["Quand une application demande trop d'informations personnelles","앱이 개인 정보를 너무 많이 요구하면"],["je préfère ne pas l'installer","설치하지 않는 것을 선호한다"]],pattern:"하지 않기를 선호하기: préférer ne pas + 동사원형 → 표현 préférer ne pas (…하지 않는 것을 선호하다)",words:[["installer","설치하다"],["information","정보"]],topic:"기술",level:"B1",tef:"EO 말하기 · CE 읽기"},
 {id:201,fr:"Au début, je ne connaissais personne dans le quartier, mais petit à petit je me suis fait des amis.",ko:"처음에는 동네에 아는 사람이 아무도 없었지만, 조금씩 친구가 생겼다.",chunks:[["Au début, je ne connaissais personne","처음에는 아는 사람이 아무도 없었다"],["dans le quartier","동네에"],["mais petit à petit je me suis fait des amis","하지만 조금씩 친구가 생겼다"]],pattern:"과거의 상태는 반과거로 깐다: je ne connaissais personne → 반과거 (imparfait)",words:[["au début","처음에"],["se faire des amis","친구를 사귀다"]],topic:"이민",level:"B1",tef:"EO 말하기 · EE 쓰기"},
 {id:202,fr:"Pour améliorer mon français, je participe à un groupe de conversation gratuit à la bibliothèque du quartier.",ko:"프랑스어를 늘리려고 동네 도서관의 무료 회화 모임에 참여한다.",chunks:[["Pour améliorer mon français","프랑스어를 늘리려고"],["je participe à un groupe de conversation gratuit","무료 회화 모임에 참여한다"],["à la bibliothèque du quartier","동네 도서관에서 열리는"]],pattern:"참여는 participer à: je participe à un groupe → 동사 participer à (…에 참여하다)",words:[["améliorer","향상시키다, 늘리다"],["bibliothèque","도서관"]],topic:"이민",level:"B1",tef:"EO 말하기 · CE 읽기"},
@@ -413,7 +417,7 @@ const ITEMS = [
 {id:213,fr:"Quels que soient les résultats du premier examen, il faudra continuer à réviser régulièrement pour progresser.",ko:"첫 시험 결과가 어떻든, 실력을 늘리려면 꾸준히 복습을 계속해야 한다.",chunks:[["Quels que soient les résultats du premier examen","첫 시험 결과가 어떻든"],["il faudra continuer à réviser régulièrement","꾸준히 복습을 계속해야 한다"],["pour progresser","실력을 늘리려면"]],pattern:"어떻든은 quels que + 접속법: Quels que soient les résultats… → 양보 표현 quels que soient (~이 어떻든)",words:[["résultat","결과"],["régulièrement","꾸준히, 규칙적으로"]],topic:"교육",level:"B2",tef:"EE 쓰기 · CE 읽기"},
 {id:214,fr:"Une fois que les étudiants auront compris la règle, ils pourront l'appliquer sans regarder leurs notes.",ko:"학생들이 규칙을 이해하고 나면, 노트를 보지 않고 그것을 적용할 수 있을 것이다.",chunks:[["Une fois que les étudiants auront compris la règle","학생들이 규칙을 이해하고 나면"],["ils pourront l'appliquer","그것을 적용할 수 있을 것이다"],["sans regarder leurs notes","노트를 보지 않고"]],pattern:"앞선 완료는 미래완료로: une fois que … auront compris, ils pourront… → 미래완료 (futur antérieur)",words:[["appliquer","적용하다"],["règle","규칙"]],topic:"교육",level:"B2",tef:"CE 읽기 · EE 쓰기"},
 {id:215,fr:"À moins que les travaux ne soient terminés plus tôt, cette ligne restera fermée jusqu'à la fin du mois.",ko:"공사가 더 일찍 끝나지 않는 한, 이 노선은 이달 말까지 폐쇄된 상태로 있을 것이다.",chunks:[["À moins que les travaux ne soient terminés plus tôt","공사가 더 일찍 끝나지 않는 한"],["cette ligne restera fermée","이 노선은 폐쇄된 상태로 있을 것이다"],["jusqu'à la fin du mois","이달 말까지"]],pattern:"…하지 않는 한은 à moins que + 접속법: à moins que … ne soient terminés → 연결어 à moins que (접속법)",words:[["travaux","공사"],["ligne","노선"]],topic:"교통",level:"B2",tef:"CE 읽기 · CO 듣기"},
-{id:216,fr:"Le train étant arrivé avec vingt minutes de retard, de nombreux passagers ont manqué leur correspondance.",ko:"기차가 20분 늦게 도착하는 바람에, 많은 승객이 갈아타는 기차를 놓쳤다.",chunks:[["Le train étant arrivé avec vingt minutes de retard","기차가 20분 늦게 도착해"],["de nombreux passagers ont manqué","많은 승객이 놓쳤다"],["leur correspondance","갈아타는 기차를"]],pattern:"원인을 분사로 앞에 두기: Le train étant arrivé…, … → 분사 구문 (participe présent composé)",words:[["correspondance","환승, 갈아타는 교통편"],["passager","승객"]],topic:"교통",level:"B2",tef:"CE 읽기 · CO 듣기"},
+{id:216,fr:"Le train étant arrivé avec vingt minutes de retard, de nombreux passagers ont manqué leur correspondance.",ko:"기차가 20분 늦게 도착하는 바람에, 많은 승객이 갈아타는 기차를 놓쳤다.",chunks:[["Le train étant arrivé avec vingt minutes de retard","기차가 20분 늦게 도착해"],["de nombreux passagers ont manqué","많은 승객이 놓쳤다"],["leur correspondance","갈아타는 기차를"]],pattern:"원인을 분사로 앞에 두기: Le train étant arrivé…, … → 분사 구문 étant + 과거분사",words:[["correspondance","환승, 갈아타는 교통편"],["passager","승객"]],topic:"교통",level:"B2",tef:"CE 읽기 · CO 듣기"},
 {id:217,fr:"Quoi que l'on décide, il serait préférable de réduire notre consommation plutôt que de la compenser après coup.",ko:"무엇을 결정하든, 나중에 메우려 하기보다 소비 자체를 줄이는 편이 더 바람직할 것이다.",chunks:[["Quoi que l'on décide","무엇을 결정하든"],["il serait préférable de réduire notre consommation","소비 자체를 줄이는 편이 더 바람직할 것이다"],["plutôt que de la compenser après coup","나중에 그것을 메우려 하기보다"]],pattern:"여지를 남기는 제안: il serait préférable de… + quoi que + 접속법 → 조건법 (conditionnel) + 양보 quoi que",words:[["consommation","소비"],["compenser","메우다, 보상하다"]],topic:"환경",level:"B2",tef:"EE 쓰기 · EO 말하기"},
 {id:218,fr:"Les déchets qui ne sont pas triés correctement risquent d'être refusés lors de la collecte hebdomadaire.",ko:"제대로 분리되지 않은 쓰레기는 주간 수거 때 거부될 위험이 있다.",chunks:[["Les déchets qui ne sont pas triés correctement","제대로 분리되지 않은 쓰레기는"],["risquent d'être refusés","거부될 위험이 있다"],["lors de la collecte hebdomadaire","주간 수거 때"]],pattern:"…될 위험은 risquer d'être + 과거분사: risquent d'être refusés → 수동 표현 (être + participe passé)",words:[["déchet","쓰레기"],["collecte","수거"]],topic:"환경",level:"B2",tef:"CE 읽기 · EE 쓰기"},
 {id:219,fr:"Bien que les données soient sauvegardées automatiquement, il est prudent de garder une copie sur un autre support.",ko:"데이터가 자동으로 저장되기는 하지만, 다른 저장 매체에 사본을 하나 더 보관하는 것이 안전하다.",chunks:[["Bien que les données soient sauvegardées automatiquement","데이터가 자동으로 저장되기는 하지만"],["il est prudent de garder une copie","사본을 보관하는 것이 안전하다"],["sur un autre support","다른 저장 매체에"]],pattern:"양보 뒤 수동도 접속법으로: bien que les données soient sauvegardées → 접속법 수동 (subjonctif passif)",words:[["donnée","데이터"],["support","저장 매체, 받침"]],topic:"기술",level:"B2",tef:"CE 읽기 · EE 쓰기"},
@@ -461,7 +465,7 @@ const ITEMS = [
 {"id":261,"fr":"Après avoir reçu mon permis de travail, j'ai commencé à chercher un emploi qui correspond à mon expérience.","ko":"취업 허가증을 받은 뒤에, 내 경력에 맞는 일자리를 찾기 시작했다.","chunks":[["Après avoir reçu mon permis de travail","취업 허가증을 받은 뒤에"],["j'ai commencé à chercher un emploi","일자리를 찾기 시작했다"],["qui correspond à mon expérience","내 경력에 맞는"]],"pattern":"먼저 끝난 일은 après avoir + 과거분사로 앞세운다: après avoir reçu… → infinitif passé (…한 뒤에)","words":[["permis","허가증, 면허"],["correspondre à","~에 맞다, 해당하다"]],"topic":"이민","level":"B1","tef":"CE 읽기 · EE 쓰기"},
 {"id":262,"fr":"Au centre d'accueil, on m'a expliqué quelles démarches je devais faire pour inscrire mon enfant à l'école.","ko":"안내 센터에서 아이를 학교에 등록하려면 어떤 절차를 해야 하는지 설명해 줬다.","chunks":[["Au centre d'accueil","안내 센터에서"],["on m'a expliqué quelles démarches je devais faire","어떤 절차를 해야 하는지 설명해 줬다"],["pour inscrire mon enfant à l'école","아이를 학교에 등록하기 위해"]],"pattern":"무엇을 해야 하는지는 quelles démarches je devais… 로 전한다: on m'a expliqué quelles… → 간접 의문문","words":[["démarche","절차, 수속"],["inscrire","등록하다"]],"topic":"이민","level":"B1","tef":"CO 듣기 · CE 읽기"},
 {"id":263,"fr":"À mon avis, apprendre une langue à l'âge adulte pourrait être plus lent, mais ce serait aussi une expérience très riche.","ko":"내 생각에 어른이 되어 언어를 배우는 것은 더 느릴 수 있지만, 아주 풍성한 경험이 될 수도 있다.","chunks":[["À mon avis","내 생각에는"],["apprendre une langue à l'âge adulte pourrait être plus lent","어른이 되어 언어를 배우는 것은 더 느릴 수 있다"],["mais ce serait aussi une expérience très riche","하지만 아주 풍성한 경험이 될 수도 있다"]],"pattern":"의견의 가능성은 pourrait · serait 로 열어 둔다: pourrait être…, ce serait… → conditionnel (…일 수 있다)","words":[["adulte","성인, 어른"],["lent","느린"]],"topic":"의견","level":"B1","tef":"EE 쓰기 · EO 말하기"},
-{"id":264,"fr":"Je trouve que le travail à distance peut aider certains employés, même s'il pourrait aussi rendre la communication moins simple.","ko":"재택·원격 근무가 일부 직원에게 도움이 될 수 있지만, 소통을 덜 단순하게 만들 수도 있다고 생각한다.","chunks":[["Je trouve que le travail à distance peut aider certains employés","원격 근무가 일부 직원에게 도움이 될 수 있다고 생각한다"],["même s'il pourrait aussi","그것이 또한 …할 수 있을지라도"],["rendre la communication moins simple","소통을 덜 단순하게 만들"]],"pattern":"한쪽 가능성만 단정하지 않는다: peut aider…, même s'il pourrait… → conditionnel 로 여지 남기기","words":[["à distance","원격으로, 떨어져서"],["employé","직원"]],"topic":"의견","level":"B1","tef":"EE 쓰기 · EO 말하기"},
+{"id":264,"fr":"Je trouve que le travail à distance peut aider certains employés, même s'il pourrait aussi rendre la communication moins simple.","ko":"재택·원격 근무가 일부 직원에게 도움이 될 수 있지만, 소통을 덜 단순하게 만들 수도 있다고 생각한다.","chunks":[["Je trouve que le travail à distance peut aider certains employés","원격 근무가 일부 직원에게 도움이 될 수 있다고 생각한다"],["même s'il pourrait aussi","그것이 또한 …할 수 있을지라도"],["rendre la communication moins simple","소통을 덜 단순하게 만드는 것"]],"pattern":"한쪽 가능성만 단정하지 않는다: peut aider…, même s'il pourrait… → conditionnel 로 여지 남기기","words":[["à distance","원격으로, 떨어져서"],["employé","직원"]],"topic":"의견","level":"B1","tef":"EE 쓰기 · EO 말하기"},
 {"id":265,"fr":"Nous avions prévu de nous voir dimanche, mais nous avons dû reporter notre rencontre à cause de la pluie.","ko":"일요일에 만나기로 했었는데, 비 때문에 만남을 미뤄야 했다.","chunks":[["Nous avions prévu de nous voir dimanche","일요일에 만나기로 했었다"],["mais nous avons dû reporter notre rencontre","하지만 만남을 미뤄야 했다"],["à cause de la pluie","비 때문에"]],"pattern":"그보다 먼저 세운 계획은 avions prévu 로 앞세운다: nous avions prévu… → plus-que-parfait (…하기로 했었다)","words":[["prévoir","계획하다, 예정하다"],["reporter","미루다, 연기하다"]],"topic":"약속","level":"B1","tef":"EO 말하기 · CO 듣기"},
 {"id":266,"fr":"Quand tu auras un moment, confirme-moi l'heure du rendez-vous s'il te plaît, comme ça je pourrai réserver la table.","ko":"시간이 나면 약속 시간을 확인해 줘. 그러면 내가 자리를 예약할 수 있을 거야.","chunks":[["Quand tu auras un moment","시간이 나면"],["confirme-moi l'heure du rendez-vous s'il te plaît","약속 시간을 확인해 줘"],["comme ça je pourrai réserver la table","그러면 자리를 예약할 수 있을 거야"]],"pattern":"앞일을 가정할 때는 quand + 미래형으로 받는다: quand tu auras…, je pourrai… → futur simple (…하면 …할 것이다)","words":[["confirmer","확인하다"],["réserver","예약하다"]],"topic":"약속","level":"B1","tef":"EO 말하기 · EE 쓰기"},
 {"id":267,"fr":"À peine avais-je fermé la porte que je me suis rendu compte que j'avais oublié mon parapluie.","ko":"문을 닫자마자 우산을 잊어버렸다는 것을 깨달았다.","chunks":[["À peine avais-je fermé la porte","문을 닫자마자"],["que je me suis rendu compte que","…라는 것을 깨달았다"],["j'avais oublié mon parapluie","우산을 잊어버렸었다"]],"pattern":"하자마자는 문장을 뒤집어 시작한다: À peine avais-je fermé la porte que… → inversion après à peine (…하자마자)","words":[["parapluie","우산"],["se rendre compte","깨닫다, 알아차리다"]],"topic":"일상","level":"B2","tef":"CE 읽기 · EO 말하기"},
@@ -547,7 +551,7 @@ async function vaultSet(key,val){ if(!vaultReady) return; try{ const db=await id
 async function vaultDelete(key){ try{ const db=await idbOpen(); await new Promise((res,rej)=>{ const tx=db.transaction("kv","readwrite").objectStore("kv").delete(key); tx.onsuccess=()=>res(); tx.onerror=()=>rej(tx.error); }); }catch(e){} }
 
 /* ---------- 상태 ---------- */
-function defaultProgress(){ return { index:0, completed:[], doneDates:[], step:1, reviewCorrect:0, completedAt:{} }; }
+function defaultProgress(){ return { index:0, completed:[], doneDates:[], step:1, reviewCorrect:0, completedAt:{}, sound:true }; }
 let progress = defaultProgress();
 function loadLocal(){ try{ const raw=localStorage.getItem(STORAGE_KEY); return raw?JSON.parse(raw):null; }catch(e){ return null; } }
 function saveProgress(){
@@ -587,6 +591,36 @@ function speakFr(text){
       if(voices.length) u.voice = voices[0];
       window.speechSynthesis.speak(u);
     }, 120);
+  }catch(e){}
+}
+
+/* ---------- 효과음 (WebAudio, 파일 없음) ---------- */
+let audioCtx = null;
+function soundEnabled(){ return progress.sound !== false; }
+function playSound(ok){
+  if(!soundEnabled()) return;
+  try{
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(!AC) return;
+    if(!audioCtx) audioCtx = new AC();
+    if(audioCtx.state === "suspended") audioCtx.resume();
+    const t0 = audioCtx.currentTime;
+    const master = audioCtx.createGain();
+    master.gain.value = 0.22;
+    master.connect(audioCtx.destination);
+    function tone(freq, start, dur, type, vol){
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = type || "triangle";
+      o.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, t0 + start);
+      g.gain.exponentialRampToValueAtTime(vol || 0.9, t0 + start + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + start + dur);
+      o.connect(g); g.connect(master);
+      o.start(t0 + start); o.stop(t0 + start + dur + 0.05);
+    }
+    if(ok){ tone(880, 0, 0.16); tone(1318.5, 0.09, 0.28); tone(1760, 0.09, 0.22, "sine", 0.35); }
+    else { tone(233.1, 0, 0.18, "triangle", 0.8); tone(185, 0.1, 0.3, "triangle", 0.7); }
   }catch(e){}
 }
 
@@ -652,10 +686,16 @@ function checkTyping(){
   const input = document.getElementById("typeInput").value;
   const fb = document.getElementById("fb");
   if(isCorrect(input, it.fr)){
-    fb.innerHTML = '<div class="feedback ok">✓ 맞았어요! 정답: '+esc(it.fr)+'</div>';
-    if(currentStep===2){ setStep(3); setTimeout(renderStudy, 900); }
-    else { completeSentence(); }
+    playSound(true);
+    const label = currentStep===2 ? "다음으로 → 3 · 가리고 쓰기" : "완료하기 →";
+    fb.innerHTML = '<div class="feedback ok">✓ 맞았어요! 정답: '+esc(it.fr)+'</div><button class="primary" id="advanceBtn">'+label+'</button>';
+    const cb = document.getElementById("checkBtn"); if(cb) cb.style.display = "none";
+    document.getElementById("advanceBtn").onclick = ()=>{
+      if(currentStep===2){ setStep(3); renderStudy(); }
+      else { completeSentence(); }
+    };
   } else {
+    playSound(false);
     fb.innerHTML = '<div class="feedback bad">아직 달라요. 정답과 비교해 보세요:<br><b>'+esc(it.fr)+'</b></div>';
   }
 }
@@ -707,10 +747,12 @@ function checkQuiz(){
   const input = document.getElementById("quizInput").value;
   let h = "";
   if(isCorrect(input, quizItem.fr)){
+    playSound(true);
     progress.reviewCorrect = (progress.reviewCorrect||0)+1;
     saveProgress(); renderVaultState(); renderProgress();
     h = '<div class="feedback ok">✓ 맞았어요! +5 XP<br>정답: '+esc(quizItem.fr)+'</div>';
   } else {
+    playSound(false);
     h = '<div class="feedback bad">아쉬워요. 정답은:<br><b>'+esc(quizItem.fr)+'</b></div>';
   }
   h += '<button class="primary" id="quizMoreBtn">한 문제 더</button> <button class="ghost" id="quizDoneBtn">끝내기</button>';
@@ -773,6 +815,9 @@ document.getElementById("stepBtn3").onclick = ()=>{ setStep(3); renderStudy(); }
 document.getElementById("prevBtn").onclick = ()=>{ if(progress.index>0){ progress.index--; setStep(1); renderStudy(); } };
 document.getElementById("nextBtn").onclick = ()=>{ if(progress.index<ITEMS.length-1){ progress.index++; setStep(1); renderStudy(); } };
 document.getElementById("listenBtn2").onclick = ()=>speakFr(currentItem().fr);
+function renderSoundBtn(){ const b = document.getElementById("soundBtn"); if(b) b.textContent = soundEnabled() ? "효과음 끄기" : "효과음 켜기"; }
+document.getElementById("soundBtn").onclick = ()=>{ progress.sound = !soundEnabled(); saveProgress(); renderSoundBtn(); if(soundEnabled()) playSound(true); };
+renderSoundBtn();
 document.getElementById("exportBtn").onclick = ()=>{
   const blob = new Blob([JSON.stringify(progress,null,2)],{type:"application/json"});
   const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "une-phrase-progress.json"; a.click();
@@ -785,7 +830,7 @@ document.getElementById("resetBtn").onclick = async ()=>{
   renderVaultState(); renderStudy(); alert("기록을 지웠습니다.");
 };
 if("serviceWorker" in navigator){ navigator.serviceWorker.register("./sw.js").catch(()=>{}); }
-initStorage().then(()=>{ renderStudy(); });
+initStorage().then(()=>{ renderSoundBtn(); renderStudy(); });
 </script>
 </body>
 </html>
