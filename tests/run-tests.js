@@ -232,6 +232,90 @@ const smokeDriver = [
 ].join("\n");
 eval(smokePrelude + "\n" + lvArrSrc + "\n" + lvlSrc + "\n" + xpSrc2 + "\n" + qpSrc + "\n" + normSrc + "\n" + corrSrc + "\n" + smokeFns + "\n" + smokeDriver);
 
+console.log("\n[기록 초기화: 2단계 확인]");
+ok(html.includes('id="resetZone"') && html.includes("기록 초기화"), "초기화: 설명 탭에 기록 초기화 진입점 있음");
+ok(!html.includes("기록 전체 지우기"), "초기화: 기존 '기록 전체 지우기' 버튼은 교체되어 없음");
+ok(!html.includes("confirm(") && !html.includes("alert("), "초기화: 네이티브 confirm/alert 팝업을 쓰지 않음");
+const rzSrc = html.match(/function renderResetZone\(\)\{[\s\S]*?\n\}/)[0];
+const drSrc = html.match(/async function doReset\(\)\{[\s\S]*?\n\}/)[0];
+ok(rzSrc.includes("네, 지울게요") && rzSrc.includes("정말 초기화") && rzSrc.includes("마지막 확인이에요"), "초기화: 1단계(네, 지울게요) → 2단계(정말 초기화·마지막 확인) 문구 있음");
+ok(rzSrc.includes("되돌릴 수 없어요") && rzSrc.includes("백업"), "초기화: 경고에 삭제 범위·되돌릴 수 없음·백업 안내 포함");
+ok(drSrc.includes("localStorage.removeItem(STORAGE_KEY)") && drSrc.includes("vaultDelete(STORAGE_KEY)"), "초기화 실행: 로컬 기록과 보관함 복사본을 함께 삭제 (forget 경로)");
+ok(drSrc.includes("defaultProgress()"), "초기화 실행: 진행 상태를 기본값으로 되돌림");
+// 초기화 흐름용 최소 DOM 스텁 (id 레지스트리 방식은 위 스모크와 동일)
+const RZ_ELS = {};
+function makeRzEl(id){
+  const el = { id:id, value:"", style:{}, textContent:"", onclick:null, _html:"", _listeners:{},
+    classList:{ toggle(){}, add(){}, remove(){}, contains(){ return false; } },
+    setAttribute(){}, getAttribute(){ return null; },
+    addEventListener(t,f){ this._listeners[t] = f; },
+    focus(){}, scrollIntoView(){} };
+  Object.defineProperty(el, "innerHTML", {
+    get(){ return this._html; },
+    set(v){ this._html = v; const re = /id="([^"]+)"/g; let m; while((m = re.exec(v))){ if(!RZ_ELS[m[1]]) RZ_ELS[m[1]] = makeRzEl(m[1]); } }
+  });
+  return el;
+}
+const rzDocument = {
+  getElementById(id){ if(!RZ_ELS[id]) RZ_ELS[id] = makeRzEl(id); return RZ_ELS[id]; },
+  querySelectorAll(){ return []; }
+};
+const rzPrelude = [
+  'let progress = null;',
+  'let currentStep = 3;',
+  'let quizItem = { id: 1 };',
+  'let completionInFlight = true;',
+  'let quizAnswered = true;',
+  'let vaultReady = false;',
+  'let persistGranted = null;',
+  'let resetStage = 0;',
+  'let resetDoneMsg = false;',
+  'const STORAGE_KEY = "une-phrase-progress-v1";',
+  'const document = rzDocument;',
+  'const rzLocalStore = new Map();',
+  'const rzVaultStore = new Map();',
+  'const localStorage = { getItem(k){ return rzLocalStore.has(k) ? rzLocalStore.get(k) : null; }, setItem(k,v){ rzLocalStore.set(k, String(v)); }, removeItem(k){ rzLocalStore.delete(k); } };',
+  'async function vaultDelete(k){ rzVaultStore.delete(k); }',
+  'function renderStudy(){}'
+].join("\n");
+const rzFns = [
+  html.match(/function defaultProgress\(\)[^\n]*/)[0],
+  html.match(/function soundEnabled\(\)[^\n]*/)[0],
+  html.match(/function renderSoundBtn\(\)[^\n]*/)[0],
+  html.match(/function renderVaultState\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function showTab\(name\)\{[\s\S]*?\n\}/)[0],
+  rzSrc, drSrc
+].join("\n");
+const rzDriver = [
+  'progress = { index:5, step:3, completed:[1,2,3], doneDates:["2026-10-21"], completedAt:{1:"2026-10-21"}, reviewCorrect:4, sound:false };',
+  'localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));',
+  'rzVaultStore.set(STORAGE_KEY, JSON.stringify(progress));',
+  'renderResetZone();',
+  'ok(!!RZ_ELS["resetBtn"], "초기화 스모크: 처음에는 기록 초기화 버튼만 보임");',
+  'RZ_ELS["resetBtn"].onclick();',
+  'ok(RZ_ELS["resetZone"].innerHTML.includes("네, 지울게요"), "초기화 스모크: 한 번 누르면 1단계 경고·확인 표시");',
+  'ok(localStorage.getItem(STORAGE_KEY) !== null && rzVaultStore.has(STORAGE_KEY) && progress.completed.length === 3, "초기화 스모크: 1단계(확인 전)에서는 아직 아무것도 지워지지 않음");',
+  'RZ_ELS["resetCancel1"].onclick();',
+  'ok(progress.completed.length === 3 && localStorage.getItem(STORAGE_KEY) !== null && RZ_ELS["resetZone"].innerHTML.includes("기록 초기화"), "초기화 스모크: 1단계에서 취소하면 기록 그대로, 버튼 상태로 복귀");',
+  'RZ_ELS["resetBtn"].onclick();',
+  'RZ_ELS["resetNext1"].onclick();',
+  'ok(RZ_ELS["resetZone"].innerHTML.includes("정말 초기화") && localStorage.getItem(STORAGE_KEY) !== null && progress.completed.length === 3, "초기화 스모크: 2단계(마지막 확인)에서도 아직 지워지지 않음");',
+  'showTab("study");',
+  'ok(!RZ_ELS["resetZone"].innerHTML.includes("정말 초기화") && progress.completed.length === 3, "초기화 스모크: 다른 탭으로 가면 확인 상태가 접히고 기록도 그대로");',
+  'RZ_ELS["resetBtn"].onclick();',
+  'RZ_ELS["resetNext1"].onclick();',
+  'RZ_ELS["resetDo"].onclick();',
+  'ok(progress.completed.length === 0 && progress.index === 0 && progress.reviewCorrect === 0 && Object.keys(progress.completedAt).length === 0, "초기화 스모크: 두 번 확인 후 완료·복습·날짜 기록이 기본값으로");',
+  'ok(progress.sound === true && currentStep === 1, "초기화 스모크: 효과음 설정 기본값(켜짐), 단계 1로 복귀");',
+  'ok(localStorage.getItem(STORAGE_KEY) === null && !rzVaultStore.has(STORAGE_KEY), "초기화 스모크: 로컬과 보관함 복사본이 모두 삭제됨");',
+  'const rzLocalAfter = localStorage.getItem(STORAGE_KEY) ? JSON.parse(localStorage.getItem(STORAGE_KEY)) : null;',
+  'const rzVaultAfter = rzVaultStore.has(STORAGE_KEY) ? JSON.parse(rzVaultStore.get(STORAGE_KEY)) : null;',
+  'ok(pickRestore(rzLocalAfter, rzVaultAfter) === null, "초기화 스모크: 초기화 후 다시 열어도 복구로 부활하지 않음");',
+  'renderResetZone();',
+  'ok(RZ_ELS["resetZone"].innerHTML.includes("초기화됐어요"), "초기화 스모크: 초기화 완료 안내가 표시됨");'
+].join("\n");
+eval(rzPrelude + "\n" + rzFns + "\n" + rzDriver);
+
 console.log("\n[버전·파일]");
 const ver = html.match(/const APP_VERSION = "([^"]+)"/)[1];
 ok(read("README.md").includes("v" + ver), "README 버전 일치 (v" + ver + ")");

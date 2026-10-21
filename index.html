@@ -72,6 +72,12 @@ h1{font-size:26px;line-height:1.25;margin:11px 0 3px;letter-spacing:-.01em}
 .stepbtn.on{background:var(--blue);color:#fff;border-color:var(--blue)}
 button.primary{min-height:44px;background:var(--blue);color:#fff;border:1.5px solid var(--blue);border-radius:var(--r-pill);padding:11px 20px;font-size:15px;font-weight:800;cursor:pointer;font:inherit;transition:transform .12s var(--ease),background-color .18s ease}
 button.ghost{min-height:44px;background:#fff;color:var(--ink);border:1px solid var(--line-soft);border-radius:var(--r-pill);padding:10px 16px;font-size:14px;font-weight:700;cursor:pointer;font:inherit;transition:transform .12s var(--ease),background-color .18s ease}
+button.danger{min-height:44px;background:#fff;color:var(--bad);border:1.5px solid #e5b6b1;border-radius:var(--r-pill);padding:10px 18px;font-size:14px;font-weight:800;cursor:pointer;font:inherit;transition:transform .12s var(--ease),background-color .18s ease}
+button.danger.solid{background:var(--bad);color:#fff;border-color:var(--bad)}
+button.danger:active{transform:scale(.97)}
+.resetbox{background:#fdf4f3;border:1px solid #f0d6d3;border-left:4px solid var(--bad);border-radius:var(--r-md);padding:12px 14px;font-size:14.5px;line-height:1.55;margin:10px 0 4px}
+.resetbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.resetnote{font-size:13px;color:var(--sub);margin:6px 0 0}
 textarea,input[type=text]{width:100%;font:inherit;font-size:17.5px;line-height:1.6;padding:14px 15px;border:1px solid var(--line-soft);border-radius:14px;background:#fffdf4;box-shadow:inset 0 1px 3px rgba(60,50,20,.05)}
 textarea::placeholder,input[type=text]::placeholder{color:#a9a498}
 textarea:focus,input[type=text]:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(28,58,113,.13),inset 0 1px 3px rgba(60,50,20,.04);outline:none;background:#fff}
@@ -136,7 +142,7 @@ summary{font-weight:800;cursor:pointer}
 <body>
 <div class="wrap">
 <header class="masthead">
-<div class="brandrow"><span class="logo" aria-hidden="true">U</span><span class="wordmark">UNE PHRASE</span><span class="verpill">버전 1.17.0</span></div>
+<div class="brandrow"><span class="logo" aria-hidden="true">U</span><span class="wordmark">UNE PHRASE</span><span class="verpill">버전 1.18.0</span></div>
 <h1>한 문장 프랑스어</h1>
 <div class="progress" id="progressArea">
 <div class="progress-top"><span id="progressLine">불러오는 중…</span><span class="todaychip" id="todayChip">오늘 0문장</span></div>
@@ -199,18 +205,18 @@ summary{font-weight:800;cursor:pointer}
 <p id="vaultState">보관 상태 확인 중…</p>
 <p>기록은 이 기기의 브라우저 저장소에 저장되고, 같은 내용을 IndexedDB 보관함에도 복사해 둡니다. 브라우저가 저장소를 비워도 보관함에서 복구합니다. 단, 브라우저에서 “사이트 데이터 전체 삭제”를 하면 보관함도 함께 지워집니다. 그 경우를 막을 완전한 방법은 아직 없습니다.</p>
 <button class="ghost" id="exportBtn">기록 내보내기 (JSON)</button>
-<button class="ghost" id="resetBtn">기록 전체 지우기</button>
+<div id="resetZone"></div>
 </details>
 </div>
 
 <footer>
 <div class="footbrand"><span class="footlogo" aria-hidden="true">U</span><span class="footword">UNE PHRASE</span><span class="footko">한 문장 프랑스어</span></div>
-<div class="footmeta">v1.17.0 · © 2026 sidebatch</div>
+<div class="footmeta">v1.18.0 · © 2026 sidebatch</div>
 </footer>
 </div>
 <script>
 "use strict";
-const APP_VERSION = "1.17.0";
+const APP_VERSION = "1.18.0";
 const STORAGE_KEY = "une-phrase-progress-v1";
 const ITEMS = [
 {id:1,fr:"Je cherche un appartement près du métro parce que je n'ai pas de voiture.",ko:"나는 차가 없어서 지하철 근처 아파트를 찾고 있다.",chunks:[["Je cherche un appartement","아파트를 찾고 있다"],["près du métro","지하철 근처에"],["parce que je n'ai pas de voiture","차가 없기 때문에"]],pattern:"이유는 뒤에 붙인다: …parce que + 문장 → 연결어 parce que (왜냐하면)",words:[["appartement","아파트"],["près de","~ 근처에"]],topic:"일상",level:"B1",tef:"EO 말하기 · CE 읽기"},
@@ -816,7 +822,36 @@ function checkQuiz(){
 function endQuiz(){ quizItem = null; quizAnswered = false; renderQuizEntry(); }
 
 /* ---------- 탭 ---------- */
+/* ---------- 기록 초기화 (2단계 확인, 팝업 없음) ---------- */
+let resetStage = 0;
+let resetDoneMsg = false;
+function renderResetZone(){
+  const z = document.getElementById("resetZone");
+  if(!z) return;
+  if(resetStage === 1){
+    z.innerHTML = '<div class="resetbox"><b>초기화하면 전부 사라져요.</b><br>완료한 문장 기록, XP와 레벨, 복습 기록, 지금 보던 위치까지 전부 지워지고 되돌릴 수 없어요.<br>지우기 전에 위의 기록 내보내기(JSON)로 백업해 둘 수 있어요.<div class="resetbtns"><button class="ghost" id="resetCancel1">취소</button><button class="danger" id="resetNext1">네, 지울게요</button></div></div>';
+  } else if(resetStage === 2){
+    z.innerHTML = '<div class="resetbox"><b>정말 초기화합니다. 마지막 확인이에요.</b><div class="resetbtns"><button class="ghost" id="resetCancel2">취소</button><button class="danger solid" id="resetDo">정말 초기화</button></div></div>';
+  } else {
+    z.innerHTML = (resetDoneMsg ? '<div class="feedback ok">초기화됐어요. 첫 문장부터 새로 시작합니다.</div>' : '')
+      + '<button class="danger" id="resetBtn">기록 초기화</button><p class="resetnote">완료 기록·XP·레벨·복습 기록을 전부 지웁니다. 바로 지워지지 않고, 두 번 확인한 뒤에만 초기화돼요.</p>';
+  }
+  const b0 = document.getElementById("resetBtn"); if(b0) b0.onclick = ()=>{ resetStage = 1; resetDoneMsg = false; renderResetZone(); };
+  const c1 = document.getElementById("resetCancel1"); if(c1) c1.onclick = ()=>{ resetStage = 0; renderResetZone(); };
+  const n1 = document.getElementById("resetNext1"); if(n1) n1.onclick = ()=>{ resetStage = 2; renderResetZone(); };
+  const c2 = document.getElementById("resetCancel2"); if(c2) c2.onclick = ()=>{ resetStage = 0; renderResetZone(); };
+  const d2 = document.getElementById("resetDo"); if(d2) d2.onclick = ()=>{ doReset(); };
+}
+async function doReset(){
+  progress = defaultProgress(); currentStep = 1;
+  resetStage = 0; resetDoneMsg = true;
+  completionInFlight = false; quizItem = null; quizAnswered = false;
+  try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+  vaultReady = true; await vaultDelete(STORAGE_KEY);
+  renderVaultState(); renderSoundBtn(); renderResetZone(); renderStudy();
+}
 function showTab(name){
+  if(name !== "about" && (resetStage !== 0 || resetDoneMsg)){ resetStage = 0; resetDoneMsg = false; renderResetZone(); }
   ["study","browse","words","about"].forEach(t=>{ document.getElementById("tab-"+t).hidden = t!==name; });
   document.getElementById("tabBtnStudy").classList.toggle("on", name==="study");
   document.getElementById("tabBtnBrowse").classList.toggle("on", name==="browse");
@@ -872,13 +907,7 @@ document.getElementById("exportBtn").onclick = ()=>{
   const blob = new Blob([JSON.stringify(progress,null,2)],{type:"application/json"});
   const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "une-phrase-progress.json"; a.click();
 };
-document.getElementById("resetBtn").onclick = async ()=>{
-  if(!confirm("기록을 전부 지울까요? 보관함 복사본도 함께 지워집니다.")) return;
-  progress = defaultProgress(); currentStep = 1;
-  try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
-  vaultReady = true; await vaultDelete(STORAGE_KEY);
-  renderVaultState(); renderStudy(); alert("기록을 지웠습니다.");
-};
+renderResetZone();
 if("serviceWorker" in navigator){ navigator.serviceWorker.register("./sw.js").catch(()=>{}); }
 initStorage().then(()=>{ renderSoundBtn(); renderStudy(); });
 </script>
