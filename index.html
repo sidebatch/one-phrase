@@ -14,11 +14,11 @@
 <meta property="og:description" content="켜자마자 한 문장. TEF Canada와 일상 프랑스어를 3단계로 공부하는 앱.">
 <meta property="og:url" content="https://sidebatch.github.io/une-phrase/">
 <style>
-:root{--blue:#1c3a71;--gold:#c98a1b;--ink:#1c1c1e;--sub:#6b6b70;--bg:#fffdf8;--card:#fff;--line:#e8e2d8;--soft:#eef2fa;--ok:#1a7a2e;--bad:#b3261e}
+:root{--blue:#1c3a71;--gold:#c98a1b;--ink:#1c1c1e;--sub:#6b6b70;--bg:#fffdf8;--card:#fff;--line:#e8e2d8;--line-soft:#e7e0d0;--soft:#eef2fa;--ok:#1a7a2e;--bad:#b3261e}
 *{box-sizing:border-box}
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif;background:var(--bg);color:var(--ink);line-height:1.55}
 .wrap{max-width:720px;margin:0 auto;padding:18px 16px 64px}
-.masthead{border:1.5px solid var(--line);border-radius:20px;padding:16px 16px 13px;background:linear-gradient(180deg,#eef2fa 0%,#fffdf8 92%);margin-bottom:2px}
+.masthead{border:0;border-radius:20px;padding:16px 16px 13px;background:linear-gradient(180deg,#eef2fa 0%,#fffdf8 92%);margin-bottom:2px;box-shadow:0 1px 3px rgba(60,50,20,.04)}
 .brandrow{display:flex;align-items:center;gap:9px}
 .logo{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;flex:0 0 auto;border-radius:10px;background:var(--blue);color:#fff;font-size:19px;font-weight:900;line-height:1;box-shadow:inset 0 -3px 0 rgba(0,0,0,.22)}
 .wordmark{flex:1;min-width:0;font-weight:900;color:var(--blue);letter-spacing:.14em;font-size:15px;white-space:nowrap;overflow:hidden}
@@ -27,47 +27,48 @@ h1{font-size:26px;line-height:1.25;margin:11px 0 3px;letter-spacing:-.01em}
 .masthead .progress{margin:7px 0 0;padding-top:9px;border-top:1px dashed var(--line)}
 .lead{color:var(--sub);font-size:15px;margin:0 0 8px}
 .tabs{display:flex;gap:6px;margin:14px 0;flex-wrap:nowrap}
-.tabbtn{flex:0 0 auto;background:#fff;color:var(--ink);border:1.5px solid var(--line);border-radius:999px;padding:9px 14px;font-size:14px;font-weight:800;cursor:pointer;font:inherit}
+.tabbtn{flex:0 0 auto;background:#fff;color:var(--ink);border:1px solid var(--line-soft);border-radius:999px;padding:9px 14px;font-size:14px;font-weight:800;cursor:pointer;font:inherit}
 .tabbtn.on{background:var(--blue);color:#fff;border-color:var(--blue)}
 .tabs .tabbtn{flex:1 1 0;min-width:0;padding:9px 2px;font-size:13px;text-align:center;white-space:nowrap}
-.card{background:var(--card);border:1.5px solid var(--line);border-radius:18px;padding:18px;margin:12px 0}
+.card{background:var(--card);border:1px solid var(--line-soft);border-radius:18px;padding:18px;margin:12px 0;box-shadow:0 1px 3px rgba(60,50,20,.05)}
 .meta{font-size:13px;color:var(--sub);font-weight:700}
 .fr{font-size:22px;font-weight:800;line-height:1.4;margin:8px 0 4px}
 .ko{font-size:16px;color:var(--ink);margin:0 0 10px}
 .chunk{display:inline-block;background:var(--soft);border-radius:10px;padding:6px 10px;margin:3px 4px 3px 0;font-size:15px}
 .chunk b{display:block;font-size:15px}
 .chunk span{font-size:13px;color:var(--sub)}
-.pattern{background:#fff8e6;border:1.5px solid #f0dfa8;border-radius:12px;padding:10px 12px;font-size:14px;margin:10px 0}
+.pattern{background:#fff8e6;border:1px solid #eee1b9;border-radius:12px;padding:10px 12px;font-size:14px;margin:10px 0}
 .words{font-size:14px;margin:8px 0}
 .stepnav{display:flex;gap:6px;margin:12px 0;flex-wrap:nowrap}
-.stepbtn{flex:1 1 0;min-width:0;background:#fff;color:var(--ink);border:1.5px solid var(--line);border-radius:12px;padding:10px 2px;font-size:13px;font-weight:800;cursor:pointer;font:inherit;white-space:nowrap;text-align:center}
-.stepbtn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.stepbtn{flex:1 1 0;min-width:0;background:#fff;color:var(--ink);border:1px solid var(--line-soft);border-radius:12px;padding:10px 2px;font-size:13px;font-weight:800;cursor:pointer;font:inherit;white-space:nowrap;text-align:center}
+.stepbtn.on{background:var(--blue);color:#fff;border-color:var(--blue)}
 button.primary{background:var(--blue);color:#fff;border:1.5px solid var(--blue);border-radius:999px;padding:11px 20px;font-size:15px;font-weight:800;cursor:pointer;font:inherit}
-button.ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line);border-radius:999px;padding:10px 16px;font-size:14px;font-weight:700;cursor:pointer;font:inherit}
-textarea,input[type=text]{width:100%;font:inherit;font-size:17px;padding:12px;border:1.5px solid var(--line);border-radius:12px;background:#fff}
+button.ghost{background:#fff;color:var(--ink);border:1px solid var(--line-soft);border-radius:999px;padding:10px 16px;font-size:14px;font-weight:700;cursor:pointer;font:inherit}
+textarea,input[type=text]{width:100%;font:inherit;font-size:17px;padding:12px;border:1px solid var(--line-soft);border-radius:12px;background:#fff}
+textarea:focus,input[type=text]:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(28,58,113,.13);outline:none}
 .feedback{font-size:15px;margin:10px 0;padding:10px 12px;border-radius:12px}
 .feedback.ok{background:#e6f4ea;color:var(--ok)}
 .feedback.bad{background:#fdecea;color:var(--bad)}
 .progress{font-size:14px;color:var(--sub);font-weight:700}
 .donebox{text-align:center;padding:28px 16px}
 .donebox .big{font-size:24px;font-weight:900;margin:8px 0}
-.listitem{border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;margin:8px 0;background:#fff;cursor:pointer;width:100%;text-align:left;font:inherit;color:var(--ink)}
+.listitem{border:1px solid var(--line-soft);border-radius:12px;padding:12px 14px;margin:8px 0;background:#fff;cursor:pointer;width:100%;text-align:left;font:inherit;color:var(--ink)}
 .listitem .done{color:var(--ok);font-weight:800}
-footer{margin-top:34px;background:#f6f1e7;border:1px solid var(--line);border-radius:16px;padding:20px 16px 17px;text-align:center}
+footer{margin-top:34px;border-top:1px solid var(--line-soft);padding:20px 16px 0;text-align:center}
 .footbrand{display:flex;align-items:center;justify-content:center;gap:8px}
 .footlogo{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:7px;background:var(--blue);color:#fff;font-size:13px;font-weight:900;line-height:1}
 .footword{font-weight:900;color:var(--blue);letter-spacing:.1em;font-size:13.5px}
 .footko{font-size:13px;color:var(--sub);font-weight:700}
 .footmeta{margin-top:8px;font-size:12.5px;color:var(--sub)}
 .footmeta a{color:var(--sub);font-weight:700;text-decoration:underline;text-underline-offset:2px}
-details{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;margin:10px 0}
+details{background:#fff;border:1px solid var(--line-soft);border-radius:14px;padding:12px 14px;margin:10px 0}
 summary{font-weight:800;cursor:pointer}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header class="masthead">
-<div class="brandrow"><span class="logo" aria-hidden="true">U</span><span class="wordmark">UNE PHRASE</span><span class="verpill">버전 1.12.1</span></div>
+<div class="brandrow"><span class="logo" aria-hidden="true">U</span><span class="wordmark">UNE PHRASE</span><span class="verpill">버전 1.13.0</span></div>
 <h1>한 문장 프랑스어</h1>
 <p class="lead">켜면 바로 오늘의 한 문장. 읽고, 따라 쓰고, 가리고 쓰면 끝.</p>
 <p class="progress" id="progressLine">불러오는 중…</p>
@@ -123,12 +124,12 @@ summary{font-weight:800;cursor:pointer}
 
 <footer>
 <div class="footbrand"><span class="footlogo" aria-hidden="true">U</span><span class="footword">UNE PHRASE</span><span class="footko">한 문장 프랑스어</span></div>
-<div class="footmeta">v1.12.1 · © 2026 sidebatch</div>
+<div class="footmeta">v1.13.0 · © 2026 sidebatch</div>
 </footer>
 </div>
 <script>
 "use strict";
-const APP_VERSION = "1.12.1";
+const APP_VERSION = "1.13.0";
 const STORAGE_KEY = "une-phrase-progress-v1";
 const ITEMS = [
 {id:1,fr:"Je cherche un appartement près du métro parce que je n'ai pas de voiture.",ko:"나는 차가 없어서 지하철 근처 아파트를 찾고 있다.",chunks:[["Je cherche un appartement","아파트를 찾고 있다"],["près du métro","지하철 근처에"],["parce que je n'ai pas de voiture","차가 없기 때문에"]],pattern:"이유는 뒤에 붙인다: …parce que + 문장 → 연결어 parce que (왜냐하면)",words:[["appartement","아파트"],["près de","~ 근처에"]],topic:"일상",level:"B1",tef:"EO 말하기 · CE 읽기"},
