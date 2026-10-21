@@ -127,6 +127,111 @@ ok(html.includes("sound:true") && html.includes("progress.sound !== false"), "�
 ok(html.includes('id="soundBtn"'), "설명 탭 효과음 켜기/끄기 토글 있음");
 ok((html.match(/playSound\(true\)/g) || []).length >= 2 && (html.match(/playSound\(false\)/g) || []).length >= 2, "학습·퀴즈 채점에서 정답/오답 효과음 호출");
 
+console.log("\n[오답 비교: diffWords·wrongHtml]");
+const swSrc = html.match(/function splitWords[\s\S]*?\n\}/)[0];
+const dwSrc = html.match(/function diffWords[\s\S]*?\n\}/)[0];
+const escSrc = html.match(/function esc\(s\)\{[^}]*\}/)[0];
+const whSrc = html.match(/function wrongHtml[\s\S]*?\n\}/)[0];
+eval(swSrc); eval(dwSrc); eval(escSrc); eval(whSrc);
+{ const d = diffWords("je cherche un appartement", "je cherche un appartement");
+  ok(d.mineDiff.every(x=>!x) && d.ansDiff.every(x=>!x), "diff: 완전히 같으면 양쪽 다 차이 없음"); }
+{ const d = diffWords("je cherche un appartement", "je cherche un logement");
+  ok(d.mineDiff.join(",") === "false,false,false,true" && d.ansDiff.join(",") === "false,false,false,true", "diff: 단어 하나 교체 → 그 위치만 표시"); }
+{ const d = diffWords("je cherche un", "je cherche un appartement");
+  ok(d.mine.length===3 && d.answer.length===4 && d.mineDiff[3]===true && d.ansDiff[3]===true, "diff: 단어 누락 → 빈 자리도 차이로 표시"); }
+{ const d = diffWords("je cherche un grand appartement", "je cherche un appartement");
+  ok(d.mineDiff[3]===true && d.ansDiff[3]===true && d.ansDiff[4]===true, "diff: extra 단어 → 밀린 위치가 차이로 표시"); }
+{ const d = diffWords("je cherche pres du metro", "je cherche près du métro");
+  ok(d.mineDiff.every(x=>!x) && d.ansDiff.every(x=>!x), "diff: 악센트만 다르면 차이 아님 (채점 기준과 동일)"); }
+{ const h = wrongHtml("je cherche un logement", "je cherche un appartement");
+  ok(h.includes("여기가 달라요") && h.includes("내가 쓴 문장") && h.includes("정답"), "오답 피드백: 제목 + 내가 쓴 문장/정답 두 줄 구성");
+  ok(h.includes('class="wdiff"') && h.includes('class="adiff"'), "오답 피드백: 내 문장과 정답에서 다른 단어를 각각 강조"); }
+ok(html.includes('placeholder="문장을 보면서 써 보세요"') && html.includes('placeholder="프랑스어 문장을 써 보세요"'), "타이핑 박스: 단계별 안내 placeholder 있음");
+ok(html.includes('id="wordProg"') && html.includes('id="quizWordProg"') && html.includes("function bindWordProg"), "타이핑 박스: 단어 수 진행 표시 (학습·퀴즈)");
+
+console.log("\n[버그 회귀: 완료·퀴즈 중복 처리 방지]");
+const csSrc = html.match(/function completeSentence\(\)[\s\S]*?\n\}/)[0];
+const cqSrc = html.match(/function checkQuiz\(\)[\s\S]*?\n\}/)[0];
+ok(csSrc.includes("if(completionInFlight) return;"), "완료 처리: 재진입 가드(completionInFlight) 있음");
+ok(csSrc.includes('getElementById("studyCard").innerHTML = ""'), "완료 처리: 학습 카드를 비워 완료하기 버튼이 남지 않음");
+ok(csSrc.includes("scrollIntoView"), "완료 처리: 완료 화면으로 스크롤함");
+ok(cqSrc.includes("quizAnswered"), "퀴즈 채점: 한 번 답하면 재채점 가드(quizAnswered) 있음");
+// 최소 DOM 스텁: innerHTML에 등장하는 id를 레지스트리에 등록해 동적 요소를 흉내낸다
+const STUB_ELS = {};
+function makeStubEl(id){
+  const el = { id:id, value:"", style:{}, textContent:"", onclick:null, _html:"", _listeners:{},
+    classList:{ toggle(){}, add(){}, remove(){}, contains(){ return false; } },
+    setAttribute(){}, getAttribute(){ return null; },
+    addEventListener(t,f){ this._listeners[t] = f; },
+    focus(){}, scrollIntoView(){} };
+  Object.defineProperty(el, "innerHTML", {
+    get(){ return this._html; },
+    set(v){ this._html = v; const re = /id="([^"]+)"/g; let m; while((m = re.exec(v))){ if(!STUB_ELS[m[1]]) STUB_ELS[m[1]] = makeStubEl(m[1]); } }
+  });
+  return el;
+}
+const documentStub = {
+  getElementById(id){ if(!STUB_ELS[id]) STUB_ELS[id] = makeStubEl(id); return STUB_ELS[id]; },
+  querySelectorAll(){ return [makeStubEl("sb1"), makeStubEl("sb2"), makeStubEl("sb3")]; }
+};
+const smokePrelude = [
+  'let progress = null;',
+  'let currentStep = 3;',
+  'let quizItem = null;',
+  'let completionInFlight = false;',
+  'let quizAnswered = false;',
+  'const document = documentStub;',
+  'function saveProgress(){}',
+  'function renderVaultState(){}',
+  'function renderProgress(){}',
+  'function renderQuizEntry(){}',
+  'function playSound(){}',
+  'function speakFr(){}'
+].join("\n");
+const smokeFns = [
+  escSrc, swSrc, dwSrc,
+  html.match(/function setStep\(n\)\{[^}]*\}/)[0],
+  html.match(/function currentItem\(\)\{[^}]*\}/)[0],
+  html.match(/function todayKey\(\)\{[^}]*\}/)[0],
+  html.match(/function countToday\(p\)\{[^}]*\}/)[0],
+  html.match(/function bindWordProg[\s\S]*?\n\}/)[0],
+  html.match(/function renderStudy\(\)[\s\S]*?\n\}/)[0],
+  ctSrc, csSrc,
+  html.match(/function startQuiz[\s\S]*?\n\}/)[0],
+  cqSrc,
+  html.match(/function endQuiz\(\)\{[^}]*\}/)[0]
+].join("\n");
+const smokeDriver = [
+  'progress = { index:0, step:3, completed:[], doneDates:[], completedAt:{}, reviewCorrect:0, sound:true };',
+  'currentStep = 3;',
+  'renderStudy();',
+  'ok(!!STUB_ELS["typeInput"], "스모크: 3단계 타이핑 박스 렌더됨");',
+  'ok(STUB_ELS["wordProg"].innerHTML.indexOf("단어") > -1, "스모크: 단어 수 진행 표시 초기 렌더");',
+  'STUB_ELS["typeInput"].value = ITEMS[0].fr;',
+  'STUB_ELS["typeInput"]._listeners.input();',
+  'ok(STUB_ELS["wordProg"].innerHTML.indexOf("<b>" + splitWords(ITEMS[0].fr).length + "</b>") === 0, "스모크: 입력하면 단어 수 진행 표시 갱신");',
+  'checkTyping();',
+  'ok(!!STUB_ELS["advanceBtn"], "스모크: 정답 후 완료하기 버튼 표시");',
+  'STUB_ELS["advanceBtn"].onclick();',
+  'const idx1 = progress.index, done1 = progress.completed.length;',
+  'STUB_ELS["advanceBtn"].onclick();',
+  'STUB_ELS["advanceBtn"].onclick();',
+  'completeSentence();',
+  'ok(done1 === 1 && progress.completed.length === 1, "회귀: 완료 버튼 연타·재호출에도 완료는 1회만 (실제 " + progress.completed.length + "회)");',
+  'ok(idx1 === 1 && progress.index === 1, "회귀: 완료 연타해도 안 본 문장으로 건너뛰지 않음 (index " + progress.index + ")");',
+  'ok(xpOf(progress.completed.length, progress.reviewCorrect) === 10, "회귀: XP도 1회분 +10만 적립");',
+  'ok(STUB_ELS["studyCard"].innerHTML === "", "회귀: 완료 후 학습 카드가 비어 있음");',
+  'progress.completed = [ITEMS[0].id, ITEMS[1].id, ITEMS[2].id];',
+  'progress.index = 0; currentStep = 1;',
+  'startQuiz();',
+  'ok(!!quizItem, "스모크: 복습 퀴즈 출제됨");',
+  'STUB_ELS["quizInput"].value = quizItem.fr;',
+  'const rc0 = progress.reviewCorrect;',
+  'checkQuiz(); checkQuiz();',
+  'ok(progress.reviewCorrect === rc0 + 1, "회귀: 퀴즈 정답을 두 번 제출해도 복습 XP는 1회만 (reviewCorrect " + progress.reviewCorrect + ")");'
+].join("\n");
+eval(smokePrelude + "\n" + lvArrSrc + "\n" + lvlSrc + "\n" + xpSrc2 + "\n" + qpSrc + "\n" + normSrc + "\n" + corrSrc + "\n" + smokeFns + "\n" + smokeDriver);
+
 console.log("\n[버전·파일]");
 const ver = html.match(/const APP_VERSION = "([^"]+)"/)[1];
 ok(read("README.md").includes("v" + ver), "README 버전 일치 (v" + ver + ")");
