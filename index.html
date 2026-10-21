@@ -21,9 +21,10 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Go
 .brand{font-weight:900;color:var(--blue);letter-spacing:.05em;font-size:14px}
 h1{font-size:27px;line-height:1.25;margin:6px 0 4px}
 .lead{color:var(--sub);font-size:15px;margin:0 0 8px}
-.tabs{display:flex;gap:8px;margin:14px 0;flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}
+.tabs{display:flex;gap:6px;margin:14px 0;flex-wrap:nowrap}
 .tabbtn{flex:0 0 auto;background:#fff;color:var(--ink);border:1.5px solid var(--line);border-radius:999px;padding:9px 14px;font-size:14px;font-weight:800;cursor:pointer;font:inherit}
 .tabbtn.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.tabs .tabbtn{flex:1 1 0;min-width:0;padding:9px 2px;font-size:13px;text-align:center;white-space:nowrap}
 .card{background:var(--card);border:1.5px solid var(--line);border-radius:18px;padding:18px;margin:12px 0}
 .meta{font-size:13px;color:var(--sub);font-weight:700}
 .fr{font-size:22px;font-weight:800;line-height:1.4;margin:8px 0 4px}
@@ -33,8 +34,8 @@ h1{font-size:27px;line-height:1.25;margin:6px 0 4px}
 .chunk span{font-size:13px;color:var(--sub)}
 .pattern{background:#fff8e6;border:1.5px solid #f0dfa8;border-radius:12px;padding:10px 12px;font-size:14px;margin:10px 0}
 .words{font-size:14px;margin:8px 0}
-.stepnav{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}
-.stepbtn{flex:1;min-width:100px;background:#fff;color:var(--ink);border:1.5px solid var(--line);border-radius:12px;padding:10px 6px;font-size:14px;font-weight:800;cursor:pointer;font:inherit}
+.stepnav{display:flex;gap:6px;margin:12px 0;flex-wrap:nowrap}
+.stepbtn{flex:1 1 0;min-width:0;background:#fff;color:var(--ink);border:1.5px solid var(--line);border-radius:12px;padding:10px 2px;font-size:13px;font-weight:800;cursor:pointer;font:inherit;white-space:nowrap;text-align:center}
 .stepbtn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
 button.primary{background:var(--blue);color:#fff;border:1.5px solid var(--blue);border-radius:999px;padding:11px 20px;font-size:15px;font-weight:800;cursor:pointer;font:inherit}
 button.ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line);border-radius:999px;padding:10px 16px;font-size:14px;font-weight:700;cursor:pointer;font:inherit}
@@ -54,15 +55,15 @@ summary{font-weight:800;cursor:pointer}
 </head>
 <body>
 <div class="wrap">
-<div class="brand">UNE PHRASE · 버전 1.11.0</div>
+<div class="brand">UNE PHRASE · 버전 1.11.1</div>
 <h1>한 문장 프랑스어</h1>
-<p class="lead">고르지 마세요. <b>켜면 바로 오늘의 한 문장</b>이 나와요. 읽고, 따라 쓰고, 가리고 쓰면 끝 — 1분이면 한 문장이 내 것이 됩니다.</p>
+<p class="lead">켜면 바로 오늘의 한 문장. 읽고, 따라 쓰고, 가리고 쓰면 끝.</p>
 <p class="progress" id="progressLine">불러오는 중…</p>
 <div class="tabs">
 <button class="tabbtn on" id="tabBtnStudy">공부하기</button>
-<button class="tabbtn" id="tabBtnBrowse">주제별 보기</button>
-<button class="tabbtn" id="tabBtnWords">단어 모아보기</button>
-<button class="tabbtn" id="tabBtnAbout">설명 · 보관 상태</button>
+<button class="tabbtn" id="tabBtnBrowse">주제별</button>
+<button class="tabbtn" id="tabBtnWords">단어</button>
+<button class="tabbtn" id="tabBtnAbout">설명</button>
 </div>
 
 <div id="tab-study">
@@ -81,13 +82,13 @@ summary{font-weight:800;cursor:pointer}
 </div>
 
 <div id="tab-browse" hidden>
-<p class="lead">주제를 눌러 문장을 골라 공부할 수도 있어요. 기본은 공부하기 탭에서 순서대로 이어집니다.</p>
+<p class="lead">주제를 눌러 문장을 골라 볼 수 있어요.</p>
 <div id="topicFilter" style="display:flex;gap:6px;flex-wrap:wrap;margin:10px 0"></div>
 <div id="browseList"></div>
 </div>
 
 <div id="tab-words" hidden>
-<p class="lead">문장에서 나온 핵심 단어만 모았어요. 단어를 누르면 프랑스어 발음이 나옵니다.</p>
+<p class="lead">문장에서 나온 핵심 단어만 모았어요. 누르면 발음이 나옵니다.</p>
 <div id="wordsList"></div>
 </div>
 
@@ -107,11 +108,11 @@ summary{font-weight:800;cursor:pointer}
 </details>
 </div>
 
-<footer>Une Phrase v1.11.0 · 문장은 전부 미리 만들어져 있습니다 — 직접 만들 필요 없이 공부만 하세요.<br>보호 상태: <span id="vaultFooter">확인 중…</span></footer>
+<footer>Une Phrase v1.11.1 · © 2026 고잉 · Une Phrase</footer>
 </div>
 <script>
 "use strict";
-const APP_VERSION = "1.11.0";
+const APP_VERSION = "1.11.1";
 const STORAGE_KEY = "une-phrase-progress-v1";
 const ITEMS = [
 {id:1,fr:"Je cherche un appartement près du métro parce que je n'ai pas de voiture.",ko:"나는 차가 없어서 지하철 근처 아파트를 찾고 있다.",chunks:[["Je cherche un appartement","아파트를 찾고 있다"],["près du métro","지하철 근처에"],["parce que je n'ai pas de voiture","차가 없기 때문에"]],pattern:"이유는 뒤에 붙인다: …parce que + 문장 → 연결어 parce que (왜냐하면)",words:[["appartement","아파트"],["près de","~ 근처에"]],topic:"일상",level:"B1",tef:"EO 말하기 · CE 읽기"},
