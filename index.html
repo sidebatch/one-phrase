@@ -13,6 +13,15 @@
 <meta property="og:title" content="Une Phrase — 한 문장 프랑스어">
 <meta property="og:description" content="켜자마자 한 문장. TEF Canada와 일상 프랑스어를 3단계로 공부하는 앱.">
 <meta property="og:url" content="https://sidebatch.github.io/une-phrase/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:image" content="https://sidebatch.github.io/une-phrase/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Une Phrase — 한 문장 프랑스어">
+<meta name="twitter:description" content="켜자마자 한 문장. TEF Canada와 일상 프랑스어를 3단계로 공부하는 앱.">
+<meta name="twitter:image" content="https://sidebatch.github.io/une-phrase/og-image.png">
 <style>
 :root{
 --blue:#1c3a71;--blue2:#3d68b9;--gold:#c98a1b;--ink:#1c1c1e;--sub:#65656c;--bg:#fffdf8;--card:#fff;
@@ -142,7 +151,7 @@ summary{font-weight:800;cursor:pointer}
 <body>
 <div class="wrap">
 <header class="masthead">
-<div class="brandrow"><span class="logo" aria-hidden="true">U</span><span class="wordmark">UNE PHRASE</span><span class="verpill">버전 1.18.0</span></div>
+<div class="brandrow"><span class="logo" aria-hidden="true">U</span><span class="wordmark">UNE PHRASE</span><span class="verpill">버전 1.18.1</span></div>
 <h1>한 문장 프랑스어</h1>
 <div class="progress" id="progressArea">
 <div class="progress-top"><span id="progressLine">불러오는 중…</span><span class="todaychip" id="todayChip">오늘 0문장</span></div>
@@ -211,12 +220,12 @@ summary{font-weight:800;cursor:pointer}
 
 <footer>
 <div class="footbrand"><span class="footlogo" aria-hidden="true">U</span><span class="footword">UNE PHRASE</span><span class="footko">한 문장 프랑스어</span></div>
-<div class="footmeta">v1.18.0 · © 2026 sidebatch</div>
+<div class="footmeta">v1.18.1 · © 2026 sidebatch</div>
 </footer>
 </div>
 <script>
 "use strict";
-const APP_VERSION = "1.18.0";
+const APP_VERSION = "1.18.1";
 const STORAGE_KEY = "une-phrase-progress-v1";
 const ITEMS = [
 {id:1,fr:"Je cherche un appartement près du métro parce que je n'ai pas de voiture.",ko:"나는 차가 없어서 지하철 근처 아파트를 찾고 있다.",chunks:[["Je cherche un appartement","아파트를 찾고 있다"],["près du métro","지하철 근처에"],["parce que je n'ai pas de voiture","차가 없기 때문에"]],pattern:"이유는 뒤에 붙인다: …parce que + 문장 → 연결어 parce que (왜냐하면)",words:[["appartement","아파트"],["près de","~ 근처에"]],topic:"일상",level:"B1",tef:"EO 말하기 · CE 읽기"},

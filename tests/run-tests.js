@@ -325,6 +325,15 @@ ok(fs.existsSync(path.join(ROOT, "manifest.webmanifest")), "manifest 있음");
 ok(fs.existsSync(path.join(ROOT, "icons/icon-192.png")) && fs.existsSync(path.join(ROOT, "icons/icon-512.png")), "아이콘 있음");
 const man = JSON.parse(read("manifest.webmanifest"));
 ok(man.name.includes("Une Phrase"), "manifest 이름 확인");
+ok(html.includes('property="og:image" content="https://sidebatch.github.io/une-phrase/og-image.png"'), "og:image 절대 URL 있음");
+ok(html.includes('property="og:image:width" content="1200"') && html.includes('property="og:image:height" content="630"'), "og:image 크기 메타 있음");
+ok(html.includes('property="og:type" content="website"') && html.includes('name="twitter:card" content="summary_large_image"') && html.includes('name="twitter:image" content="https://sidebatch.github.io/une-phrase/og-image.png"'), "og:type·Twitter Card 메타 있음");
+const ogPngPath = path.join(ROOT, "og-image.png");
+ok(fs.existsSync(ogPngPath), "og-image.png 있음");
+if (fs.existsSync(ogPngPath)) {
+  const ogBuf = fs.readFileSync(ogPngPath);
+  ok(ogBuf.readUInt32BE(16) === 1200 && ogBuf.readUInt32BE(20) === 630, "og-image.png 실제 크기 1200×630");
+}
 
 console.log("\n결과: PASS " + pass + " / FAIL " + fail);
 process.exit(fail ? 1 : 0);
