@@ -6,7 +6,7 @@
 고르는 고민도, 직접 만드는 부담도 없이 — 읽고, 따라 쓰고, 가리고 쓰면 한 문장이 끝난다.
 콘텐츠는 TEF Canada 준비와 캐나다 일상생활에 바로 쓸 수 있는 문장으로 구성했다.
 
-버전: v1.11.1
+버전: v1.11.2
 
 ## 어떻게 쓰나요
 
@@ -17,10 +17,11 @@
 기본은 **한 문장만**이다. 끝내면 완료 화면이 나오고, 원하면 "한 문장 더"를 누른다.
 멈춘 자리에서 자동으로 이어지고, 주제별·단어 탭이 보조로 있다.
 
-## 콘텐츠 현황 (v1.11.1)
+## 콘텐츠 현황 (v1.11.2)
 
 - 문장 286개 (주제 10종, 레벨 A2 88개 · B1 96개 · B2 102개), 핵심 단어 572개
-- v1.11.1: UI·문구 정리만 (콘텐츠 변경 없음) — 탭과 단계 버튼을 화면 너비에 맞는 균등 배분으로 바꿔 잘림·넘침 해소, 히어로·설명 문구 축소, 푸터에 © 2026 고잉 표기
+- v1.11.2: 카피라이트 표기를 깃헙 이름 sidebatch로 정정
+- v1.11.1: UI·문구 정리만 (콘텐츠 변경 없음) — 탭과 단계 버튼을 화면 너비에 맞는 균등 배분으로 바꿔 잘림·넘침 해소, 히어로·설명 문구 축소, 푸터에 카피라이트 표기
 - v1.11.0에서 B2로만 20개 추가 (주제별 2개씩) — 가장 적었던 B2를 보강했다. à peine … que 도치(…하자마자), 양보·조건 접속법(quoi que · pourvu que · de peur que · à moins que · afin que), 지나간 가정(si + 대과거 → 조건법 과거), 미래완료 수동(auront été terminés), 전한 말의 미래(seraient affichés), 만일 대비(au cas où + 조건법 과거), 캐나다 생활 어휘(souper · courriel · quart de travail · canettes consignées), 여지를 남기는 의견(pourrait donner · auraient intérêt à) 등 TEF 말하기·쓰기에 바로 옮길 수 있는 B2 구조 위주
 - v1.10.0에서 B1로만 20개 추가 (주제별 2개씩) — 가장 적었던 B1을 보강했다. 동시에 하는 동작(en + 현재분사), 시작점부터 계속(depuis que), 여지를 남기는 조건법 의견(pourrait · serait · il vaudrait mieux), 전한 말(m'a dit que · on m'a expliqué quelles), 목적(afin de), 양보(même si), 먼저 끝난 일(après avoir reçu), 먼저 세운 계획(avions prévu) 등 TEF 말하기·쓰기에 바로 옮길 수 있는 B1 구조 위주
 - v1.9.0에서 A2로만 20개 추가 (주제별 2개씩) — 가장 적었던 A2를 보강했다. 출근 전 점심 준비(avant de + 동사원형), 저녁 뒤 정리(après le souper, 캐나다식 souper), 근무 시작·종료(commencer à · finir à), 상사 부재 시 의무(si + 현재 → devoir), 아픈 곳 말하기(avoir mal à la gorge), 건강 유지 목적(pour + 동사원형), 수업 듣고 쓰기(écouter · écrire), 대중교통 간격·결과(donc · ne…jamais), 눈 오면 지하철(au lieu de), 물 아끼기(pendant que), 비밀번호·이메일(courriel, 캐나다), 도착 후 첫 집 찾기(d'abord + passé composé), 주민 센터 도움 요청(pouvoir), 여지를 남기는 의견(je pense que · peut être · peuvent) 등 바로 쓰는 생활 문장 위주
