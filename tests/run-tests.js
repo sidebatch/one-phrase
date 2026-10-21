@@ -86,6 +86,37 @@ ok(html.includes("prefers-reduced-motion"), "모션 최소화 설정 존중");
 ok(html.includes("env(safe-area-inset-bottom)"), "하단 safe-area 여백 있음");
 ok(html.includes("--sp1:4px") && html.includes("--r-md:12px"), "디자인 토큰(간격·반경) 변수 있음");
 
+console.log("\n[동기부여: XP·레벨·정복 지도·복습 퀴즈]");
+const lvArrSrc = html.match(/const LEVELS = \[[\s\S]*?\n\];/)[0];
+const lvlSrc = html.match(/function levelOf[\s\S]*?\n\}/)[0];
+const xpSrc2 = html.match(/function xpOf[\s\S]*?\n\}/)[0];
+const tsSrc = html.match(/function topicStats[\s\S]*?\n\}/)[0];
+const qpSrc = html.match(/function quizPool[\s\S]*?\n\}/)[0];
+eval(lvArrSrc + "\n" + lvlSrc); eval(xpSrc2); eval(tsSrc); eval(qpSrc);
+const LEVELS = eval(lvArrSrc.match(/\[[\s\S]*\]/)[0]);
+ok(xpOf(0,0)===0 && xpOf(1,0)===10 && xpOf(0,1)===5 && xpOf(286,0)===2860, "XP 규칙: 신규 완료 +10, 복습 정답 +5");
+ok(LEVELS.length===10 && LEVELS.every(l=>l.title && l.title.trim()), "레벨 10단계, 칭호 있음");
+ok(LEVELS.every((l,i)=> i===0 ? l.at===0 : l.at>LEVELS[i-1].at), "레벨 임계값 오름차순, Lv.1은 0 XP");
+ok(levelOf(0).lv===1 && levelOf(LEVELS[1].at-1).lv===1 && levelOf(LEVELS[1].at).lv===2, "레벨 경계 판정");
+ok(levelOf(xpOf(286,0)).lv>=9, "전 문장 완료(2860 XP) 시 Lv.9 이상 (실제 Lv."+levelOf(xpOf(286,0)).lv+")");
+ok(levelOf(99999).nextAt===null && levelOf(99999).toNext===0 && levelOf(99999).pct===100, "최고 레벨: 다음 레벨 없음");
+{ const mid = levelOf(100); ok(mid.nextAt!==null && mid.toNext===mid.nextAt-100 && mid.pct>0 && mid.pct<100, "중간 레벨: 남은 XP·진행률 계산"); }
+{ const fakeItems = [{id:1,topic:"일상"},{id:2,topic:"일상"},{id:3,topic:"건강"}];
+  const ts = topicStats(fakeItems, [1,2]);
+  ok(ts.length===2, "정복 지도: 주제별 집계");
+  const daily = ts.find(t=>t.topic==="일상"), health = ts.find(t=>t.topic==="건강");
+  ok(daily.done===2 && daily.total===2 && daily.pct===100 && daily.conquered===true, "정복 지도: 100% 주제는 정복");
+  ok(health.done===0 && health.conquered===false, "정복 지도: 미완료 주제는 정복 아님");
+  ok(quizPool(fakeItems, [1,2,3], 2).map(i=>i.id).join(",")==="1,3", "복습 퀴즈 풀: 완료 문장만, 현재 문장 제외");
+  ok(quizPool(fakeItems, [1], 1).length===0, "복습 퀴즈 풀: 현재 문장만 완료면 풀 비어 있음");
+  ok(quizPool(fakeItems, [], null).length===0, "복습 퀴즈 풀: 완료 없으면 비어 있음"); }
+ok(html.includes("reviewCorrect:0") && html.includes("completedAt:{}"), "덧붙임 저장: 새 필드 기본값 있음");
+ok(html.includes("Object.assign(defaultProgress(), chosen)"), "덧붙임 저장: 기존 저장본에 기본값 병합해 로드 (구버전 저장본 그대로 열림)");
+ok(html.includes('id="topicMap"') && html.includes("function renderTopicMap"), "정복 지도 UI 있음");
+ok(html.includes('id="quizArea"') && html.includes("복습 퀴즈 — 끝낸 문장에서 다시 쓰기") && html.includes("progress.reviewCorrect"), "복습 퀴즈 진입·XP 적립 코드 있음");
+ok(html.includes('id="lvLabel"') && html.includes("다음 레벨까지"), "레벨 행 UI 있음");
+ok(html.includes("completedAt[it.id]"), "완료 시 문장별 완료 날짜 기록");
+
 console.log("\n[버전·파일]");
 const ver = html.match(/const APP_VERSION = "([^"]+)"/)[1];
 ok(read("README.md").includes("v" + ver), "README 버전 일치 (v" + ver + ")");

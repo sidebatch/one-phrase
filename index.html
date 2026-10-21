@@ -94,6 +94,23 @@ textarea:focus,input[type=text]:focus{border-color:var(--blue);box-shadow:0 0 0 
 .worditem{align-items:center;justify-content:space-between}
 .worditem.learned{background:#f4f8ff}
 .wlearned{flex:0 0 auto;font-size:12px;font-weight:800;color:var(--blue);background:var(--done-chip);border-radius:var(--r-pill);padding:2px 9px}
+.levelrow{display:flex;align-items:center;gap:var(--sp2);margin-top:9px;font-size:12.5px}
+.lvlabel{flex:0 0 auto;font-weight:900;color:var(--blue);white-space:nowrap}
+.lvbar{flex:1;height:8px;margin-top:0}
+.pfill.gold{background:linear-gradient(90deg,var(--gold),#e3ac40)}
+.lvnext{flex:0 0 auto;color:var(--sub);font-weight:700;white-space:nowrap}
+.xpgain{display:inline-block;background:#fdf3e0;color:var(--gold);font-weight:900;font-size:15px;border-radius:var(--r-pill);padding:3px 14px;margin-bottom:6px}
+.levelup{font-size:19px;font-weight:900;color:var(--blue);margin:2px 0 6px;animation:pop .45s var(--ease)}
+.quizcard{background:#fbfcff;border-color:var(--done-line)}
+.mapgrid{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp2);margin:10px 0 4px}
+.mapcard{background:#fff;border:1px solid var(--line-soft);border-radius:var(--r-md);padding:12px;text-align:left;font:inherit;color:var(--ink);cursor:pointer;box-shadow:var(--shadow);transition:transform .12s var(--ease),background-color .18s ease,border-color .18s ease}
+.mapcard:active{transform:scale(.98)}
+.map-top{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:15px}
+.conqbadge{flex:0 0 auto;background:var(--blue);color:#fff;font-size:11.5px;font-weight:800;border-radius:var(--r-pill);padding:2px 8px}
+.map-count{display:block;color:var(--sub);font-size:13px;font-weight:700;margin-top:2px}
+.mapbar{display:block;height:8px;background:var(--track);border-radius:var(--r-pill);overflow:hidden;margin-top:8px}
+.mapbar .pfill{display:block}
+.mapcard.conquered{background:var(--done-bg);border-color:var(--done-line)}
 footer{margin-top:var(--sp6);border-top:1px solid var(--line-soft);padding:20px 16px 0;text-align:center}
 .footbrand{display:flex;align-items:center;justify-content:center;gap:8px}
 .footlogo{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:7px;background:var(--blue);color:#fff;font-size:13px;font-weight:900;line-height:1}
@@ -108,12 +125,13 @@ summary{font-weight:800;cursor:pointer}
 <body>
 <div class="wrap">
 <header class="masthead">
-<div class="brandrow"><span class="logo" aria-hidden="true">U</span><span class="wordmark">UNE PHRASE</span><span class="verpill">버전 1.14.0</span></div>
+<div class="brandrow"><span class="logo" aria-hidden="true">U</span><span class="wordmark">UNE PHRASE</span><span class="verpill">버전 1.15.0</span></div>
 <h1>한 문장 프랑스어</h1>
 <div class="progress" id="progressArea">
 <div class="progress-top"><span id="progressLine">불러오는 중…</span><span class="todaychip" id="todayChip">오늘 0문장</span></div>
 <div class="pbar" id="pbar" role="progressbar" aria-label="전체 진행률" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="pfill" id="pfill"></div></div>
 <div class="progress-sub"><span class="progress-pct" id="progressPct">전체 0%</span><span id="progressLeft"></span></div>
+<div class="levelrow"><span class="lvlabel" id="lvLabel">Lv.1 문장 새싹</span><div class="pbar lvbar" id="lvBar" role="progressbar" aria-label="다음 레벨까지 진행" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="pfill gold" id="lvFill"></div></div><span class="lvnext" id="lvNext"></span></div>
 </div>
 </header>
 <div class="tabs">
@@ -136,10 +154,12 @@ summary{font-weight:800;cursor:pointer}
 <button class="ghost" id="nextBtn">다음 문장 →</button>
 <button class="ghost" id="listenBtn2">🔊 다시 듣기</button>
 </div>
+<div id="quizArea"></div>
 </div>
 
 <div id="tab-browse" hidden>
 <p class="lead">주제를 눌러 문장을 골라 볼 수 있어요.</p>
+<div id="topicMap"></div>
 <div id="topicFilter" style="display:flex;gap:6px;flex-wrap:wrap;margin:10px 0"></div>
 <div id="browseList"></div>
 </div>
@@ -157,6 +177,9 @@ summary{font-weight:800;cursor:pointer}
 <details><summary>이 문장들이 TEF Canada와 어떻게 연결되나요</summary>
 <p>EO 말하기: 의견 문장과 일상 설명 문장을 그대로 말하기 재료로 씁니다.<br>EE 쓰기: je pense que, d'une part… 같은 의견 구조와 연결어를 문장째로 익힙니다.<br>CE 읽기: 지문에 자주 나오는 표현과 관계절 구조를 문장 단위로 먼저 익힙니다.<br>CO 듣기: 듣기 버튼으로 문장 소리를 반복해 듣고, 가리고 쓰기로 받아쓰기까지 연결합니다.<br>각 문장 카드에 어떤 영역에 도움이 되는지 표시해 뒀습니다.</p>
 </details>
+<details><summary>레벨과 XP, 복습 퀴즈</summary>
+<p>새 문장을 처음 완료하면 +10 XP, 복습 퀴즈를 맞히면 +5 XP가 쌓이고 레벨이 오릅니다. 복습 퀴즈는 완료한 문장이 3개 이상이면 공부하기 탭 아래에 나타납니다. 한 주제를 전부 완료하면 주제별 탭의 정복 지도에서 “정복”으로 표시됩니다.</p>
+</details>
 <details><summary>진행 기록은 어떻게 보관되나요</summary>
 <p id="vaultState">보관 상태 확인 중…</p>
 <p>기록은 이 기기의 브라우저 저장소에 저장되고, 같은 내용을 IndexedDB 보관함에도 복사해 둡니다. 브라우저가 저장소를 비워도 보관함에서 복구합니다. 단, 브라우저에서 “사이트 데이터 전체 삭제”를 하면 보관함도 함께 지워집니다. 그 경우를 막을 완전한 방법은 아직 없습니다.</p>
@@ -167,12 +190,12 @@ summary{font-weight:800;cursor:pointer}
 
 <footer>
 <div class="footbrand"><span class="footlogo" aria-hidden="true">U</span><span class="footword">UNE PHRASE</span><span class="footko">한 문장 프랑스어</span></div>
-<div class="footmeta">v1.14.0 · © 2026 sidebatch</div>
+<div class="footmeta">v1.15.0 · © 2026 sidebatch</div>
 </footer>
 </div>
 <script>
 "use strict";
-const APP_VERSION = "1.14.0";
+const APP_VERSION = "1.15.0";
 const STORAGE_KEY = "une-phrase-progress-v1";
 const ITEMS = [
 {id:1,fr:"Je cherche un appartement près du métro parce que je n'ai pas de voiture.",ko:"나는 차가 없어서 지하철 근처 아파트를 찾고 있다.",chunks:[["Je cherche un appartement","아파트를 찾고 있다"],["près du métro","지하철 근처에"],["parce que je n'ai pas de voiture","차가 없기 때문에"]],pattern:"이유는 뒤에 붙인다: …parce que + 문장 → 연결어 parce que (왜냐하면)",words:[["appartement","아파트"],["près de","~ 근처에"]],topic:"일상",level:"B1",tef:"EO 말하기 · CE 읽기"},
@@ -467,7 +490,7 @@ function normalizeForCompare(s){
   return (s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/['’]/g,"'").replace(/[^a-z0-9' ]/g," ").replace(/\s+/g," ").trim();
 }
 function isCorrect(input, target){ return normalizeForCompare(input) === normalizeForCompare(target); }
-function activityOf(p){ if(!p) return -1; return (p.completed?p.completed.length:0)*100000 + (p.index||0); }
+function activityOf(p){ if(!p) return -1; return (p.completed?p.completed.length:0)*100000 + (p.reviewCorrect||0)*100 + (p.index||0); }
 function pickRestore(localData, vaultData){
   if(!vaultData) return localData;
   if(!localData) return vaultData;
@@ -475,6 +498,44 @@ function pickRestore(localData, vaultData){
 }
 function todayKey(){ return new Date().toLocaleDateString("en-CA"); }
 function countToday(p){ if(!p||!p.doneDates) return 0; return p.doneDates.filter(d=>d===todayKey()).length; }
+
+/* ---------- 동기부여 순수 함수 (테스트 대상) ---------- */
+const LEVELS = [
+  { lv:1, title:"문장 새싹", at:0 },
+  { lv:2, title:"문장 걸음마", at:30 },
+  { lv:3, title:"문장 수집가", at:80 },
+  { lv:4, title:"문장 탐험가", at:160 },
+  { lv:5, title:"문장 연금술사", at:280 },
+  { lv:6, title:"문장 기사", at:450 },
+  { lv:7, title:"문장 현자", at:700 },
+  { lv:8, title:"문장 대가", at:1050 },
+  { lv:9, title:"문장 장인", at:1550 },
+  { lv:10, title:"문장 전설", at:2300 }
+];
+function xpOf(completedCount, reviewCorrect){ return (completedCount||0)*10 + (reviewCorrect||0)*5; }
+function levelOf(xp){
+  let cur = LEVELS[0], next = null;
+  for(let i=0;i<LEVELS.length;i++){ if(xp >= LEVELS[i].at){ cur = LEVELS[i]; next = LEVELS[i+1] || null; } }
+  return { lv:cur.lv, title:cur.title, at:cur.at, nextAt:(next?next.at:null), nextTitle:(next?next.title:null), toNext:(next?next.at-xp:0), pct:(next?Math.round((xp-cur.at)/(next.at-cur.at)*100):100) };
+}
+function topicStats(items, completed){
+  const done = new Set(completed||[]);
+  const by = {};
+  items.forEach(i=>{
+    if(!by[i.topic]) by[i.topic] = { topic:i.topic, total:0, done:0 };
+    by[i.topic].total++;
+    if(done.has(i.id)) by[i.topic].done++;
+  });
+  return Object.keys(by).map(k=>{
+    const t = by[k];
+    const pct = t.total ? Math.round(t.done/t.total*100) : 0;
+    return { topic:t.topic, total:t.total, done:t.done, pct:pct, conquered:(t.total>0 && t.done===t.total) };
+  });
+}
+function quizPool(items, completed, currentId){
+  const done = new Set(completed||[]);
+  return items.filter(i=>done.has(i.id) && i.id!==currentId);
+}
 
 /* ---------- 보관함 (IndexedDB 미러) ---------- */
 let vaultReady = false;
@@ -486,7 +547,7 @@ async function vaultSet(key,val){ if(!vaultReady) return; try{ const db=await id
 async function vaultDelete(key){ try{ const db=await idbOpen(); await new Promise((res,rej)=>{ const tx=db.transaction("kv","readwrite").objectStore("kv").delete(key); tx.onsuccess=()=>res(); tx.onerror=()=>rej(tx.error); }); }catch(e){} }
 
 /* ---------- 상태 ---------- */
-function defaultProgress(){ return { index:0, completed:[], doneDates:[], step:1 }; }
+function defaultProgress(){ return { index:0, completed:[], doneDates:[], step:1, reviewCorrect:0, completedAt:{} }; }
 let progress = defaultProgress();
 function loadLocal(){ try{ const raw=localStorage.getItem(STORAGE_KEY); return raw?JSON.parse(raw):null; }catch(e){ return null; } }
 function saveProgress(){
@@ -531,6 +592,7 @@ function speakFr(text){
 
 /* ---------- 학습 흐름 ---------- */
 let currentStep = 1;
+let quizItem = null;
 function setStep(n){ currentStep = n; progress.step = n; saveProgress(); }
 function currentItem(){ return ITEMS[Math.min(progress.index, ITEMS.length-1)]; }
 function esc(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
@@ -547,6 +609,11 @@ function renderProgress(){
   document.getElementById("pbar").setAttribute("aria-valuenow", pct);
   document.getElementById("progressPct").textContent = "전체 "+pct+"%";
   document.getElementById("progressLeft").textContent = doneCount>=total ? "전부 완료했어요" : (total-doneCount)+"문장 남음";
+  const lv = levelOf(xpOf(doneCount, progress.reviewCorrect||0));
+  document.getElementById("lvLabel").textContent = "Lv."+lv.lv+" "+lv.title;
+  document.getElementById("lvNext").textContent = lv.nextAt===null ? "최고 레벨" : "다음 레벨까지 "+lv.toNext+" XP";
+  requestAnimationFrame(()=>{ document.getElementById("lvFill").style.width = lv.pct+"%"; });
+  document.getElementById("lvBar").setAttribute("aria-valuenow", lv.pct);
 }
 function renderStudy(){
   const it = currentItem();
@@ -577,6 +644,7 @@ function renderStudy(){
   const g2 = document.getElementById("goStep2"); if(g2) g2.onclick = ()=>{ setStep(2); renderStudy(); };
   const cb = document.getElementById("checkBtn"); if(cb) cb.onclick = checkTyping;
   const hb = document.getElementById("hintBtn"); if(hb) hb.onclick = ()=>{ document.getElementById("hint").innerHTML = '<p class="lead">첫 단어: <b>'+esc(it.fr.split(" ")[0])+'</b> · 덩어리: '+it.chunks.map(c=>esc(c[0])).join(" / ")+'</p>'; };
+  renderQuizEntry();
   renderProgress();
 }
 function checkTyping(){
@@ -593,15 +661,67 @@ function checkTyping(){
 }
 function completeSentence(){
   const it = currentItem();
-  if(!progress.completed.includes(it.id)){ progress.completed.push(it.id); progress.doneDates.push(todayKey()); }
+  const lvBefore = levelOf(xpOf(progress.completed.length, progress.reviewCorrect||0));
+  let gained = 0;
+  if(!progress.completed.includes(it.id)){
+    progress.completed.push(it.id); progress.doneDates.push(todayKey());
+    if(!progress.completedAt) progress.completedAt = {};
+    if(!progress.completedAt[it.id]) progress.completedAt[it.id] = todayKey();
+    gained = 10;
+  }
   if(progress.index < ITEMS.length-1) progress.index++;
   progress.step = 1;
   saveProgress(); renderVaultState(); renderProgress();
+  const lvAfter = levelOf(xpOf(progress.completed.length, progress.reviewCorrect||0));
   const pctAll = Math.round(progress.completed.length/ITEMS.length*100);
-  document.getElementById("doneBox").innerHTML = '<div class="card donebox"><div class="donecircle" aria-hidden="true">✓</div><div class="big">한 문장 완료!</div><p>오늘 '+countToday(progress)+'문장째 · 지금까지 '+progress.completed.length+' / '+ITEMS.length+'문장</p><div class="pbar donebar"><div class="pfill" style="width:'+pctAll+'%"></div></div><div class="donepct">전체 '+pctAll+'%</div><button class="primary" id="oneMoreBtn">한 문장 더 →</button></div>';
+  let extra = "";
+  if(gained) extra += '<div class="xpgain">+'+gained+' XP</div>';
+  if(lvAfter.lv > lvBefore.lv) extra += '<div class="levelup">레벨 업! Lv.'+lvAfter.lv+' '+esc(lvAfter.title)+'</div>';
+  document.getElementById("doneBox").innerHTML = '<div class="card donebox"><div class="donecircle" aria-hidden="true">✓</div><div class="big">한 문장 완료!</div>'+extra+'<p>오늘 '+countToday(progress)+'문장째 · 지금까지 '+progress.completed.length+' / '+ITEMS.length+'문장</p><div class="pbar donebar"><div class="pfill" style="width:'+pctAll+'%"></div></div><div class="donepct">전체 '+pctAll+'%</div><button class="primary" id="oneMoreBtn">한 문장 더 →</button></div>';
   document.getElementById("oneMoreBtn").onclick = ()=>{ setStep(1); renderStudy(); window.scrollTo({top:0,behavior:"smooth"}); };
+  renderQuizEntry();
 }
 function goToItem(idx, step){ progress.index = idx; setStep(step||1); showTab("study"); renderStudy(); window.scrollTo({top:0,behavior:"smooth"}); }
+
+/* ---------- 복습 퀴즈 ---------- */
+function renderQuizEntry(){
+  const area = document.getElementById("quizArea");
+  if(!area || quizItem) return;
+  if(progress.completed.length < 3){ area.innerHTML = ""; return; }
+  area.innerHTML = '<div class="card quizcard"><div class="meta">복습 퀴즈</div><p class="ko" style="margin:6px 0 10px">끝낸 문장에서 한 문장, 뜻만 보고 다시 써 보세요. 맞히면 +5 XP</p><button class="primary" id="quizStartBtn">복습 퀴즈 — 끝낸 문장에서 다시 쓰기</button></div>';
+  document.getElementById("quizStartBtn").onclick = ()=>startQuiz();
+}
+function startQuiz(excludeId){
+  let pool = quizPool(ITEMS, progress.completed, currentItem().id);
+  if(excludeId && pool.length > 1) pool = pool.filter(i=>i.id!==excludeId);
+  if(!pool.length) pool = ITEMS.filter(i=>progress.completed.includes(i.id) && i.id!==excludeId);
+  if(!pool.length){ quizItem = null; renderQuizEntry(); return; }
+  quizItem = pool[Math.floor(Math.random()*pool.length)];
+  document.getElementById("quizArea").innerHTML = '<div class="card quizcard"><div class="meta">복습 퀴즈 · 맞히면 +5 XP</div><p class="ko" style="font-size:19px;font-weight:700;margin-top:8px">'+esc(quizItem.ko)+'</p><textarea id="quizInput" rows="3" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><div id="quizFb"></div><button class="primary" id="quizCheckBtn">확인하기</button> <button class="ghost" id="quizQuitBtn">그만하기</button></div>';
+  document.getElementById("quizCheckBtn").onclick = checkQuiz;
+  document.getElementById("quizQuitBtn").onclick = endQuiz;
+  const qi = document.getElementById("quizInput"); if(qi) qi.focus();
+}
+function checkQuiz(){
+  if(!quizItem) return;
+  const input = document.getElementById("quizInput").value;
+  let h = "";
+  if(isCorrect(input, quizItem.fr)){
+    progress.reviewCorrect = (progress.reviewCorrect||0)+1;
+    saveProgress(); renderVaultState(); renderProgress();
+    h = '<div class="feedback ok">✓ 맞았어요! +5 XP<br>정답: '+esc(quizItem.fr)+'</div>';
+  } else {
+    h = '<div class="feedback bad">아쉬워요. 정답은:<br><b>'+esc(quizItem.fr)+'</b></div>';
+  }
+  h += '<button class="primary" id="quizMoreBtn">한 문제 더</button> <button class="ghost" id="quizDoneBtn">끝내기</button>';
+  document.getElementById("quizFb").innerHTML = h;
+  const cb = document.getElementById("quizCheckBtn"); if(cb) cb.style.display = "none";
+  const qb = document.getElementById("quizQuitBtn"); if(qb) qb.style.display = "none";
+  const lastId = quizItem.id;
+  document.getElementById("quizMoreBtn").onclick = ()=>startQuiz(lastId);
+  document.getElementById("quizDoneBtn").onclick = endQuiz;
+}
+function endQuiz(){ quizItem = null; renderQuizEntry(); }
 
 /* ---------- 탭 ---------- */
 function showTab(name){
@@ -612,7 +732,15 @@ function showTab(name){
   document.getElementById("tabBtnAbout").classList.toggle("on", name==="about");
 }
 let browseTopic = "전체";
+function renderTopicMap(){
+  const el = document.getElementById("topicMap");
+  if(!el) return;
+  const stats = topicStats(ITEMS, progress.completed);
+  el.innerHTML = '<div class="meta" style="margin-top:4px">정복 지도</div><div class="mapgrid">'+stats.map(t=>'<button class="mapcard'+(t.conquered?" conquered":"")+'" data-mtopic="'+esc(t.topic)+'"><span class="map-top"><b>'+esc(t.topic)+'</b>'+(t.conquered?'<span class="conqbadge">정복</span>':'')+'</span><span class="map-count">'+t.done+' / '+t.total+'문장</span><span class="pbar mapbar"><span class="pfill" style="width:'+t.pct+'%"></span></span></button>').join("")+'</div>';
+  document.querySelectorAll("[data-mtopic]").forEach(b=>b.onclick=()=>{ browseTopic = b.getAttribute("data-mtopic"); renderBrowse(); });
+}
 function renderBrowse(){
+  renderTopicMap();
   const topics = ["전체"].concat([...new Set(ITEMS.map(i=>i.topic))]);
   document.getElementById("topicFilter").innerHTML = topics.map(t=>'<button class="tabbtn'+(t===browseTopic?" on":"")+'" data-topic="'+esc(t)+'">'+esc(t)+'</button>').join("");
   document.querySelectorAll("[data-topic]").forEach(b=>b.onclick=()=>{ browseTopic=b.getAttribute("data-topic"); renderBrowse(); });
