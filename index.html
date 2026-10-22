@@ -75,14 +75,13 @@ h1{font-size:26px;line-height:1.25;margin:11px 0 3px;letter-spacing:-.01em}
 .menurow.menuclose{justify-content:center;color:var(--sub);margin-bottom:0}
 @media (hover:hover){.menubtn:hover,.menurow:hover{background:#f7f3ea}}
 .btnrow{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
-.slowbtn.on{background:var(--blue);color:#fff;border-color:var(--blue)}
 #resetZone{margin-top:12px}
 .tabbtn{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;min-height:38px;background:#fff;color:var(--ink);border:1px solid var(--line-soft);border-radius:var(--r-pill);padding:9px 14px;font-size:14px;font-weight:800;cursor:pointer;font:inherit;transition:transform .12s var(--ease),background-color .18s ease,border-color .18s ease}
 .tabbtn.on{background:var(--blue);color:#fff;border-color:var(--blue)}
 .tabs .tabbtn{flex:1 1 0;min-width:0;min-height:44px;padding:9px 2px;font-size:13px;text-align:center;white-space:nowrap}
-.tabbtn:active,.stepbtn:active,button.primary:active,button.ghost:active{transform:scale(.97)}
+.tabbtn:active,button.primary:active,button.ghost:active{transform:scale(.97)}
 .listitem:active{transform:scale(.99)}
-@media (hover:hover){.tabbtn:not(.on):hover,.stepbtn:not(.on):hover,button.ghost:hover{background:#f7f3ea}.listitem:hover{border-color:#d8cfba}}
+@media (hover:hover){.tabbtn:not(.on):hover,button.ghost:hover{background:#f7f3ea}.listitem:hover{border-color:#d8cfba}}
 #tab-study,#tab-browse,#tab-words,#tab-about{animation:fadeUp .25s var(--ease)}
 .card{background:var(--card);border:1px solid var(--line-soft);border-radius:var(--r-lg);padding:18px;margin:var(--sp3) 0;box-shadow:var(--shadow)}
 .meta{font-size:13px;color:var(--sub);font-weight:700}
@@ -94,9 +93,7 @@ h1{font-size:26px;line-height:1.25;margin:11px 0 3px;letter-spacing:-.01em}
 .chunk span{font-size:13px;color:var(--sub)}
 .pattern{background:#fff8e6;border:1px solid #eee1b9;border-radius:var(--r-md);padding:10px 12px;font-size:14px;margin:10px 0}
 .words{font-size:14px;margin:var(--sp2) 0}
-.stepnav{display:flex;gap:10px;margin:var(--sp3) 0;flex-wrap:nowrap}
-.stepbtn{flex:1 1 0;min-width:0;min-height:44px;display:flex;align-items:center;justify-content:center;background:#fff;color:var(--ink);border:1px solid var(--line-soft);border-radius:var(--r-md);padding:10px 2px;font-size:13px;font-weight:800;cursor:pointer;font:inherit;white-space:nowrap;text-align:center;transition:transform .12s var(--ease),background-color .18s ease,border-color .18s ease}
-.stepbtn.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.backwrap{margin-top:12px}
 button.primary{min-height:44px;background:var(--blue);color:#fff;border:1.5px solid var(--blue);border-radius:var(--r-pill);padding:11px 20px;font-size:15px;font-weight:800;cursor:pointer;font:inherit;transition:transform .12s var(--ease),background-color .18s ease}
 button.ghost{min-height:44px;background:#fff;color:var(--ink);border:1px solid var(--line-soft);border-radius:var(--r-pill);padding:10px 16px;font-size:14px;font-weight:700;cursor:pointer;font:inherit;transition:transform .12s var(--ease),background-color .18s ease}
 button.danger{min-height:44px;background:#fff;color:var(--bad);border:1.5px solid #e5b6b1;border-radius:var(--r-pill);padding:10px 18px;font-size:14px;font-weight:800;cursor:pointer;font:inherit;transition:transform .12s var(--ease),background-color .18s ease}
@@ -175,7 +172,7 @@ summary{font-weight:800;cursor:pointer}
 <body>
 <div class="wrap">
 <header class="masthead">
-<div class="brandrow"><span class="logo" aria-hidden="true">U</span><span class="wordmark">UNE PHRASE</span><span class="verpill">버전 1.22.0</span></div>
+<div class="brandrow"><span class="logo" aria-hidden="true">U</span><span class="wordmark">UNE PHRASE</span><span class="verpill">버전 1.23.0</span></div>
 <h1>한 문장 프랑스어</h1>
 <div class="progress" id="progressArea">
 <div class="progress-top"><span id="progressLine">불러오는 중…</span><span class="todaychip" id="todayChip">오늘 0문장</span></div>
@@ -204,11 +201,6 @@ summary{font-weight:800;cursor:pointer}
 <button class="menurow menuclose" id="menuCloseBtn">닫기</button>
 </div>
 </div>
-<div class="stepnav">
-<button class="stepbtn on" id="stepBtn1">1 · 읽어보기</button>
-<button class="stepbtn" id="stepBtn2">2 · 따라 쓰기</button>
-<button class="stepbtn" id="stepBtn3">3 · 가리고 쓰기</button>
-</div>
 <div class="card" id="studyCard"></div>
 <div id="doneBox"></div>
 <div id="quizArea"></div>
@@ -230,7 +222,7 @@ summary{font-weight:800;cursor:pointer}
 <details open><summary>어떻게 쓰나요 — 3단계</summary>
 <p>1 · 읽어보기: 문장과 뜻 덩어리를 보고, 듣기 버튼으로 소리를 확인합니다.<br>2 · 따라 쓰기: 문장을 보면서 그대로 타이핑합니다. 손이 철자를 기억합니다.<br>3 · 가리고 쓰기: 한국어 뜻만 보고 프랑스어 문장 전체를 씁니다. 이 단계가 진짜 암기입니다.</p>
 <p>기본 흐름은 <b>한 문장만</b>입니다. 한 문장을 끝내면 완료 화면이 나오고, 원하면 “한 문장 더”를 누르세요.</p>
-<p>공부하는 동안에는 위쪽 탭이 숨겨져 집중할 수 있어요. 다른 곳으로 가려면 카드 위의 “☰ 메뉴”를 눌러 이동하세요. 듣기가 빠르면 듣기 옆의 🐢 버튼으로 0.8배속으로 천천히 들을 수 있어요.</p>
+<p>공부하는 동안에는 위쪽 탭이 숨겨져 집중할 수 있어요. 다른 곳으로 가려면 카드 위의 “☰ 메뉴”를 눌러 이동하세요. 듣기가 빠르면 "느리게 듣기" 버튼으로 0.8배속으로 한 번 천천히 들을 수 있어요.</p>
 </details>
 <details open><summary>공유하기</summary>
 <p>주변에 프랑스어를 공부하는 사람이 있으면 이 앱을 알려 주세요. 버튼을 누르면 공유 화면이 열리고, 공유가 안 되는 환경에서는 링크가 복사됩니다.</p>
@@ -257,12 +249,12 @@ summary{font-weight:800;cursor:pointer}
 
 <footer>
 <div class="footbrand"><span class="footlogo" aria-hidden="true">U</span><span class="footword">UNE PHRASE</span><span class="footko">한 문장 프랑스어</span></div>
-<div class="footmeta">v1.22.0 · © 2026 sidebatch</div>
+<div class="footmeta">v1.23.0 · © 2026 sidebatch</div>
 </footer>
 </div>
 <script>
 "use strict";
-const APP_VERSION = "1.22.0";
+const APP_VERSION = "1.23.0";
 const STORAGE_KEY = "une-phrase-progress-v1";
 const ITEMS = [
 {id:1,fr:"Je cherche un appartement près du métro parce que je n'ai pas de voiture.",ko:"나는 차가 없어서 지하철 근처 아파트를 찾고 있다.",chunks:[["Je cherche un appartement","아파트를 찾고 있다"],["près du métro","지하철 근처에"],["parce que je n'ai pas de voiture","차가 없기 때문에"]],pattern:"이유는 뒤에 붙인다: …parce que + 문장 → 연결어 parce que (왜냐하면)",words:[["appartement","아파트"],["près de","~ 근처에"]],topic:"일상",level:"B1",tef:"EO 말하기 · CE 읽기"},
@@ -637,7 +629,7 @@ async function vaultSet(key,val){ if(!vaultReady) return; try{ const db=await id
 async function vaultDelete(key){ try{ const db=await idbOpen(); await new Promise((res,rej)=>{ const tx=db.transaction("kv","readwrite").objectStore("kv").delete(key); tx.onsuccess=()=>res(); tx.onerror=()=>rej(tx.error); }); }catch(e){} }
 
 /* ---------- 상태 ---------- */
-function defaultProgress(){ return { index:0, completed:[], doneDates:[], step:1, reviewCorrect:0, completedAt:{}, sound:true, slow:false }; }
+function defaultProgress(){ return { index:0, completed:[], doneDates:[], step:1, reviewCorrect:0, completedAt:{}, sound:true }; }
 let progress = defaultProgress();
 function loadLocal(){ try{ const raw=localStorage.getItem(STORAGE_KEY); return raw?JSON.parse(raw):null; }catch(e){ return null; } }
 function saveProgress(){
@@ -665,15 +657,14 @@ function renderVaultState(){
 
 /* ---------- 음성 (Android 경합 방지: cancel 후 짧게 대기) ---------- */
 let speakTimer = null;
-function speakRate(){ return progress.slow ? 0.8 : 1.0; }
-function speakFr(text){
+function speakFr(text, rate){
   try{
     if(!("speechSynthesis" in window)) return;
     window.speechSynthesis.cancel();
     if(speakTimer) clearTimeout(speakTimer);
     speakTimer = setTimeout(()=>{
       const u = new SpeechSynthesisUtterance(text);
-      u.lang = "fr-FR"; u.rate = speakRate();
+      u.lang = "fr-FR"; u.rate = (typeof rate === "number") ? rate : 1.0;
       const voices = window.speechSynthesis.getVoices().filter(v=>v.lang && v.lang.toLowerCase().startsWith("fr"));
       if(voices.length) u.voice = voices[0];
       window.speechSynthesis.speak(u);
@@ -749,40 +740,41 @@ function renderProgress(){
   requestAnimationFrame(()=>{ document.getElementById("lvFill").style.width = lv.pct+"%"; });
   document.getElementById("lvBar").setAttribute("aria-valuenow", lv.pct);
 }
-function slowBtnHtml(){ return '<button class="ghost slowbtn'+(progress.slow?" on":"")+'" id="slowBtn" aria-pressed="'+(progress.slow?"true":"false")+'">🐢 느리게 0.8배속</button>'; }
+function slowListenBtnHtml(){ return '<button class="ghost" id="slowListenBtn">🐢 느리게 듣기</button>'; }
 function renderStudy(){
   completionInFlight = false;
   completionShown = false;
   const it = currentItem();
-  document.querySelectorAll(".stepbtn").forEach((b,i)=>b.classList.toggle("on", i+1===currentStep));
   const done = progress.completed.includes(it.id);
   let h = "";
-  h += '<div class="meta">'+esc(it.topic)+' · '+esc(it.level)+' · 도움되는 영역: '+esc(it.tef)+(done?' <span class="donebadge">✓ 완료</span>':'')+'</div>';
+  const tefSeg = currentStep===1 ? ' · 도움되는 영역: '+esc(it.tef) : '';
+  h += '<div class="meta">'+esc(it.topic)+' · '+esc(it.level)+tefSeg+(done?' <span class="donebadge">✓ 완료</span>':'')+'</div>';
   if(currentStep===1){
     h += '<div class="fr">'+esc(it.fr)+'</div><p class="ko">'+esc(it.ko)+'</p>';
     h += '<div>'+it.chunks.map(c=>'<span class="chunk"><b>'+esc(c[0])+'</b><span>'+esc(c[1])+'</span></span>').join("")+'</div>';
     h += '<div class="pattern">'+esc(it.pattern)+'</div>';
     h += '<div class="words">핵심 단어: '+it.words.map(w=>'<b>'+esc(w[0])+'</b> '+esc(w[1])).join(" · ")+'</div>';
-    h += '<div class="btnrow"><button class="primary" id="listenBtn">🔊 듣기</button>'+slowBtnHtml()+'<button class="ghost" id="goStep2">다음으로 →</button></div>';
+    h += '<div class="btnrow"><button class="primary" id="listenBtn">🔊 듣기</button>'+slowListenBtnHtml()+'<button class="ghost" id="goStep2">따라 쓰기</button></div>';
   } else if(currentStep===2){
     h += '<div class="fr">'+esc(it.fr)+'</div><p class="ko">'+esc(it.ko)+'</p>';
     h += '<p class="lead">위 문장을 보면서 그대로 타이핑하세요.</p>';
     h += '<textarea id="typeInput" rows="3" placeholder="문장을 보면서 써 보세요" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><div class="wordprog" id="wordProg" aria-live="polite"></div><div id="fb"></div>';
-    h += '<div class="btnrow"><button class="primary" id="checkBtn">확인하기</button><button class="ghost" id="listenBtn">🔊 듣기</button>'+slowBtnHtml()+'</div>';
+    h += '<div class="btnrow"><button class="primary" id="checkBtn">확인하기</button><button class="ghost" id="listenBtn">🔊 듣기</button>'+slowListenBtnHtml()+'</div>';
+    h += '<div class="backwrap"><button class="ghost" id="backBtn">← 뒤로</button></div>';
   } else {
     h += '<p class="ko" style="font-size:19px;font-weight:700">'+esc(it.ko)+'</p>';
-    h += '<p class="lead">뜻만 보고 프랑스어로 써 보세요. 악센트(é, è)가 달라도 괜찮아요.</p>';
     h += '<textarea id="typeInput" rows="3" placeholder="프랑스어 문장을 써 보세요" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><div class="wordprog" id="wordProg" aria-live="polite"></div><div id="fb"></div>';
-    h += '<div class="btnrow"><button class="primary" id="checkBtn">확인하기</button><button class="ghost" id="hintBtn">힌트: 첫 단어 보기</button>'+slowBtnHtml()+'</div><div id="hint"></div>';
+    h += '<div class="btnrow"><button class="primary" id="checkBtn">확인하기</button></div>';
+    h += '<div class="backwrap"><button class="ghost" id="backBtn">← 뒤로</button></div>';
   }
   document.getElementById("studyCard").innerHTML = h;
   document.getElementById("doneBox").innerHTML = "";
   const lb = document.getElementById("listenBtn"); if(lb) lb.onclick = ()=>speakFr(it.fr);
-  const slb = document.getElementById("slowBtn"); if(slb) slb.onclick = ()=>{ progress.slow = !progress.slow; saveProgress(); slb.classList.toggle("on", !!progress.slow); slb.setAttribute("aria-pressed", progress.slow ? "true" : "false"); };
+  const slb = document.getElementById("slowListenBtn"); if(slb) slb.onclick = ()=>speakFr(it.fr, 0.8);
   const g2 = document.getElementById("goStep2"); if(g2) g2.onclick = ()=>{ setStep(2); renderStudy(); };
   const cb = document.getElementById("checkBtn"); if(cb) cb.onclick = checkTyping;
   bindWordProg("typeInput", "wordProg", it.fr);
-  const hb = document.getElementById("hintBtn"); if(hb) hb.onclick = ()=>{ document.getElementById("hint").innerHTML = '<p class="lead">첫 단어: <b>'+esc(it.fr.split(" ")[0])+'</b> · 덩어리: '+it.chunks.map(c=>esc(c[0])).join(" / ")+'</p>'; };
+  const bb = document.getElementById("backBtn"); if(bb) bb.onclick = ()=>{ setStep(currentStep===3 ? 2 : 1); renderStudy(); };
   renderQuizEntry();
   renderProgress();
   applyFocus();
@@ -793,7 +785,7 @@ function checkTyping(){
   const fb = document.getElementById("fb");
   if(isCorrect(input, it.fr)){
     playSound(true);
-    const label = currentStep===2 ? "다음으로 →" : "완료하기 →";
+    const label = currentStep===2 ? "가리고 쓰기" : "완료하기 →";
     fb.innerHTML = correctHtml(it.fr) + '<div class="advancewrap"><button class="primary" id="advanceBtn">'+label+'</button></div>';
     const cb = document.getElementById("checkBtn"); if(cb) cb.style.display = "none";
     document.getElementById("advanceBtn").onclick = ()=>{
@@ -985,9 +977,6 @@ document.querySelectorAll("[data-menu]").forEach(b=>b.onclick=()=>goMenu(b.getAt
 document.getElementById("tabBtnBrowse").onclick = ()=>{ showTab("browse"); renderBrowse(); };
 document.getElementById("tabBtnWords").onclick = ()=>{ showTab("words"); renderWords(); };
 document.getElementById("tabBtnAbout").onclick = ()=>showTab("about");
-document.getElementById("stepBtn1").onclick = ()=>{ setStep(1); renderStudy(); };
-document.getElementById("stepBtn2").onclick = ()=>{ setStep(2); renderStudy(); };
-document.getElementById("stepBtn3").onclick = ()=>{ setStep(3); renderStudy(); };
 function renderSoundBtn(){ const b = document.getElementById("soundBtn"); if(b) b.textContent = soundEnabled() ? "효과음 끄기" : "효과음 켜기"; }
 document.getElementById("soundBtn").onclick = ()=>{ progress.sound = !soundEnabled(); saveProgress(); renderSoundBtn(); if(soundEnabled()) playSound(true); };
 renderSoundBtn();

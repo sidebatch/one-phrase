@@ -198,7 +198,7 @@ const smokePrelude = [
 ].join("\n");
 const smokeFns = [
   escSrc, swSrc, dwSrc,
-  html.match(/function slowBtnHtml\(\)[^\n]*/)[0],
+  html.match(/function slowListenBtnHtml\(\)[^\n]*/)[0],
   html.match(/function inFocus\(\)[^\n]*/)[0],
   html.match(/function applyFocus\(\)[\s\S]*?\n\}/)[0],
   html.match(/function openMenu\(\)\{[\s\S]*?\n\}/)[0],
@@ -276,10 +276,10 @@ eval(chSrc);
   const chq = correctHtml(fr, " +5 XP");
   ok(chq.split('<div class="answerbox">')[0].includes("+5 XP") && !chq.split('<div class="answerbox">')[0].includes(fr), "퀴즈 정답 피드백: +5 XP는 성공 문구에, 문장은 별도 블록에");
   ok(!html.includes("맞았어요! 정답:"), "학습·퀴즈 어디에도 성공 문구와 정답을 한 줄로 붙이지 않음"); }
-ok(ctSrc.includes('"다음으로 →"') && !ctSrc.includes("3 · 가리고 쓰기"), "진행 버튼: '다음으로 →'만 표시 (단계 이름 제거)");
+ok(ctSrc.includes('"가리고 쓰기"') && ctSrc.includes('"완료하기 →"') && !ctSrc.includes("다음으로"), "진행 버튼: 따라 쓰기 정답 후에는 '가리고 쓰기', 마지막 단계는 '완료하기 →' ('다음으로' 제거)");
 ok(!html.includes("다음: 2 · 따라 쓰기"), "읽어보기 단계 진행 버튼도 단계 이름 없이 짧게");
 ok(ctSrc.includes("advancewrap") && /\.advancewrap\{margin:14px 0\}/.test(html), "정답 후 진행 버튼 영역: 위아래 14px 간격으로 듣기 버튼과 분리");
-ok(html.includes("뜻만 보고 프랑스어로 써 보세요. 악센트(é, è)가 달라도 괜찮아요."), "가리고 쓰기 안내: 짧은 문구로 교체");
+ok(!html.includes("뜻만 보고 프랑스어로 써 보세요"), "가리고 쓰기 안내: 안내 문구 자체를 표시하지 않음 (v1.23.0)");
 ok(!html.includes("프랑스어 문장은 가려져 있어요"), "가리고 쓰기 안내: 긴 설명 문구 제거");
 
 console.log("\n[기록 초기화: 2단계 확인]");
@@ -395,20 +395,126 @@ const csSrc2 = html.match(/function completeSentence\(\)[\s\S]*?\n\}/)[0];
 ok(rsSrc2.includes("applyFocus()") && csSrc2.includes("completionShown = true"), "포커스: 학습 렌더 시 적용, 완료 화면에서는 해제 지점 표시");
 ok(!html.includes('id="prevBtn"') && !html.includes('id="nextBtn"'), "공부하기 하단: 이전/다음 문장 버튼 제거됨 (문장 고르기는 주제별 탭)");
 ok(!html.includes('id="listenBtn2"') && !html.includes("다시 듣기"), "공부하기 하단: 중복 다시 듣기 버튼 제거됨 (카드 안 듣기로 충분)");
-ok(html.includes("slow:false") && html.includes("🐢 느리게 0.8배속"), "느리게 듣기: 설정 기본값(끔)과 토글 칩 있음");
-ok(html.includes("u.rate = speakRate();"), "느리게 듣기: 모든 듣기가 중앙 speakFr의 속도를 따름");
-ok(rsSrc2.includes("slowBtnHtml()") && rsSrc2.includes("progress.slow = !progress.slow") && rsSrc2.includes("saveProgress()"), "느리게 토글: 학습 카드 단계마다 있고, 누르면 기록에 저장됨");
-ok(/\.slowbtn\.on\{background:var\(--blue\)/.test(html), "느리게 토글: 켜짐 상태는 딥블루로 표시");
-const srSrc = html.match(/function speakRate\(\)[^\n]*/)[0];
-eval(['let progress = { slow:false };', srSrc,
-  'ok(speakRate() === 1.0, "느리게 듣기: 끄면 속도 1.0");',
-  'progress.slow = true;',
-  'ok(speakRate() === 0.8, "느리게 듣기: 켜면 속도 0.8");'].join("\n"));
+ok(!html.includes("progress.slow") && !html.includes("speakRate") && !html.includes("🐢 느리게 0.8배속") && !html.includes("slowbtn"), "느리게 듣기: 토글 칩·속도 설정 저장·speakRate가 모두 제거됨 (v1.23.0)");
+ok(html.includes("🐢 느리게 듣기") && html.includes('id="slowListenBtn"'), "느리게 듣기: 누를 때만 0.8배속으로 1회 재생하는 버튼 있음");
+ok(html.includes('u.rate = (typeof rate === "number") ? rate : 1.0;'), "느리게 듣기: speakFr가 명시 속도 인자를 받고 기본값은 1.0");
+ok(rsSrc2.includes("slowListenBtnHtml()") && rsSrc2.includes("speakFr(it.fr, 0.8)"), "느리게 듣기: 읽어보기·따라 쓰기에 버튼이 있고 0.8 인자로 speakFr를 호출");
+// speakFr 속도 스텁: speechSynthesis를 흉내내 발화 객체의 rate를 직접 확인
+const sfSrc = html.match(/function speakFr\(text, rate\)[\s\S]*?\n\}/)[0];
+const sfPrelude = [
+  'const sfUtterances = [];',
+  'function SpeechSynthesisUtterance(t){ this.text = t; this.lang = ""; this.rate = 1; this.voice = null; }',
+  'const window = { speechSynthesis: { cancel(){}, getVoices(){ return []; }, speak(u){ sfUtterances.push(u); } } };',
+  'const setTimeout = (fn)=>{ fn(); return 0; };',
+  'const clearTimeout = ()=>{};',
+  'let speakTimer = null;'
+].join("\n");
+eval(sfPrelude + "\n" + sfSrc + "\n" + [
+  'speakFr("Bonjour.");',
+  'ok(sfUtterances.length === 1 && sfUtterances[0].rate === 1.0 && sfUtterances[0].lang === "fr-FR", "듣기 스모크: 인자 없이 부르면 1.0배속 발화");',
+  'speakFr("Bonjour.", 0.8);',
+  'ok(sfUtterances.length === 2 && sfUtterances[1].rate === 0.8, "느리게 듣기 스모크: 0.8 인자를 주면 그 발화만 0.8배속");',
+  'speakFr("Bonjour.");',
+  'ok(sfUtterances.length === 3 && sfUtterances[2].rate === 1.0, "느리게 듣기 스모크: 다음 일반 듣기는 다시 1.0배속 (토글 아님, 상태 없음)");'
+].join("\n"));
 ok(/\.btnrow\{[^}]*display:flex[^}]*gap:12px/.test(html), "간격: 카드 안 버튼 묶음은 flex gap 12px (.btnrow)");
-ok(/\.tabs\{[^}]*gap:10px/.test(html) && /\.stepnav\{[^}]*gap:10px/.test(html), "간격: 탭 바·단계 버튼 gap 10px");
+ok(/\.tabs\{[^}]*gap:10px/.test(html) && !/stepnav/.test(html), "간격: 탭 바 gap 10px (단계 탭 행은 제거됨)");
 ok(/\.resetbtns\{[^}]*gap:12px/.test(html), "간격: 초기화 확인 버튼 gap 12px");
 ok(rsSrc2.includes('class="btnrow"'), "간격: 학습 카드 버튼들이 .btnrow로 묶임");
 ok(html.match(/function startQuiz[\s\S]*?\n\}/)[0].includes("btnrow") && cqSrc.includes("btnrow"), "간격: 퀴즈 버튼 행도 .btnrow로 묶임");
+
+console.log("\n[학습 흐름 재편: 선형 진행·뒤로·재통과 (v1.23.0)]");
+ok(!html.includes('class="stepnav"') && !html.includes('id="stepBtn') && !html.includes(".stepbtn"), "단계 탭: 읽어보기/따라 쓰기/가리고 쓰기 버튼 행이 학습 화면에서 제거됨");
+ok(rsSrc2.includes('id="goStep2">따라 쓰기</button>'), "읽어보기: 진행 버튼 라벨이 '따라 쓰기'");
+ok((rsSrc2.match(/id="backBtn"/g) || []).length === 2, "뒤로: 따라 쓰기와 가리고 쓰기 두 곳에 '← 뒤로' 버튼이 있음");
+ok(rsSrc2.includes("setStep(currentStep===3 ? 2 : 1)"), "뒤로: 3단계에서는 2단계로, 2단계에서는 1단계로 돌아감");
+ok(rsSrc2.includes("const tefSeg = currentStep===1"), "메타 줄: '도움되는 영역'은 읽어보기(1단계)에서만 붙음");
+ok(!html.includes("hintBtn") && !html.includes("힌트: 첫 단어 보기"), "가리고 쓰기: 힌트 버튼과 힌트 로직이 앱 전체에서 제거됨");
+{ const s2 = rsSrc2.split("} else if(currentStep===2){")[1].split("} else {")[0];
+  ok(s2.includes("slowListenBtnHtml()") && s2.includes('id="backBtn"') && s2.includes('id="listenBtn"'), "따라 쓰기: 듣기·느리게 듣기·뒤로가 함께 있음"); }
+{ const s3 = rsSrc2.split("} else {")[1].split('document.getElementById("studyCard")')[0];
+  ok(!s3.includes("listenBtn") && !s3.includes("slowListen") && !s3.includes("hint") && !s3.includes("뜻만 보고"), "가리고 쓰기: 듣기·느리게 듣기·힌트·안내 문구가 모두 없음 (문장이 새지 않음)");
+  ok(s3.includes('id="checkBtn"') && s3.includes('id="backBtn"') && s3.includes('id="typeInput"') && s3.includes('id="wordProg"'), "가리고 쓰기: 뜻 프롬프트·타이핑 박스·단어 수·확인하기·뒤로만 남음"); }
+// 흐름 스모크: 단계 탭 없이 선형 진행 + 뒤로가기 재통과를 실제 앱 함수로 재현
+const FL_ELS = {};
+function makeFlEl(id){
+  const el = { id:id, value:"", style:{}, textContent:"", onclick:null, _html:"", _listeners:{},
+    classList:{ toggle(){}, add(){}, remove(){}, contains(){ return false; } },
+    setAttribute(){}, getAttribute(){ return null; },
+    addEventListener(t,f){ this._listeners[t] = f; },
+    focus(){}, scrollIntoView(){} };
+  Object.defineProperty(el, "innerHTML", {
+    get(){ return this._html; },
+    set(v){ this._html = v; const re = /id="([^"]+)"/g; let m; while((m = re.exec(v))){ if(!FL_ELS[m[1]]) FL_ELS[m[1]] = makeFlEl(m[1]); } }
+  });
+  return el;
+}
+const flDocument = {
+  getElementById(id){ if(!FL_ELS[id]) FL_ELS[id] = makeFlEl(id); return FL_ELS[id]; },
+  querySelectorAll(){ return []; }
+};
+const flPrelude = [
+  'let progress = null;',
+  'let currentStep = 1;',
+  'let completionInFlight = false;',
+  'let completionShown = false;',
+  'const document = flDocument;',
+  'function saveProgress(){}',
+  'function renderQuizEntry(){}',
+  'function renderProgress(){}',
+  'function applyFocus(){}',
+  'function playSound(){}',
+  'function speakFr(){}',
+  'function completeSentence(){}'
+].join("\n");
+const flFns = [
+  escSrc, swSrc, dwSrc, normSrc, corrSrc, chSrc, whSrc,
+  html.match(/function slowListenBtnHtml\(\)[^\n]*/)[0],
+  html.match(/function setStep\(n\)\{[^}]*\}/)[0],
+  html.match(/function currentItem\(\)\{[^}]*\}/)[0],
+  html.match(/function todayKey\(\)\{[^}]*\}/)[0],
+  html.match(/function countToday\(p\)\{[^}]*\}/)[0],
+  html.match(/function bindWordProg[\s\S]*?\n\}/)[0],
+  rsSrc2, ctSrc
+].join("\n");
+const flDriver = [
+  'progress = { index:0, step:1, completed:[], doneDates:[], completedAt:{}, reviewCorrect:0, sound:true };',
+  'currentStep = 1;',
+  'renderStudy();',
+  'const card1 = FL_ELS["studyCard"].innerHTML;',
+  'ok(card1.includes("도움되는 영역"), "흐름 스모크: 1단계 메타 줄에는 도움되는 영역이 보임");',
+  'ok(card1.includes(\'id="goStep2"\') && card1.includes(">따라 쓰기<") && card1.includes(\'id="slowListenBtn"\'), "흐름 스모크: 1단계에 따라 쓰기 진행 버튼과 느리게 듣기 버튼");',
+  'ok(!card1.includes(\'id="backBtn"\'), "흐름 스모크: 1단계에는 뒤로 버튼 없음");',
+  'FL_ELS["goStep2"].onclick();',
+  'ok(currentStep === 2, "흐름 스모크: 따라 쓰기를 누르면 2단계로");',
+  'const card2 = FL_ELS["studyCard"].innerHTML;',
+  'ok(!card2.includes("도움되는 영역") && card2.includes(\'id="backBtn"\') && card2.includes(\'id="slowListenBtn"\'), "흐름 스모크: 2단계는 메타에서 영역이 사라지고 뒤로·느리게 듣기가 있음");',
+  'FL_ELS["backBtn"].onclick();',
+  'ok(currentStep === 1, "흐름 스모크: 2단계 뒤로는 1단계로 돌아감");',
+  'FL_ELS["goStep2"].onclick();',
+  'ok(currentStep === 2 && !FL_ELS["studyCard"].innerHTML.includes("advanceBtn"), "흐름 스모크: 뒤로 갔다 다시 오면 2단계가 새 상태 (진행 버튼 없음)");',
+  'FL_ELS["typeInput"].value = ITEMS[0].fr;',
+  'checkTyping();',
+  'ok(FL_ELS["fb"].innerHTML.includes("가리고 쓰기") && FL_ELS["fb"].innerHTML.includes(\'id="advanceBtn"\'), "흐름 스모크: 2단계 정답 후 진행 버튼 라벨이 가리고 쓰기");',
+  'FL_ELS["advanceBtn"].onclick();',
+  'ok(currentStep === 3, "흐름 스모크: 가리고 쓰기를 누르면 3단계로");',
+  'const card3 = FL_ELS["studyCard"].innerHTML;',
+  'ok(!card3.includes("listenBtn") && !card3.includes("hintBtn") && !card3.includes("뜻만 보고") && !card3.includes("도움되는 영역"), "흐름 스모크: 3단계에는 듣기·힌트·안내·영역 표시가 없음");',
+  'ok(card3.includes(\'id="backBtn"\') && card3.includes(\'id="checkBtn"\'), "흐름 스모크: 3단계에는 확인하기와 뒤로만 남음");',
+  'FL_ELS["backBtn"].onclick();',
+  'ok(currentStep === 2, "흐름 스모크: 3단계 뒤로는 2단계로 돌아감");',
+  'const card2b = FL_ELS["studyCard"].innerHTML;',
+  'ok(!card2b.includes("advanceBtn") && card2b.includes(\'id="checkBtn"\') && card2b.includes(\'id="fb"\'), "재통과 스모크: 뒤로 온 2단계는 진행 버튼 없이 새 상태 — 다시 정답을 맞춰야 함");',
+  'FL_ELS["typeInput"].value = ITEMS[0].fr;',
+  'checkTyping();',
+  'ok(FL_ELS["fb"].innerHTML.includes(\'id="advanceBtn"\'), "재통과 스모크: 다시 정답을 맞히면 진행 버튼이 다시 나타남");',
+  'FL_ELS["advanceBtn"].onclick();',
+  'ok(currentStep === 3, "재통과 스모크: 재통과 후에야 3단계로 넘어감");',
+  'FL_ELS["typeInput"].value = ITEMS[0].fr;',
+  'checkTyping();',
+  'ok(FL_ELS["fb"].innerHTML.includes("완료하기"), "흐름 스모크: 3단계 정답 후 버튼은 완료하기");'
+].join("\n");
+eval(flPrelude + "\n" + flFns + "\n" + flDriver);
 
 console.log("\n[공유 버튼 (v1.21.0)]");
 ok(html.includes('id="shareBtn"') && html.includes("🔗 이 앱 공유하기"), "공유: 설명 탭에 '🔗 이 앱 공유하기' 버튼 있음");
