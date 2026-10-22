@@ -172,7 +172,7 @@ summary{font-weight:800;cursor:pointer}
 <body>
 <div class="wrap">
 <header class="masthead">
-<div class="brandrow"><span class="logo" aria-hidden="true">U</span><span class="wordmark">UNE PHRASE</span><span class="verpill">버전 1.23.0</span></div>
+<div class="brandrow"><span class="logo" aria-hidden="true">U</span><span class="wordmark">UNE PHRASE</span><span class="verpill">버전 1.23.1</span></div>
 <h1>한 문장 프랑스어</h1>
 <div class="progress" id="progressArea">
 <div class="progress-top"><span id="progressLine">불러오는 중…</span><span class="todaychip" id="todayChip">오늘 0문장</span></div>
@@ -222,7 +222,7 @@ summary{font-weight:800;cursor:pointer}
 <details open><summary>어떻게 쓰나요 — 3단계</summary>
 <p>1 · 읽어보기: 문장과 뜻 덩어리를 보고, 듣기 버튼으로 소리를 확인합니다.<br>2 · 따라 쓰기: 문장을 보면서 그대로 타이핑합니다. 손이 철자를 기억합니다.<br>3 · 가리고 쓰기: 한국어 뜻만 보고 프랑스어 문장 전체를 씁니다. 이 단계가 진짜 암기입니다.</p>
 <p>기본 흐름은 <b>한 문장만</b>입니다. 한 문장을 끝내면 완료 화면이 나오고, 원하면 “한 문장 더”를 누르세요.</p>
-<p>공부하는 동안에는 위쪽 탭이 숨겨져 집중할 수 있어요. 다른 곳으로 가려면 카드 위의 “☰ 메뉴”를 눌러 이동하세요. 듣기가 빠르면 "느리게 듣기" 버튼으로 0.8배속으로 한 번 천천히 들을 수 있어요.</p>
+<p>공부하는 동안에는 위쪽 탭이 숨겨져 집중할 수 있어요. 다른 곳으로 가려면 카드 위의 “☰ 메뉴”를 눌러 이동하세요. 듣기가 빠르면 "느리게 듣기" 버튼으로 0.7배속으로 한 번 천천히 들을 수 있어요.</p>
 </details>
 <details open><summary>공유하기</summary>
 <p>주변에 프랑스어를 공부하는 사람이 있으면 이 앱을 알려 주세요. 버튼을 누르면 공유 화면이 열리고, 공유가 안 되는 환경에서는 링크가 복사됩니다.</p>
@@ -249,12 +249,12 @@ summary{font-weight:800;cursor:pointer}
 
 <footer>
 <div class="footbrand"><span class="footlogo" aria-hidden="true">U</span><span class="footword">UNE PHRASE</span><span class="footko">한 문장 프랑스어</span></div>
-<div class="footmeta">v1.23.0 · © 2026 sidebatch</div>
+<div class="footmeta">v1.23.1 · © 2026 sidebatch</div>
 </footer>
 </div>
 <script>
 "use strict";
-const APP_VERSION = "1.23.0";
+const APP_VERSION = "1.23.1";
 const STORAGE_KEY = "une-phrase-progress-v1";
 const ITEMS = [
 {id:1,fr:"Je cherche un appartement près du métro parce que je n'ai pas de voiture.",ko:"나는 차가 없어서 지하철 근처 아파트를 찾고 있다.",chunks:[["Je cherche un appartement","아파트를 찾고 있다"],["près du métro","지하철 근처에"],["parce que je n'ai pas de voiture","차가 없기 때문에"]],pattern:"이유는 뒤에 붙인다: …parce que + 문장 → 연결어 parce que (왜냐하면)",words:[["appartement","아파트"],["près de","~ 근처에"]],topic:"일상",level:"B1",tef:"EO 말하기 · CE 읽기"},
@@ -754,7 +754,7 @@ function renderStudy(){
     h += '<div>'+it.chunks.map(c=>'<span class="chunk"><b>'+esc(c[0])+'</b><span>'+esc(c[1])+'</span></span>').join("")+'</div>';
     h += '<div class="pattern">'+esc(it.pattern)+'</div>';
     h += '<div class="words">핵심 단어: '+it.words.map(w=>'<b>'+esc(w[0])+'</b> '+esc(w[1])).join(" · ")+'</div>';
-    h += '<div class="btnrow"><button class="primary" id="listenBtn">🔊 듣기</button>'+slowListenBtnHtml()+'<button class="ghost" id="goStep2">따라 쓰기</button></div>';
+    h += '<div class="btnrow"><button class="ghost" id="listenBtn">🔊 듣기</button>'+slowListenBtnHtml()+'<button class="primary" id="goStep2">따라 쓰기</button></div>';
   } else if(currentStep===2){
     h += '<div class="fr">'+esc(it.fr)+'</div><p class="ko">'+esc(it.ko)+'</p>';
     h += '<p class="lead">위 문장을 보면서 그대로 타이핑하세요.</p>';
@@ -770,7 +770,7 @@ function renderStudy(){
   document.getElementById("studyCard").innerHTML = h;
   document.getElementById("doneBox").innerHTML = "";
   const lb = document.getElementById("listenBtn"); if(lb) lb.onclick = ()=>speakFr(it.fr);
-  const slb = document.getElementById("slowListenBtn"); if(slb) slb.onclick = ()=>speakFr(it.fr, 0.8);
+  const slb = document.getElementById("slowListenBtn"); if(slb) slb.onclick = ()=>speakFr(it.fr, 0.7);
   const g2 = document.getElementById("goStep2"); if(g2) g2.onclick = ()=>{ setStep(2); renderStudy(); };
   const cb = document.getElementById("checkBtn"); if(cb) cb.onclick = checkTyping;
   bindWordProg("typeInput", "wordProg", it.fr);

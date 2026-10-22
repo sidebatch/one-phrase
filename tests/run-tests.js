@@ -396,9 +396,9 @@ ok(rsSrc2.includes("applyFocus()") && csSrc2.includes("completionShown = true"),
 ok(!html.includes('id="prevBtn"') && !html.includes('id="nextBtn"'), "공부하기 하단: 이전/다음 문장 버튼 제거됨 (문장 고르기는 주제별 탭)");
 ok(!html.includes('id="listenBtn2"') && !html.includes("다시 듣기"), "공부하기 하단: 중복 다시 듣기 버튼 제거됨 (카드 안 듣기로 충분)");
 ok(!html.includes("progress.slow") && !html.includes("speakRate") && !html.includes("🐢 느리게 0.8배속") && !html.includes("slowbtn"), "느리게 듣기: 토글 칩·속도 설정 저장·speakRate가 모두 제거됨 (v1.23.0)");
-ok(html.includes("🐢 느리게 듣기") && html.includes('id="slowListenBtn"'), "느리게 듣기: 누를 때만 0.8배속으로 1회 재생하는 버튼 있음");
+ok(html.includes("🐢 느리게 듣기") && html.includes('id="slowListenBtn"'), "느리게 듣기: 누를 때만 0.7배속으로 1회 재생하는 버튼 있음");
 ok(html.includes('u.rate = (typeof rate === "number") ? rate : 1.0;'), "느리게 듣기: speakFr가 명시 속도 인자를 받고 기본값은 1.0");
-ok(rsSrc2.includes("slowListenBtnHtml()") && rsSrc2.includes("speakFr(it.fr, 0.8)"), "느리게 듣기: 읽어보기·따라 쓰기에 버튼이 있고 0.8 인자로 speakFr를 호출");
+ok(rsSrc2.includes("slowListenBtnHtml()") && rsSrc2.includes("speakFr(it.fr, 0.7)"), "느리게 듣기: 읽어보기·따라 쓰기에 버튼이 있고 0.7 인자로 speakFr를 호출");
 // speakFr 속도 스텁: speechSynthesis를 흉내내 발화 객체의 rate를 직접 확인
 const sfSrc = html.match(/function speakFr\(text, rate\)[\s\S]*?\n\}/)[0];
 const sfPrelude = [
@@ -412,8 +412,8 @@ const sfPrelude = [
 eval(sfPrelude + "\n" + sfSrc + "\n" + [
   'speakFr("Bonjour.");',
   'ok(sfUtterances.length === 1 && sfUtterances[0].rate === 1.0 && sfUtterances[0].lang === "fr-FR", "듣기 스모크: 인자 없이 부르면 1.0배속 발화");',
-  'speakFr("Bonjour.", 0.8);',
-  'ok(sfUtterances.length === 2 && sfUtterances[1].rate === 0.8, "느리게 듣기 스모크: 0.8 인자를 주면 그 발화만 0.8배속");',
+  'speakFr("Bonjour.", 0.7);',
+  'ok(sfUtterances.length === 2 && sfUtterances[1].rate === 0.7, "느리게 듣기 스모크: 0.7 인자를 주면 그 발화만 0.7배속");',
   'speakFr("Bonjour.");',
   'ok(sfUtterances.length === 3 && sfUtterances[2].rate === 1.0, "느리게 듣기 스모크: 다음 일반 듣기는 다시 1.0배속 (토글 아님, 상태 없음)");'
 ].join("\n"));
@@ -426,6 +426,7 @@ ok(html.match(/function startQuiz[\s\S]*?\n\}/)[0].includes("btnrow") && cqSrc.i
 console.log("\n[학습 흐름 재편: 선형 진행·뒤로·재통과 (v1.23.0)]");
 ok(!html.includes('class="stepnav"') && !html.includes('id="stepBtn') && !html.includes(".stepbtn"), "단계 탭: 읽어보기/따라 쓰기/가리고 쓰기 버튼 행이 학습 화면에서 제거됨");
 ok(rsSrc2.includes('id="goStep2">따라 쓰기</button>'), "읽어보기: 진행 버튼 라벨이 '따라 쓰기'");
+ok(rsSrc2.includes('<button class="primary" id="goStep2">') && rsSrc2.split("} else if(currentStep===2){")[0].includes('<button class="ghost" id="listenBtn">') && !rsSrc2.split("} else if(currentStep===2){")[0].includes('class="primary" id="listenBtn"'), "강조 배분: 읽어보기에서는 '따라 쓰기'가 primary(파란 버튼)이고 듣기는 ghost (v1.23.1)");
 ok((rsSrc2.match(/id="backBtn"/g) || []).length === 2, "뒤로: 따라 쓰기와 가리고 쓰기 두 곳에 '← 뒤로' 버튼이 있음");
 ok(rsSrc2.includes("setStep(currentStep===3 ? 2 : 1)"), "뒤로: 3단계에서는 2단계로, 2단계에서는 1단계로 돌아감");
 ok(rsSrc2.includes("const tefSeg = currentStep===1"), "메타 줄: '도움되는 영역'은 읽어보기(1단계)에서만 붙음");
