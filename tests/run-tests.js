@@ -383,6 +383,55 @@ ok(/\.resetbtns\{[^}]*gap:12px/.test(html), "간격: 초기화 확인 버튼 gap
 ok(rsSrc2.includes('class="btnrow"'), "간격: 학습 카드 버튼들이 .btnrow로 묶임");
 ok(html.match(/function startQuiz[\s\S]*?\n\}/)[0].includes("btnrow") && cqSrc.includes("btnrow"), "간격: 퀴즈 버튼 행도 .btnrow로 묶임");
 
+console.log("\n[공유 버튼 (v1.21.0)]");
+ok(html.includes('id="shareBtn"') && html.includes("🔗 이 앱 공유하기"), "공유: 설명 탭에 '🔗 이 앱 공유하기' 버튼 있음");
+ok(html.indexOf('id="tab-about"') > -1 && html.indexOf('id="shareBtn"') > html.indexOf("어떻게 쓰나요") && html.indexOf('id="shareBtn"') < html.indexOf('id="resetZone"'), "공유: 버튼 위치는 설명 탭 안, 사용법 아래·보관/초기화 영역 위");
+ok(html.includes('const SHARE_URL = "https://sidebatch.github.io/une-phrase/";'), "공유: 공유 주소는 실주소로 고정");
+ok(html.includes('const SHARE_TITLE = "Une Phrase — 한 문장 프랑스어";') && html.includes('const SHARE_TEXT = "켜면 바로 시작하는 프랑스어 한 문장 공부";'), "공유: 제목·소개 문구 고정");
+ok(html.includes('getElementById("shareBtn").onclick') && html.includes('id="shareLink" hidden'), "공유: 버튼 핸들러 연결, 복사 실패 시 보여줄 주소 텍스트(숨김) 있음");
+const shareSrc = html.match(/function shareApp\(\)\{[\s\S]*?\n\}/)[0];
+const shareConstSrc = html.match(/const SHARE_TITLE[\s\S]*?const SHARE_BTN_LABEL = "[^"]*";/)[0];
+ok(shareSrc.includes("navigator.share") && shareSrc.includes(".catch(()=>{})"), "공유: Web Share를 쓰고 취소(AbortError)는 조용히 삼킴");
+ok(shareSrc.includes("navigator.clipboard.writeText") && shareSrc.includes("링크가 복사됐어요"), "공유: 공유가 안 되면 클립보드 복사 + 버튼 피드백");
+// 공유 동작용 최소 스텁: navigator/document를 갈아끼우며 4가지 환경을 재현
+function makeShareEl(id){ return { id:id, textContent: id === "shareBtn" ? "🔗 이 앱 공유하기" : "", hidden: id === "shareLink", style:{}, onclick:null }; }
+const SH_ELS = { shareBtn: makeShareEl("shareBtn"), shareLink: makeShareEl("shareLink") };
+const shDocument = { getElementById(id){ return SH_ELS[id] || null; } };
+const shPrelude = [
+  'const document = shDocument;',
+  'let navigator = {};',
+  'let shareCalls = [];',
+  'let shareCatchFn = null;',
+  'let clipCalls = [];'
+].join("\n");
+const shDriver = [
+  // 1) Web Share 사용 가능: 정확한 제목·소개·주소로 호출, 클립보드는 안 씀
+  'navigator = { share(data){ shareCalls.push(data); return { catch(fn){ shareCatchFn = fn; return this; } }; } };',
+  'shareApp();',
+  'ok(shareCalls.length === 1 && shareCalls[0].title === SHARE_TITLE && shareCalls[0].text === SHARE_TEXT && shareCalls[0].url === "https://sidebatch.github.io/une-phrase/", "공유 스모크: navigator.share에 제목·소개·실주소가 그대로 전달됨");',
+  'ok(clipCalls.length === 0 && SH_ELS.shareLink.hidden === true, "공유 스모크: 공유가 가능하면 클립보드·주소 텍스트는 안 씀");',
+  // 1b) 사용자가 공유 창을 취소(AbortError): 오류 표시도, 대체 동작도 없음
+  'let abortThrew = false;',
+  'try{ const ae = new Error("cancel"); ae.name = "AbortError"; shareCatchFn(ae); }catch(e){ abortThrew = true; }',
+  'ok(!abortThrew && SH_ELS.shareLink.hidden === true && SH_ELS.shareBtn.textContent === "🔗 이 앱 공유하기", "공유 스모크: 공유 취소(AbortError)는 조용히 무시 — 오류 UI 없음");',
+  // 2) Web Share 없음 + 클립보드 성공: 링크 복사 + 버튼 피드백
+  'navigator = { clipboard: { writeText(t){ clipCalls.push(t); return { then(a,b){ if(a) a(); return this; }, catch(){ return this; } }; } } };',
+  'shareApp();',
+  'ok(clipCalls.length === 1 && clipCalls[0] === SHARE_URL, "공유 스모크: 공유가 안 되면 실주소를 클립보드에 복사");',
+  'ok(SH_ELS.shareBtn.textContent === "링크가 복사됐어요" && SH_ELS.shareLink.hidden === true, "공유 스모크: 복사 성공 피드백이 버튼에 표시됨");',
+  // 3) 클립보드 복사까지 실패: 주소를 선택 가능한 텍스트로 표시
+  'SH_ELS.shareBtn.textContent = "🔗 이 앱 공유하기";',
+  'navigator = { clipboard: { writeText(){ return { then(a,b){ if(b) b(new Error("denied")); return this; } }; } } };',
+  'shareApp();',
+  'ok(SH_ELS.shareLink.hidden === false, "공유 스모크: 복사 실패 시 주소 텍스트가 드러남");',
+  // 4) 공유·클립보드 둘 다 없음: 마찬가지로 주소 텍스트 표시
+  'SH_ELS.shareLink.hidden = true;',
+  'navigator = {};',
+  'shareApp();',
+  'ok(SH_ELS.shareLink.hidden === false, "공유 스모크: 공유·클립보드가 모두 없으면 주소 텍스트 표시");'
+].join("\n");
+eval(shPrelude + "\n" + shareConstSrc + "\n" + shareSrc + "\n" + shDriver);
+
 console.log("\n[버전·파일]");
 const ver = html.match(/const APP_VERSION = "([^"]+)"/)[1];
 ok(read("README.md").includes("v" + ver), "README 버전 일치 (v" + ver + ")");
