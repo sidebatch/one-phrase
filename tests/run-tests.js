@@ -124,7 +124,7 @@ ok(ctSrc.includes("advanceBtn"), "정답 후 명시적 진행 버튼(advanceBtn)
 ok(ctSrc.includes('getElementById("advanceBtn").onclick'), "진행은 버튼을 눌러야만 일어남");
 ok(html.includes("function playSound(ok)") && html.includes("AudioContext"), "효과음 모듈(playSound, WebAudio) 있음");
 ok(html.includes("sound:true") && html.includes("progress.sound !== false"), "효과음 기본값 ON, 진행 기록에 덧붙여 저장");
-ok(html.includes('id="soundBtn"'), "설명 탭 효과음 켜기/끄기 토글 있음");
+ok(html.includes('id="soundBtn"'), "더보기 탭 효과음 켜기/끄기 토글 있음");
 ok((html.match(/playSound\(true\)/g) || []).length >= 2 && (html.match(/playSound\(false\)/g) || []).length >= 2, "학습·퀴즈 채점에서 정답/오답 효과음 호출");
 
 console.log("\n[오답 비교: diffWords·wrongHtml]");
@@ -263,7 +263,7 @@ const smokeDriver = [
   'goMenu("words");',
   'ok(currentTab === "words", "메뉴 스모크: 메뉴로 단어 화면에 다시 갈 수 있음");',
   'openMenu(); goMenu("about");',
-  'ok(currentTab === "about" && STUB_ELS["menuOverlay"].hidden === true, "메뉴 스모크: 단어 화면에서 메뉴를 열어 설명 화면으로 이동할 수 있음");',
+  'ok(currentTab === "about" && STUB_ELS["menuOverlay"].hidden === true, "메뉴 스모크: 단어 화면에서 메뉴를 열어 더보기 화면으로 이동할 수 있음");',
   'goMenu("study");',
   'ok(currentTab === "study", "메뉴 스모크: 메뉴의 공부하기를 고르면 공부 화면으로 이동");'
 ].join("\n");
@@ -287,7 +287,7 @@ ok(!html.includes("뜻만 보고 프랑스어로 써 보세요"), "가리고 쓰
 ok(!html.includes("프랑스어 문장은 가려져 있어요"), "가리고 쓰기 안내: 긴 설명 문구 제거");
 
 console.log("\n[기록 초기화: 2단계 확인]");
-ok(html.includes('id="resetZone"') && html.includes("기록 초기화"), "초기화: 설명 탭에 기록 초기화 진입점 있음");
+ok(html.includes('id="resetZone"') && html.includes("기록 초기화"), "초기화: 더보기 탭에 기록 초기화 진입점 있음");
 ok(!html.includes("기록 전체 지우기"), "초기화: 기존 '기록 전체 지우기' 버튼은 교체되어 없음");
 ok(!html.includes("confirm(") && !html.includes("alert("), "초기화: 네이티브 confirm/alert 팝업을 쓰지 않음");
 const rzSrc = html.match(/function renderResetZone\(\)\{[\s\S]*?\n\}/)[0];
@@ -516,8 +516,8 @@ const flDriver = [
 eval(flPrelude + "\n" + flFns + "\n" + flDriver);
 
 console.log("\n[공유 버튼 (v1.21.0)]");
-ok(html.includes('id="shareBtn"') && html.includes("🔗 이 앱 공유하기"), "공유: 설명 탭에 '🔗 이 앱 공유하기' 버튼 있음");
-ok(html.indexOf('id="tab-about"') > -1 && html.indexOf('id="shareBtn"') > html.indexOf("어떻게 쓰나요") && html.indexOf('id="shareBtn"') < html.indexOf('id="resetZone"'), "공유: 버튼 위치는 설명 탭 안, 사용법 아래·보관/초기화 영역 위");
+ok(html.includes('id="shareBtn"') && html.includes("🔗 이 앱 공유하기"), "공유: 더보기 탭에 '🔗 이 앱 공유하기' 버튼 있음");
+ok(html.indexOf('id="tab-about"') > -1 && html.indexOf('id="shareBtn"') > html.indexOf("어떻게 쓰나요") && html.indexOf('id="shareBtn"') < html.indexOf('id="resetZone"'), "공유: 버튼 위치는 더보기 탭 안, 사용법 아래·보관/초기화 영역 위");
 ok(html.includes('const SHARE_URL = "https://sidebatch.github.io/une-phrase/";'), "공유: 공유 주소는 실주소로 고정");
 ok(html.includes('const SHARE_TITLE = "Une Phrase — 한 문장 프랑스어";') && html.includes('const SHARE_TEXT = "켜면 바로 시작하는 프랑스어 한 문장 공부";'), "공유: 제목·소개 문구 고정");
 ok(html.includes('getElementById("shareBtn").onclick') && html.includes('id="shareLink" hidden'), "공유: 버튼 핸들러 연결, 복사 실패 시 보여줄 주소 텍스트(숨김) 있음");
@@ -602,7 +602,7 @@ eval(omPrelude + "\n" + omSrc + "\n" + [
   'currentTab = "together"; openMenu();',
   'ok(OM_ROWS[3]._on === true && OM_ROWS[3]._dot.hidden === false && OM_ROWS[2]._on === false && OM_ROWS[2]._dot.hidden === true && OM_ROWS[4]._on === false, "메뉴 스모크: Ensemble 탭에서 열면 활성 표시가 Ensemble 행으로 이동");',
   'currentTab = "about"; openMenu();',
-  'ok(OM_ROWS[4]._on === true && OM_ROWS[4]._dot.hidden === false && OM_ROWS[3]._on === false && OM_ROWS[3]._dot.hidden === true, "메뉴 스모크: 설명 탭에서 열면 활성 표시가 설명 행으로 이동");'
+  'ok(OM_ROWS[4]._on === true && OM_ROWS[4]._dot.hidden === false && OM_ROWS[3]._on === false && OM_ROWS[3]._dot.hidden === true, "메뉴 스모크: 더보기 탭에서 열면 활성 표시가 더보기 행으로 이동");'
 ].join("\n"));
 
 console.log("\n[목록 행 구조 통일 (v1.25.0)]");
@@ -723,18 +723,19 @@ console.log("\n[버전·파일]");
 const ver = html.match(/const APP_VERSION = "([^"]+)"/)[1];
 ok(read("README.md").includes("v" + ver), "README 버전 일치 (v" + ver + ")");
 ok(read("sw.js").includes("une-phrase-v" + ver), "sw 캐시 버전 일치");
-ok(html.includes("버전 " + ver), "화면 버전 표시 일치");
+ok(html.includes("v" + ver + " · © 2026 sidebatch"), "버전: 사용자에게 보이는 버전 표기는 푸터에만 있음 (v" + ver + ")");
+ok(!html.includes('class="verpill"') && !html.includes("버전 " + ver), "버전: 헤더 버전 칩 제거됨");
+ok(!html.includes('class="menuver"'), "버전: 메뉴 헤더 버전 표기 제거됨");
 ok(fs.existsSync(path.join(ROOT, "manifest.webmanifest")), "manifest 있음");
 ok(fs.existsSync(path.join(ROOT, "icons/icon-192.png")) && fs.existsSync(path.join(ROOT, "icons/icon-512.png")), "아이콘 있음");
 const man = JSON.parse(read("manifest.webmanifest"));
 ok(man.name.includes("Une Phrase"), "manifest 이름 확인");
 ok(html.includes('<script data-goatcounter="https://une-phrase.goatcounter.com/count"') && html.includes('async src="//gc.zgo.at/count.js"></script>'), "GoatCounter 카운트 스크립트 있음 (une-phrase)");
-ok(html.includes('id="gcBadge" style="display:none"'), "방문 배지 요소 있음 (처음엔 숨김)");
-ok(html.indexOf('id="gcBadge"') > html.indexOf('class="brandrow"') && html.indexOf('id="gcBadge"') < html.indexOf('id="menuBtn"') && html.indexOf('id="gcBadge"') < html.indexOf("</header>"), "방문 배지 위치: 헤더 brandrow 안, 메뉴 버튼 바로 앞 (우측 상단)");
-ok(html.indexOf('id="gcBadge"') < html.indexOf('id="tab-about"'), "방문 배지: 설명 탭에 남아 있지 않음");
-ok((html.match(/id="gcBadge"/g) || []).length === 1, "방문 배지 요소는 하나만 있음");
-ok(html.includes("fetch('https://une-phrase.goatcounter.com/counter/TOTAL.json')") && html.includes("'👥 ' + d.count") && html.includes(".catch(function(){})"), "배지 fetch: une-phrase TOTAL.json, 실패해도 조용히 넘어감");
-ok(!html.includes("누적 방문") && !html.includes("'👥 누적"), "배지 표기: '누적 방문' 문구 없이 아이콘+숫자만");
+ok(html.includes('class="gcvisits" id="gcBadge" hidden'), "방문 카운트 요소 있음 (처음엔 숨김)");
+ok(html.indexOf('id="gcBadge"') > html.indexOf("</header>") && html.indexOf('id="gcBadge"') > html.indexOf('id="tab-together"') && html.indexOf('id="gcBadge"') < html.indexOf('id="view-together"'), "방문 카운트 위치: 헤더가 아니라 Ensemble 화면 상단 (제목 아래)");
+ok((html.match(/id="gcBadge"/g) || []).length === 1, "방문 카운트 요소는 하나만 있음");
+ok(html.includes("fetch('https://une-phrase.goatcounter.com/counter/TOTAL.json')") && html.includes("'👥 지금까지 ' + Number(d.count).toLocaleString()") && html.includes("명이 다녀갔어요") && html.includes(".catch(function(){})"), "방문 카운트 fetch: une-phrase TOTAL.json(누적 방문 수)을 라벨과 함께 표시, 실패하면 줄이 숨은 채로 남음");
+ok(!html.includes("'👥 ' + d.count"), "방문 카운트 표기: 숫자만 있던 기존 표기는 라벨 포함으로 교체됨");
 ok(html.includes('property="og:image" content="https://sidebatch.github.io/une-phrase/og-image.png"'), "og:image 절대 URL 있음");
 ok(html.includes('property="og:image:width" content="1200"') && html.includes('property="og:image:height" content="630"'), "og:image 크기 메타 있음");
 ok(html.includes('property="og:type" content="website"') && html.includes('name="twitter:card" content="summary_large_image"') && html.includes('name="twitter:image" content="https://sidebatch.github.io/une-phrase/og-image.png"'), "og:type·Twitter Card 메타 있음");
@@ -751,13 +752,17 @@ eval(dpSrc);
 { const dp = defaultProgress(); ok(dp.theme === "light", "테마: 진행 기록 기본값은 라이트"); }
 ok(html.indexOf('localStorage.getItem("une-phrase-progress-v1")') > -1 && html.indexOf('localStorage.getItem("une-phrase-progress-v1")') < html.indexOf("<style>"), "테마: head 이른 스크립트가 저장된 테마를 스타일보다 먼저 읽음 (깜빡임 방지)");
 ok(html.includes("document.documentElement.dataset.theme = t") && html.indexOf("dataset.theme") < html.indexOf("<style>"), "테마: 부팅 스크립트가 첫 페인트 전에 data-theme 세팅");
-ok(html.includes('data-theme-opt="light"') && html.includes('data-theme-opt="black"') && html.includes('data-theme-opt="paper"'), "테마: 설명 탭에 라이트·블랙·페이퍼 선택 3종 있음");
+ok(html.includes('data-theme-opt="light"') && html.includes('data-theme-opt="black"') && html.includes('data-theme-opt="paper"'), "테마: 더보기 탭에 라이트·블랙·페이퍼 선택 3종 있음");
 ok(html.includes('class="themesw sw-light"') && html.includes('class="themesw sw-black"') && html.includes('class="themesw sw-paper"'), "테마: 각 옵션에 실제 색 견본 칩 있음");
-ok(html.includes("<summary>테마</summary>"), "테마: 설명 탭 테마 구역 있음");
+ok(html.includes("<summary>테마</summary>"), "테마: 더보기 탭 테마 구역 있음");
+ok(html.includes("--dim:") && html.includes(".menubackdrop{position:absolute;inset:0;background:var(--dim)}") && html.includes(".modalbackdrop{position:absolute;inset:0;background:var(--dim)}"), "테마 검수: 메뉴·모달 딤 오버레이는 --dim 변수 사용");
+ok(html.includes("box-shadow:var(--sheet-shadow)") && html.includes("box-shadow:var(--focus-shadow)") && html.includes("box-shadow:var(--accent-shadow)") && html.includes("var(--diff-under)") && html.includes("linear-gradient(90deg,var(--gold),var(--gold2))"), "테마 검수: 시트 그림자·입력 포커스·완료 서클·diff 밑줄·금색 그라데이션이 하드코딩 없이 변수 사용");
+ok(html.includes('html[data-theme="paper"] .t-study') && html.includes('html[data-theme="paper"] .t-together') && html.includes('html[data-theme="paper"] .t-about'), "테마 검수: 페이퍼에서도 메뉴 타일 색을 전용 파스텔로 재정의");
 const blackBlock = (html.match(/html\[data-theme="black"\]\{[\s\S]*?\n\}/) || [""])[0];
 const paperBlock = (html.match(/html\[data-theme="paper"\]\{[\s\S]*?\n\}/) || [""])[0];
 ok(blackBlock.includes("--bg:#050607") && blackBlock.includes("--card:#14171c") && blackBlock.includes("--ink:#eef1f4") && blackBlock.includes("--sub:#9aa3ad"), "테마: 블랙 변수 블록 (배경 #050607·카드 #14171c·글자 #eef1f4·보조 #9aa3ad)");
 ok(paperBlock.includes("--bg:#f6efe3") && paperBlock.includes("--card:#fffaf0") && paperBlock.includes("--ink:#33302a") && paperBlock.includes("--line:#e3d9c6"), "테마: 페이퍼 변수 블록 (배경 #f6efe3·카드 #fffaf0·글자 #33302a·경계 #e3d9c6)");
+ok(blackBlock.includes("--dim:rgba(0,0,0,.65)") && blackBlock.includes("--focus-shadow:") && blackBlock.includes("--gold2:") && blackBlock.includes("--diff-under:") && blackBlock.includes("--sheet-shadow:"), "테마 검수: 블랙 블록에서 딤·시트 그림자·포커스 링·diff 밑줄·금색 끝 색을 어두운 테마용으로 재정의");
 ok(html.includes('html[data-theme="black"] .t-study'), "테마: 블랙에서 메뉴 타일 어두운 변형 있음");
 const rootBlock = (html.match(/:root\{[\s\S]*?\n\}/) || [""])[0];
 ok(rootBlock.includes("--bg:#fffdf8") && rootBlock.includes("--card:#fff;") || rootBlock.includes("--bg:#fffdf8"), "테마: 라이트(:root) 기본값은 기존 색 그대로");
@@ -775,7 +780,7 @@ const renderOptsSrc = html.match(/function renderThemeOpts\(\)\{[\s\S]*?\n\}/)[0
   let progress = { theme: "light" };
   const saveProgress = () => savedThemes.push(progress.theme);
   const api = new Function("document", "progress", "saveProgress",
-    "const THEME_META_COLORS = { light:'#1C3A71', black:'#050607', paper:'#F6EFE3' };\n" + themeOfSrc + "\n" + renderOptsSrc + "\n" + applySrc + "\nreturn { themeOf, applyTheme };")(fakeDoc, progress, saveProgress);
+    "function renderProfileBtn(){}\nconst THEME_META_COLORS = { light:'#1C3A71', black:'#050607', paper:'#F6EFE3' };\n" + themeOfSrc + "\n" + renderOptsSrc + "\n" + applySrc + "\nreturn { themeOf, applyTheme };")(fakeDoc, progress, saveProgress);
   ok(api.themeOf() === "light", "테마: themeOf 기본 라이트");
   api.applyTheme("black", true);
   ok(fakeDoc.documentElement.dataset.theme === "black" && progress.theme === "black" && savedThemes.join() === "black", "테마: applyTheme(블랙) → data-theme 세팅 + 진행 기록에 저장");
@@ -796,6 +801,29 @@ eval(ptrSrcT);
   ok(!("theme" in payload) && JSON.stringify(payload).indexOf("theme") === -1, "테마: Supabase 동기화 페이로드에 theme 미포함 (기기별 설정)");
   ok(Object.keys(payload).sort().join(",") === "completed,review_correct", "테마: 동기화 페이로드는 완료·복습 두 필드만");
 }
+
+console.log("\n[레벨 메달·내 정보·더보기 개편 (v1.29.0)]");
+const medalArrSrc = html.match(/const LEVEL_MEDALS = \[[\s\S]*?\];/)[0];
+const medalOfSrc = html.match(/function medalOf\(lv\)[^\n]*/)[0];
+eval(medalArrSrc + "\n" + medalOfSrc);
+const LEVEL_MEDALS_EVAL = eval(medalArrSrc.match(/\[[\s\S]*\]/)[0]);
+ok(LEVEL_MEDALS_EVAL.length === 10, "메달: 레벨 1~10 메달이 10개 있음");
+ok(LEVEL_MEDALS_EVAL.join("") === "🌱🌿🍀🥉🥈🥇💎🔥⭐👑", "메달: 순서가 🌱🌿🍀🥉🥈🥇💎🔥⭐👑");
+ok(medalOf(1) === "🌱" && medalOf(4) === "🥉" && medalOf(6) === "🥇" && medalOf(10) === "👑", "메달: medalOf가 레벨에 맞는 메달을 돌려줌");
+ok(rtmSrc.includes("medalOf(mlv.lv)") && rtmSrc.includes("medalOf(lv.lv)"), "메달: Ensemble 내 카드와 참여자 행의 Lv 배지 옆에 메달 표시");
+ok(html.includes('id="profileBtn"') && html.indexOf('id="profileBtn"') > html.indexOf('class="brandrow"') && html.indexOf('id="profileBtn"') < html.indexOf('id="menuBtn"'), "내 정보: 헤더 아바타 버튼이 메뉴 버튼 왼쪽에 있음");
+ok(html.includes('id="profileOverlay" hidden') && html.includes('id="profileBackdrop"') && html.includes('id="profileCloseBtn"') && html.includes('aria-label="내 정보"'), "내 정보: 바텀시트 모달(배경·닫기 ✕)이 전역에 있고 처음에는 숨겨져 있음");
+ok(html.includes('getElementById("profileBtn").onclick') && html.includes("function openProfile()") && html.includes("renderProfile();"), "내 정보: 버튼을 누르면 모달이 열리고 열 때마다 최신 데이터로 렌더");
+const rpSrc = html.match(/function renderProfile\(\)\{[\s\S]*?\n\}/)[0];
+ok(rpSrc.includes("medalOf(lv.lv)") && rpSrc.includes("profilemedal") && rpSrc.includes("다음 레벨까지") && rpSrc.includes("복습 맞힘"), "내 정보: 메달 크게 + 다음 레벨까지 진행 바 + 복습 맞힘 수 표시");
+ok(rpSrc.includes("게스트") && rpSrc.includes('id="profileLoginBtn"') && rpSrc.includes("구글로 시작하기") && rpSrc.includes("sbLogin()"), "내 정보: 비로그인이면 게스트로 로컬 통계를 보여주고, 그 자리에서 구글로 시작하기(지연 로드+OAuth) 실행");
+ok(rpSrc.includes("sbUser.email") && rpSrc.includes("profileemail") && rpSrc.includes('id="profileLogoutBtn"') && rpSrc.includes("로그아웃"), "내 정보: 로그인 상태면 본인 확인용 이메일(작게)과 로그아웃 버튼 표시");
+ok(html.includes("function renderProfileBtn()") && html.includes("renderProfileBtn();"), "내 정보: 로그인·닉네임 상태가 바뀌면 헤더 아바타(닉네임 첫 글자/👤)도 갱신됨");
+ok(html.includes('<span class="menulabel">더보기</span>') && !html.includes('<span class="menulabel">설명</span>'), "더보기: 메뉴 라벨이 '설명'에서 '더보기'로 교체됨");
+ok(!html.includes("이 문장들이 TEF Canada와 어떻게 연결되나요") && html.includes("특정 시험 전용이 아니라, 일상에서 바로 쓰는 프랑스어 문장을 익히는 앱이에요"), "더보기: TEF 연결 섹션은 삭제되고 일상 프랑스어 앱이라는 한 줄로 교체");
+ok(html.includes("기록은 이 기기에 저장되고, 로그인하면 서버에도 보관돼 기기를 바꿔도 이어서 공부할 수 있어요") && !html.includes("그 경우를 막을 완전한 방법은 아직 없습니다"), "더보기: 기록 보관 설명이 기기 저장 + 로그인 시 서버 보관으로 짧게 현행화");
+ok(html.includes("<summary>Ensemble</summary>") && html.includes("서로의 레벨과 완료 문장을 볼 수 있어요"), "더보기: Ensemble 안내 한 줄이 있음");
+ok(html.includes("<summary>어떻게 쓰나요</summary>") && html.includes("한 문장을 3단계로 외우는 앱이에요"), "더보기: 사용법이 3단계 한 줄로 단축됨");
 
 console.log("\n결과: PASS " + pass + " / FAIL " + fail);
 process.exit(fail ? 1 : 0);

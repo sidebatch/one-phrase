@@ -40,6 +40,7 @@
 --line:#e8e2d8;--line-soft:#e9e2d2;--soft:#eef2fa;--ok:#1a7a2e;--bad:#b3261e;
 --track:#e2e9f5;--done-bg:#eef4ff;--done-line:#c7d8f6;--done-chip:#e1ebfd;
 --blue-text:#1c3a71;--hover:#f7f3ea;--hover-line:#d8cfba;--input-bg:#fffdf4;--input-on:#fff;--placeholder:#a9a498;--pattern-bg:#fff8e6;--pattern-line:#eee1b9;--ok-bg:#e6f4ea;--bad-bg:#fdecea;--diff-bg:#fbf9f3;--diffmark:#fbe7e3;--reset-bg:#fdf4f3;--reset-line:#f0d6d3;--danger-line:#e5b6b1;--xp-bg:#fdf3e0;--mast-a:#eef2fa;--mast-b:#fffdf8;--chip-line:#ccd7ee;--today-line:#d7e0f0;--handle:#ddd5c2;--learned-bg:#f4f8ff;--quiz-bg:#fbfcff;--avatar-ink:#1c1c1e;
+--dim:rgba(20,26,40,.45);--sheet-shadow:0 -10px 34px rgba(20,26,40,.28);--input-shadow:inset 0 1px 3px rgba(60,50,20,.05);--focus-shadow:0 0 0 3px rgba(28,58,113,.13),inset 0 1px 3px rgba(60,50,20,.04);--diff-under:rgba(179,38,30,.4);--accent-shadow:0 6px 18px rgba(28,58,113,.28);--gold2:#e3ac40;
 --sp1:4px;--sp2:8px;--sp3:12px;--sp4:16px;--sp5:24px;--sp6:32px;
 --r-sm:10px;--r-md:12px;--r-lg:18px;--r-xl:20px;--r-pill:999px;
 --shadow:0 1px 2px rgba(60,50,20,.04),0 6px 18px rgba(60,50,20,.05);
@@ -54,6 +55,7 @@ html[data-theme="black"]{
 --diff-bg:#14171c;--diffmark:#572e24;--reset-bg:#2b1512;--reset-line:#552b24;--danger-line:#6b3a33;--xp-bg:#2c2210;
 --mast-a:#10151d;--mast-b:#050607;--chip-line:#33415c;--today-line:#2a4066;--handle:#3a4149;
 --learned-bg:#12203a;--quiz-bg:#10141b;--avatar-ink:#eef1f4;
+--dim:rgba(0,0,0,.65);--sheet-shadow:0 -10px 34px rgba(0,0,0,.6);--input-shadow:inset 0 1px 3px rgba(0,0,0,.5);--focus-shadow:0 0 0 3px rgba(143,176,236,.38),inset 0 1px 3px rgba(0,0,0,.4);--diff-under:rgba(255,132,120,.55);--accent-shadow:0 6px 18px rgba(0,0,0,.55);--gold2:#eec25e;
 --shadow:0 1px 2px rgba(0,0,0,.45),0 6px 18px rgba(0,0,0,.4)
 }
 html[data-theme="black"] .t-study{background:#1d2c47}
@@ -61,6 +63,11 @@ html[data-theme="black"] .t-browse{background:#2b2145}
 html[data-theme="black"] .t-words{background:#1e3320}
 html[data-theme="black"] .t-together{background:#3d2130}
 html[data-theme="black"] .t-about{background:#262b32}
+html[data-theme="paper"] .t-study{background:#e2ebfa}
+html[data-theme="paper"] .t-browse{background:#eadff8}
+html[data-theme="paper"] .t-words{background:#e0efdb}
+html[data-theme="paper"] .t-together{background:#f9e4d6}
+html[data-theme="paper"] .t-about{background:#efe6cf}
 html[data-theme="paper"]{
 --bg:#f6efe3;--card:#fffaf0;--ink:#33302a;--sub:#8a8172;
 --line:#e3d9c6;--line-soft:#e7dcc6;--soft:#f0e7d3;--track:#e9dec6;
@@ -86,7 +93,8 @@ button:focus-visible,summary:focus-visible{outline:2px solid var(--blue-text);ou
 .brandrow{display:flex;align-items:center;gap:9px}
 .logo{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;flex:0 0 auto;border-radius:var(--r-sm);background:var(--blue);color:#fff;font-size:19px;font-weight:900;line-height:1;box-shadow:inset 0 -3px 0 rgba(0,0,0,.22)}
 .wordmark{flex:1;min-width:0;font-weight:900;color:var(--blue-text);letter-spacing:.14em;font-size:15px;white-space:nowrap;overflow:hidden}
-.verpill{flex:0 0 auto;font-size:11.5px;font-weight:700;color:var(--blue-text);background:var(--card);border:1px solid var(--chip-line);border-radius:var(--r-pill);padding:3px 9px;white-space:nowrap}
+.profilebtn{flex:0 0 auto;width:38px;height:38px;border-radius:50%;border:1px solid var(--line-soft);background:var(--soft);color:var(--avatar-ink);font-size:16px;font-weight:900;cursor:pointer;font:inherit;display:inline-flex;align-items:center;justify-content:center;padding:0;box-shadow:var(--shadow);transition:transform .12s var(--ease)}
+.profilebtn:active{transform:scale(.94)}
 h1{font-size:26px;line-height:1.25;margin:11px 0 3px;letter-spacing:-.01em}
 .masthead .progress{margin:7px 0 0;padding-top:9px;border-top:1px dashed var(--line)}
 .progress{font-size:14px;color:var(--sub);font-weight:700}
@@ -104,13 +112,12 @@ h1{font-size:26px;line-height:1.25;margin:11px 0 3px;letter-spacing:-.01em}
 .menubtn[hidden]{display:none}
 .menuoverlay{position:fixed;inset:0;z-index:60}
 .menuoverlay[hidden]{display:none}
-.menubackdrop{position:absolute;inset:0;background:rgba(20,26,40,.45)}
+.menubackdrop{position:absolute;inset:0;background:var(--dim)}
 @keyframes slideUp{from{transform:translateY(26px);opacity:.4}to{transform:none;opacity:1}}
-.menupanel{position:absolute;left:0;right:0;bottom:0;max-width:720px;margin:0 auto;background:var(--card);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:12px 16px calc(16px + env(safe-area-inset-bottom));box-shadow:0 -10px 34px rgba(20,26,40,.28);animation:slideUp .25s var(--ease)}
+.menupanel{position:absolute;left:0;right:0;bottom:0;max-width:720px;margin:0 auto;background:var(--card);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:12px 16px calc(16px + env(safe-area-inset-bottom));box-shadow:var(--sheet-shadow);animation:slideUp .25s var(--ease)}
 .menuhandle{width:40px;height:4.5px;border-radius:var(--r-pill);background:var(--handle);margin:0 auto 12px}
 .menuhead{display:flex;align-items:center;justify-content:space-between;margin:0 2px 12px}
 .menuword{font-weight:900;color:var(--blue-text);letter-spacing:.14em;font-size:13px}
-.menuver{font-size:11.5px;font-weight:700;color:var(--sub)}
 .menurow{display:flex;align-items:center;width:100%;min-height:56px;background:var(--card);border:1px solid var(--line-soft);border-radius:14px;padding:9px 12px;color:var(--ink);cursor:pointer;font:inherit;margin:0 0 8px;text-align:left;transition:transform .12s var(--ease),background-color .18s ease,border-color .18s ease}
 .menurow:active{transform:scale(.99)}
 .menutile{flex:0 0 auto;width:42px;height:42px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;font-size:20px;line-height:1}
@@ -129,8 +136,8 @@ h1{font-size:26px;line-height:1.25;margin:11px 0 3px;letter-spacing:-.01em}
 .menurow.menuclose{justify-content:center;color:var(--sub);font-size:14.5px;font-weight:700;min-height:44px;border-color:transparent;margin-bottom:0}
 .modaloverlay{position:fixed;inset:0;z-index:70}
 .modaloverlay[hidden]{display:none}
-.modalbackdrop{position:absolute;inset:0;background:rgba(20,26,40,.45)}
-.modalpanel{position:absolute;left:0;right:0;bottom:0;max-width:720px;margin:0 auto;background:var(--card);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:16px 18px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -10px 34px rgba(20,26,40,.28);animation:slideUp .25s var(--ease)}
+.modalbackdrop{position:absolute;inset:0;background:var(--dim)}
+.modalpanel{position:absolute;left:0;right:0;bottom:0;max-width:720px;margin:0 auto;background:var(--card);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:16px 18px calc(18px + env(safe-area-inset-bottom));box-shadow:var(--sheet-shadow);animation:slideUp .25s var(--ease)}
 .modalhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
 .modaltitle{font-size:17px;font-weight:900}
 .modalclose{flex:0 0 auto;width:36px;height:36px;border-radius:50%;border:1px solid var(--line-soft);background:var(--card);font-size:14px;color:var(--sub);cursor:pointer;font:inherit}
@@ -186,10 +193,19 @@ button.danger:active{transform:scale(.97)}
 .resetnote{font-size:13px;color:var(--sub);margin:6px 0 0}
 #shareLink{margin:10px 0 0;padding:10px 12px;background:var(--diff-bg);border:1px solid var(--line-soft);border-radius:var(--r-md);font-size:14px;word-break:break-all;user-select:all;-webkit-user-select:all}
 #shareLink[hidden]{display:none}
-#gcBadge{flex:0 0 auto;white-space:nowrap;font-size:13px;color:var(--sub)}
-textarea,input[type=text]{width:100%;font:inherit;font-size:17.5px;line-height:1.6;padding:14px 15px;border:1px solid var(--line-soft);border-radius:14px;background:var(--input-bg);box-shadow:inset 0 1px 3px rgba(60,50,20,.05)}
+.gcvisits{font-size:13px;color:var(--sub);font-weight:700;margin:0 0 4px}
+.gcvisits[hidden]{display:none}
+.profiletop{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.avatar.big{width:56px;height:56px;font-size:24px}
+.profilename{font-size:19px;font-weight:900;overflow-wrap:anywhere}
+.profileemail{font-size:12.5px;color:var(--sub);font-weight:600;overflow-wrap:anywhere}
+.profilemedal{text-align:center;font-size:44px;line-height:1.15;margin:8px 0 0}
+.profilelv{text-align:center;font-size:17px;font-weight:900;margin-bottom:8px}
+.profilestats{display:flex;gap:14px;flex-wrap:wrap;font-size:14px;font-weight:700;margin-top:10px}
+.profilenext{font-size:13px;color:var(--sub);font-weight:700;margin-top:6px}
+textarea,input[type=text]{width:100%;font:inherit;font-size:17.5px;line-height:1.6;padding:14px 15px;border:1px solid var(--line-soft);border-radius:14px;background:var(--input-bg);box-shadow:var(--input-shadow)}
 textarea::placeholder,input[type=text]::placeholder{color:var(--placeholder)}
-textarea:focus,input[type=text]:focus{border-color:var(--blue-text);box-shadow:0 0 0 3px rgba(28,58,113,.13),inset 0 1px 3px rgba(60,50,20,.04);outline:none;background:var(--input-on)}
+textarea:focus,input[type=text]:focus{border-color:var(--blue-text);box-shadow:var(--focus-shadow);outline:none;background:var(--input-on)}
 .wordprog{font-size:12.5px;font-weight:700;color:var(--sub);text-align:right;margin:6px 2px 0}
 .wordprog b{color:var(--blue-text);font-size:13.5px}
 .feedback{font-size:15px;margin:10px 0;padding:10px 12px;border-radius:var(--r-md)}
@@ -204,11 +220,11 @@ textarea:focus,input[type=text]:focus{border-color:var(--blue-text);box-shadow:0
 .diff-row{display:flex;gap:8px;margin:5px 0;line-height:1.65}
 .diff-label{flex:0 0 auto;align-self:flex-start;font-size:11.5px;font-weight:800;color:var(--sub);background:var(--soft);border-radius:var(--r-pill);padding:2px 8px;margin-top:3px;white-space:nowrap}
 .diff-line{flex:1;min-width:0;overflow-wrap:break-word}
-.diff-line .wdiff{background:var(--diffmark);border-radius:4px;padding:0 3px;box-shadow:inset 0 -2px 0 rgba(179,38,30,.4)}
+.diff-line .wdiff{background:var(--diffmark);border-radius:4px;padding:0 3px;box-shadow:inset 0 -2px 0 var(--diff-under)}
 .diff-line .adiff{font-weight:800;border-bottom:2px solid var(--blue-text);padding:0 1px}
 .diff-empty{color:var(--sub)}
 .donebox{text-align:center;padding:28px 16px;animation:fadeUp .3s var(--ease)}
-.donecircle{width:64px;height:64px;margin:2px auto 10px;border-radius:50%;background:var(--blue);color:#fff;font-size:32px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(28,58,113,.28);animation:pop .45s var(--ease)}
+.donecircle{width:64px;height:64px;margin:2px auto 10px;border-radius:50%;background:var(--blue);color:#fff;font-size:32px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:var(--accent-shadow);animation:pop .45s var(--ease)}
 .donebox .big{font-size:24px;font-weight:900;margin:var(--sp2) 0}
 .donebox p{color:var(--sub);font-weight:700}
 .donebar{max-width:320px;margin:12px auto 4px}
@@ -228,7 +244,7 @@ textarea:focus,input[type=text]:focus{border-color:var(--blue-text);box-shadow:0
 .levelrow{display:flex;align-items:center;gap:var(--sp2);margin-top:9px;font-size:12.5px}
 .lvlabel{flex:0 0 auto;font-weight:900;color:var(--blue-text);white-space:nowrap}
 .lvbar{flex:1;height:8px;margin-top:0}
-.pfill.gold{background:linear-gradient(90deg,var(--gold),#e3ac40)}
+.pfill.gold{background:linear-gradient(90deg,var(--gold),var(--gold2))}
 .lvnext{flex:0 0 auto;color:var(--sub);font-weight:700;white-space:nowrap}
 .xpgain{display:inline-block;background:var(--xp-bg);color:var(--gold);font-weight:900;font-size:15px;border-radius:var(--r-pill);padding:3px 14px;margin-bottom:6px}
 .levelup{font-size:19px;font-weight:900;color:var(--blue-text);margin:2px 0 6px;animation:pop .45s var(--ease)}
@@ -268,7 +284,7 @@ summary{font-weight:800;cursor:pointer}
 <body>
 <div class="wrap">
 <header class="masthead">
-<div class="brandrow"><span class="logo" aria-hidden="true">U</span><span class="wordmark">UNE PHRASE</span><span class="verpill">버전 1.28.0</span><span id="gcBadge" style="display:none"></span><button class="menubtn" id="menuBtn" aria-haspopup="dialog" aria-expanded="false">☰ 메뉴</button></div>
+<div class="brandrow"><span class="logo" aria-hidden="true">U</span><span class="wordmark">UNE PHRASE</span><button class="profilebtn" id="profileBtn" aria-label="내 정보" aria-haspopup="dialog">👤</button><button class="menubtn" id="menuBtn" aria-haspopup="dialog" aria-expanded="false">☰ 메뉴</button></div>
 <h1>한 문장 프랑스어</h1>
 <div class="progress" id="progressArea">
 <div class="progress-top"><span id="progressLine">불러오는 중…</span><span class="todaychip" id="todayChip">오늘 0문장</span></div>
@@ -281,12 +297,12 @@ summary{font-weight:800;cursor:pointer}
 <div class="menubackdrop" id="menuBackdrop"></div>
 <div class="menupanel" role="dialog" aria-modal="true" aria-label="메뉴">
 <div class="menuhandle" aria-hidden="true"></div>
-<div class="menuhead"><span class="menuword">UNE PHRASE</span><span class="menuver">v1.28.0</span></div>
+<div class="menuhead"><span class="menuword">UNE PHRASE</span></div>
 <button class="menurow on" data-menu="study"><span class="menutile t-study" aria-hidden="true">📖</span><span class="menutext"><span class="menulabel">공부하기</span><span class="menusub">이어서 바로 공부</span></span><span class="menudot" aria-hidden="true"></span></button>
 <button class="menurow" data-menu="browse"><span class="menutile t-browse" aria-hidden="true">🗂️</span><span class="menutext"><span class="menulabel">주제별</span><span class="menusub">주제 골라 보기</span></span><span class="menudot" aria-hidden="true" hidden></span></button>
 <button class="menurow" data-menu="words"><span class="menutile t-words" aria-hidden="true">🔤</span><span class="menutext"><span class="menulabel">단어</span><span class="menusub">단어 모아 보기</span></span><span class="menudot" aria-hidden="true" hidden></span></button>
 <button class="menurow" data-menu="together"><span class="menutile t-together" aria-hidden="true">👥</span><span class="menutext"><span class="menulabel">Ensemble</span><span class="menusub">서로의 진도 보기</span></span><span class="menudot" aria-hidden="true" hidden></span></button>
-<button class="menurow" data-menu="about"><span class="menutile t-about" aria-hidden="true">ℹ️</span><span class="menutext"><span class="menulabel">설명</span><span class="menusub">안내·공유·설정</span></span><span class="menudot" aria-hidden="true" hidden></span></button>
+<button class="menurow" data-menu="about"><span class="menutile t-about" aria-hidden="true">ℹ️</span><span class="menutext"><span class="menulabel">더보기</span><span class="menusub">안내·공유·설정</span></span><span class="menudot" aria-hidden="true" hidden></span></button>
 <button class="menurow menuclose" id="menuCloseBtn">닫기</button>
 </div>
 </div>
@@ -298,6 +314,13 @@ summary{font-weight:800;cursor:pointer}
 <input type="text" id="sbNickInput" maxlength="20" placeholder="닉네임 (1~20자)" autocomplete="off" autocapitalize="off">
 <div id="sbNickFb"></div>
 <button class="primary modalbtn" id="sbNickBtn">시작하기</button>
+</div>
+</div>
+<div class="modaloverlay" id="profileOverlay" hidden>
+<div class="modalbackdrop" id="profileBackdrop"></div>
+<div class="modalpanel" role="dialog" aria-modal="true" aria-label="내 정보">
+<div class="modalhead"><span class="modaltitle">내 정보</span><button class="modalclose" id="profileCloseBtn" aria-label="닫기">✕</button></div>
+<div id="profileBody"></div>
 </div>
 </div>
 
@@ -321,41 +344,43 @@ summary{font-weight:800;cursor:pointer}
 <div id="tab-together" hidden>
 <h2 class="viewtitle">Ensemble</h2>
 <p class="lead">서로의 진도를 보며 같이 공부해요.</p>
+<p class="gcvisits" id="gcBadge" hidden></p>
 <div id="view-together"><div class="card loadcard">불러오는 중…</div></div>
 </div>
 
 <div id="tab-about" hidden>
-<details open><summary>어떻게 쓰나요 — 3단계</summary>
-<p>1 · 읽어보기: 문장과 뜻 덩어리를 보고, 듣기 버튼으로 소리를 확인합니다.<br>2 · 따라 쓰기: 문장을 보면서 그대로 타이핑합니다. 손이 철자를 기억합니다.<br>3 · 가리고 쓰기: 한국어 뜻만 보고 프랑스어 문장 전체를 씁니다. 이 단계가 진짜 암기입니다.</p>
-<p>기본 흐름은 <b>한 문장만</b>입니다. 한 문장을 끝내면 완료 화면이 나오고, 원하면 “한 문장 더”를 누르세요.</p>
-<p>화면 이동은 위쪽의 “☰ 메뉴”로만 합니다. 공부하기·주제별·단어·Ensemble·설명 중 골라 이동하세요. 듣기가 빠르면 "느리게 듣기" 버튼으로 0.7배속으로 한 번 천천히 들을 수 있어요.</p>
+<details open><summary>어떻게 쓰나요</summary>
+<p>읽어보기 → 따라 쓰기 → 가리고 쓰기. 한 문장을 3단계로 외우는 앱이에요. 기본은 한 문장만, 끝나면 “한 문장 더”로 이어집니다.</p>
 </details>
-<details open><summary>공유하기</summary>
-<p>주변에 프랑스어를 공부하는 사람이 있으면 이 앱을 알려 주세요. 버튼을 누르면 공유 화면이 열리고, 공유가 안 되는 환경에서는 링크가 복사됩니다.</p>
-<button class="ghost" id="shareBtn">🔗 이 앱 공유하기</button>
-<p id="shareLink" hidden>https://sidebatch.github.io/une-phrase/</p>
+<details><summary>이 앱에 대해</summary>
+<p>특정 시험 전용이 아니라, 일상에서 바로 쓰는 프랑스어 문장을 익히는 앱이에요. 문장마다 도움되는 영역을 표시해 뒀습니다.</p>
 </details>
-<details><summary>이 문장들이 TEF Canada와 어떻게 연결되나요</summary>
-<p>EO 말하기: 의견 문장과 일상 설명 문장을 그대로 말하기 재료로 씁니다.<br>EE 쓰기: je pense que, d'une part… 같은 의견 구조와 연결어를 문장째로 익힙니다.<br>CE 읽기: 지문에 자주 나오는 표현과 관계절 구조를 문장 단위로 먼저 익힙니다.<br>CO 듣기: 듣기 버튼으로 문장 소리를 반복해 듣고, 가리고 쓰기로 받아쓰기까지 연결합니다.<br>각 문장 카드에 어떤 영역에 도움이 되는지 표시해 뒀습니다.</p>
+<details><summary>Ensemble</summary>
+<p>구글 로그인 후 닉네임을 정하면, 서로의 레벨과 완료 문장을 볼 수 있어요. 보이는 건 닉네임뿐입니다.</p>
 </details>
-<details><summary>레벨과 XP, 복습 퀴즈</summary>
-<p>새 문장을 처음 완료하면 +10 XP, 복습 퀴즈를 맞히면 +5 XP가 쌓이고 레벨이 오릅니다. 복습 퀴즈는 완료한 문장이 3개 이상이면 공부하기 화면 아래에 나타납니다. 한 주제를 전부 완료하면 주제별 화면의 정복 지도에서 “정복”으로 표시됩니다.</p>
+<details><summary>레벨과 XP</summary>
+<p>문장 완료 +10 XP, 복습 퀴즈 정답 +5 XP. 레벨이 오르면 메달이 바뀌어요 (🌱 → 👑).</p>
 </details>
 <details><summary>효과음</summary>
-<p>따라 쓰기·가리고 쓰기와 복습 퀴즈에서 정답·오답 소리를 냅니다.</p>
+<p>정답·오답 소리를 냅니다.</p>
 <button class="ghost" id="soundBtn">효과음 끄기</button>
 </details>
 <details><summary>테마</summary>
-<p>화면 색을 고를 수 있어요. 선택은 이 기기에만 저장됩니다.</p>
+<p>선택은 이 기기에만 저장됩니다.</p>
 <div class="themerow" role="radiogroup" aria-label="테마 선택">
 <button class="themeopt on" data-theme-opt="light" role="radio" aria-checked="true"><span class="themesw sw-light" aria-hidden="true">가</span><span class="themelabel">라이트</span><span class="themecheck" aria-hidden="true">✓</span></button>
 <button class="themeopt" data-theme-opt="black" role="radio" aria-checked="false"><span class="themesw sw-black" aria-hidden="true">가</span><span class="themelabel">블랙</span><span class="themecheck" aria-hidden="true">✓</span></button>
 <button class="themeopt" data-theme-opt="paper" role="radio" aria-checked="false"><span class="themesw sw-paper" aria-hidden="true">가</span><span class="themelabel">페이퍼</span><span class="themecheck" aria-hidden="true">✓</span></button>
 </div>
 </details>
-<details><summary>진행 기록은 어떻게 보관되나요</summary>
+<details><summary>공유하기</summary>
+<p>프랑스어를 공부하는 사람에게 알려 주세요.</p>
+<button class="ghost" id="shareBtn">🔗 이 앱 공유하기</button>
+<p id="shareLink" hidden>https://sidebatch.github.io/une-phrase/</p>
+</details>
+<details><summary>진행 기록 보관</summary>
 <p id="vaultState">보관 상태 확인 중…</p>
-<p>기록은 이 기기의 브라우저 저장소에 저장되고, 같은 내용을 IndexedDB 보관함에도 복사해 둡니다. 브라우저가 저장소를 비워도 보관함에서 복구합니다. 단, 브라우저에서 “사이트 데이터 전체 삭제”를 하면 보관함도 함께 지워집니다. 그 경우를 막을 완전한 방법은 아직 없습니다.</p>
+<p>기록은 이 기기에 저장되고, 로그인하면 서버에도 보관돼 기기를 바꿔도 이어서 공부할 수 있어요.</p>
 <button class="ghost" id="exportBtn">기록 내보내기 (JSON)</button>
 <div id="resetZone"></div>
 </details>
@@ -363,12 +388,12 @@ summary{font-weight:800;cursor:pointer}
 
 <footer>
 <div class="footbrand"><span class="footlogo" aria-hidden="true">U</span><span class="footword">UNE PHRASE</span><span class="footko">한 문장 프랑스어</span></div>
-<div class="footmeta">v1.28.0 · © 2026 sidebatch</div>
+<div class="footmeta">v1.29.0 · © 2026 sidebatch</div>
 </footer>
 </div>
 <script>
 "use strict";
-const APP_VERSION = "1.28.0";
+const APP_VERSION = "1.29.0";
 const STORAGE_KEY = "une-phrase-progress-v1";
 const SUPABASE_URL = "https://cmhitsgoicxvmlwtrdrb.supabase.co";
 const SUPABASE_KEY = "sb_publishable_iZugJ1l1p3DSk_BB2Y3N3Q_qZwSo637";
@@ -711,6 +736,8 @@ const LEVELS = [
   { lv:9, title:"문장 장인", at:1550 },
   { lv:10, title:"문장 전설", at:2300 }
 ];
+const LEVEL_MEDALS = ["🌱","🌿","🍀","🥉","🥈","🥇","💎","🔥","⭐","👑"];
+function medalOf(lv){ return LEVEL_MEDALS[lv-1] || ""; }
 function xpOf(completedCount, reviewCorrect){ return (completedCount||0)*10 + (reviewCorrect||0)*5; }
 function levelOf(xp){
   let cur = LEVELS[0], next = null;
@@ -1071,6 +1098,7 @@ function wireSbAuth(){
     sb.auth.onAuthStateChange((event, session)=>{
       sbUser = session ? session.user : null;
       if(event === "SIGNED_OUT"){ sbProfile = null; sbSyncDone = false; }
+      renderProfileBtn();
       if(sbUser && !sbSyncDone){ syncSbOnLogin().then(()=>{ if(currentTab === "together") renderTogether(); }); }
       else if(currentTab === "together") renderTogether();
     });
@@ -1145,6 +1173,7 @@ async function sbLogin(){
 async function sbLogout(){
   try{ if(sb) await sb.auth.signOut(); }catch(e){}
   sbUser = null; sbProfile = null; sbSyncDone = false;
+  renderProfileBtn();
   renderTogether();
 }
 /* ---------- 닉네임 모달 (바텀시트) ---------- */
@@ -1196,6 +1225,7 @@ async function sbSetNickname(){
     if(error) throw error;
     sbProfile = { id: sbUser.id, nickname: nick };
     await mergeSbAndPush();
+    renderProfileBtn();
     closeNickModal();
     if(currentTab === "together") renderTogether();
   }catch(e){
@@ -1213,8 +1243,55 @@ function avatarBg(nickname){
   const pal = dark ? AVATAR_PASTELS_DARK : AVATAR_PASTELS;
   return pal[s % pal.length];
 }
-function avatarHtml(nickname){
-  return '<span class="avatar" style="background:'+avatarBg(nickname)+'" aria-hidden="true">'+esc((nickname || "?").charAt(0))+'</span>';
+function avatarHtml(nickname, big){
+  return '<span class="avatar'+(big?" big":"")+'" style="background:'+avatarBg(nickname)+'" aria-hidden="true">'+esc((nickname || "?").charAt(0))+'</span>';
+}
+/* ---------- 내 정보 (헤더 아바타 버튼 + 바텀시트) ---------- */
+function renderProfileBtn(){
+  const b = document.getElementById("profileBtn"); if(!b) return;
+  if(sbUser && sbProfile){
+    b.textContent = sbProfile.nickname.charAt(0);
+    b.style.background = avatarBg(sbProfile.nickname);
+  } else {
+    b.textContent = "👤";
+    b.style.background = "";
+  }
+}
+function openProfile(){
+  const ov = document.getElementById("profileOverlay"); if(!ov) return;
+  renderProfile();
+  ov.hidden = false;
+}
+function closeProfile(){
+  const ov = document.getElementById("profileOverlay"); if(ov) ov.hidden = true;
+}
+function renderProfile(){
+  const el = document.getElementById("profileBody"); if(!el) return;
+  const xp = xpOf(progress.completed.length, progress.reviewCorrect||0);
+  const lv = levelOf(xp);
+  const medalBlock = '<div class="profilemedal" aria-hidden="true">'+medalOf(lv.lv)+'</div><div class="profilelv">Lv.'+lv.lv+' '+esc(lv.title)+'</div>';
+  const stats = '<div class="pbar"><div class="pfill gold" style="width:'+lv.pct+'%"></div></div>'
+    + '<div class="profilenext">'+(lv.nextAt===null ? "최고 레벨이에요" : "다음 레벨까지 "+lv.toNext+" XP")+'</div>'
+    + '<div class="profilestats"><span>총 '+xp+' XP</span><span>완료 '+progress.completed.length+' / '+ITEMS.length+'문장</span><span>복습 맞힘 '+(progress.reviewCorrect||0)+'개</span></div>';
+  let h = "";
+  if(sbUser && sbProfile){
+    h += '<div class="profiletop">'+avatarHtml(sbProfile.nickname, true)+'<div><div class="profilename">'+esc(sbProfile.nickname)+'</div><div class="profileemail">'+esc(sbUser.email||"")+'</div></div></div>';
+    h += medalBlock + stats;
+    h += '<div class="btnrow" style="margin-top:14px"><button class="ghost" id="profileLogoutBtn">로그아웃</button></div>';
+  } else if(sbUser){
+    h += '<div class="profiletop"><span class="avatar big" style="background:var(--soft)" aria-hidden="true">👤</span><div><div class="profilename">닉네임이 없어요</div><div class="profileemail">'+esc(sbUser.email||"")+'</div></div></div>';
+    h += medalBlock + stats;
+    h += '<div class="btnrow" style="margin-top:14px"><button class="primary" id="profileNickBtn">닉네임 정하기</button><button class="ghost" id="profileLogoutBtn">로그아웃</button></div>';
+  } else {
+    h += '<div class="profiletop"><span class="avatar big" style="background:var(--soft)" aria-hidden="true">👤</span><div><div class="profilename">게스트</div><div class="profileemail">이 기기의 기록만 보여요</div></div></div>';
+    h += medalBlock + stats;
+    h += '<p class="modaldesc" style="margin-top:12px">로그인하면 기록이 서버에도 보관되고, Ensemble에서 서로의 진도를 볼 수 있어요.</p>';
+    h += '<button class="primary modalbtn" id="profileLoginBtn">구글로 시작하기</button>';
+  }
+  el.innerHTML = h;
+  const lb = document.getElementById("profileLoginBtn"); if(lb) lb.onclick = ()=>{ sbLogin(); };
+  const nb = document.getElementById("profileNickBtn"); if(nb) nb.onclick = ()=>{ closeProfile(); openNickModal(false); };
+  const ob = document.getElementById("profileLogoutBtn"); if(ob) ob.onclick = ()=>{ closeProfile(); sbLogout(); };
 }
 async function renderTogether(){
   const el = document.getElementById("view-together");
@@ -1268,7 +1345,7 @@ async function renderTogetherMembers(){
   if(mine){
     const mlv = levelOf(mine.xp);
     const mpct = pctOf(mine.doneCount);
-    h += '<div class="card mycard"><div class="memhead">'+avatarHtml(mine.nickname)+'<span class="memname">'+esc(mine.nickname)+'</span><span class="lvbadge">Lv.'+mlv.lv+' '+esc(mlv.title)+'</span></div>'
+    h += '<div class="card mycard"><div class="memhead">'+avatarHtml(mine.nickname)+'<span class="memname">'+esc(mine.nickname)+'</span><span class="lvbadge">Lv.'+mlv.lv+' '+medalOf(mlv.lv)+' '+esc(mlv.title)+'</span></div>'
       + '<div class="pbar"><div class="pfill" style="width:'+mpct+'%"></div></div>'
       + '<div class="memprog"><span>완료 '+mine.doneCount+' / '+ITEMS.length+'</span><span class="progress-pct">'+mpct+'%</span></div>'
       + '<div class="btnrow" style="margin-top:12px"><button class="ghost" id="sbRefreshBtn">새로고침</button><button class="ghost" id="sbLogoutBtn">로그아웃</button></div></div>';
@@ -1280,12 +1357,13 @@ async function renderTogetherMembers(){
   h += rows.map(r=>{
     const lv = levelOf(r.xp);
     const pct = pctOf(r.doneCount);
-    return '<div class="card membercard'+(r.me?" me":"")+'"><div class="memhead">'+avatarHtml(r.nickname)+'<span class="memname">'+esc(r.nickname)+(r.me?' (나)':'')+'</span><span class="lvbadge">Lv.'+lv.lv+' '+esc(lv.title)+'</span></div>'
+    return '<div class="card membercard'+(r.me?" me":"")+'"><div class="memhead">'+avatarHtml(r.nickname)+'<span class="memname">'+esc(r.nickname)+(r.me?' (나)':'')+'</span><span class="lvbadge">Lv.'+lv.lv+' '+medalOf(lv.lv)+' '+esc(lv.title)+'</span></div>'
       + '<div class="pbar"><div class="pfill" style="width:'+pct+'%"></div></div>'
       + '<div class="memprog"><span>완료 '+r.doneCount+' / '+ITEMS.length+'</span><span>'+r.xp+' XP</span></div>'
       + '<div style="margin-top:10px"><button class="ghost" data-sbdone="'+esc(r.id)+'">완료 문장 보기</button></div><div id="sbdone-'+esc(r.id)+'"></div></div>';
   }).join("");
   el.innerHTML = h;
+  renderProfileBtn();
   const rb = document.getElementById("sbRefreshBtn"); if(rb) rb.onclick = ()=>renderTogether();
   const lo = document.getElementById("sbLogoutBtn"); if(lo) lo.onclick = sbLogout;
   document.querySelectorAll("[data-sbdone]").forEach(b=>b.onclick = ()=>toggleMemberDone(b.getAttribute("data-sbdone"), b));
@@ -1406,6 +1484,9 @@ document.getElementById("menuBackdrop").onclick = ()=>closeMenu();
 document.querySelectorAll("[data-menu]").forEach(b=>b.onclick=()=>goMenu(b.getAttribute("data-menu")));
 document.getElementById("nickCloseBtn").onclick = ()=>closeNickModal();
 document.getElementById("nickBackdrop").onclick = ()=>closeNickModal();
+document.getElementById("profileBtn").onclick = ()=>openProfile();
+document.getElementById("profileCloseBtn").onclick = ()=>closeProfile();
+document.getElementById("profileBackdrop").onclick = ()=>closeProfile();
 document.getElementById("sbNickBtn").onclick = ()=>sbSetNickname();
 document.getElementById("sbNickInput").addEventListener("keydown", (e)=>{ if(e.key === "Enter"){ e.preventDefault(); sbSetNickname(); } });
 /* ---------- 테마 (기기별 설정 — Supabase 동기화 페이로드에 넣지 않음) ---------- */
@@ -1421,6 +1502,7 @@ function applyTheme(name, save){
   if(m) m.setAttribute("content", THEME_META_COLORS[t]);
   if(save){ progress.theme = t; saveProgress(); }
   renderThemeOpts();
+  renderProfileBtn();
 }
 function renderThemeOpts(){
   const cur = themeOf();
@@ -1476,7 +1558,7 @@ fetch('https://une-phrase.goatcounter.com/counter/TOTAL.json')
   .then(function(r){ if(!r.ok) throw 0; return r.json(); })
   .then(function(d){
     var b = document.getElementById('gcBadge');
-    if(b && d && d.count){ b.textContent = '👥 ' + d.count; b.style.display = 'block'; }
+    if(b && d && d.count){ b.textContent = '👥 지금까지 ' + Number(d.count).toLocaleString() + '명이 다녀갔어요'; b.hidden = false; }
   })
   .catch(function(){});
 </script>
