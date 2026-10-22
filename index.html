@@ -58,7 +58,14 @@ h1{font-size:26px;line-height:1.25;margin:11px 0 3px;letter-spacing:-.01em}
 .progress-sub{display:flex;align-items:center;justify-content:space-between;margin-top:6px;font-size:12.5px;font-weight:700}
 .progress-pct{color:var(--blue);font-weight:800}
 .lead{color:var(--sub);font-size:15px;margin:0 0 var(--sp2)}
-.tabs{display:flex;gap:6px;margin:14px 0;flex-wrap:nowrap}
+.tabs{display:flex;gap:10px;margin:14px 0;flex-wrap:nowrap}
+.tabs[hidden]{display:none}
+.focusbar{display:flex;justify-content:flex-end}
+.exitbtn{background:none;border:0;color:var(--sub);font-size:13px;font-weight:700;padding:6px 2px;cursor:pointer;font:inherit}
+.exitbtn[hidden]{display:none}
+.btnrow{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.slowbtn.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+#resetZone{margin-top:12px}
 .tabbtn{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;min-height:38px;background:#fff;color:var(--ink);border:1px solid var(--line-soft);border-radius:var(--r-pill);padding:9px 14px;font-size:14px;font-weight:800;cursor:pointer;font:inherit;transition:transform .12s var(--ease),background-color .18s ease,border-color .18s ease}
 .tabbtn.on{background:var(--blue);color:#fff;border-color:var(--blue)}
 .tabs .tabbtn{flex:1 1 0;min-width:0;min-height:44px;padding:9px 2px;font-size:13px;text-align:center;white-space:nowrap}
@@ -76,7 +83,7 @@ h1{font-size:26px;line-height:1.25;margin:11px 0 3px;letter-spacing:-.01em}
 .chunk span{font-size:13px;color:var(--sub)}
 .pattern{background:#fff8e6;border:1px solid #eee1b9;border-radius:var(--r-md);padding:10px 12px;font-size:14px;margin:10px 0}
 .words{font-size:14px;margin:var(--sp2) 0}
-.stepnav{display:flex;gap:6px;margin:var(--sp3) 0;flex-wrap:nowrap}
+.stepnav{display:flex;gap:10px;margin:var(--sp3) 0;flex-wrap:nowrap}
 .stepbtn{flex:1 1 0;min-width:0;min-height:44px;display:flex;align-items:center;justify-content:center;background:#fff;color:var(--ink);border:1px solid var(--line-soft);border-radius:var(--r-md);padding:10px 2px;font-size:13px;font-weight:800;cursor:pointer;font:inherit;white-space:nowrap;text-align:center;transition:transform .12s var(--ease),background-color .18s ease,border-color .18s ease}
 .stepbtn.on{background:var(--blue);color:#fff;border-color:var(--blue)}
 button.primary{min-height:44px;background:var(--blue);color:#fff;border:1.5px solid var(--blue);border-radius:var(--r-pill);padding:11px 20px;font-size:15px;font-weight:800;cursor:pointer;font:inherit;transition:transform .12s var(--ease),background-color .18s ease}
@@ -85,7 +92,7 @@ button.danger{min-height:44px;background:#fff;color:var(--bad);border:1.5px soli
 button.danger.solid{background:var(--bad);color:#fff;border-color:var(--bad)}
 button.danger:active{transform:scale(.97)}
 .resetbox{background:#fdf4f3;border:1px solid #f0d6d3;border-left:4px solid var(--bad);border-radius:var(--r-md);padding:12px 14px;font-size:14.5px;line-height:1.55;margin:10px 0 4px}
-.resetbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.resetbtns{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
 .resetnote{font-size:13px;color:var(--sub);margin:6px 0 0}
 textarea,input[type=text]{width:100%;font:inherit;font-size:17.5px;line-height:1.6;padding:14px 15px;border:1px solid var(--line-soft);border-radius:14px;background:#fffdf4;box-shadow:inset 0 1px 3px rgba(60,50,20,.05)}
 textarea::placeholder,input[type=text]::placeholder{color:#a9a498}
@@ -114,7 +121,7 @@ textarea:focus,input[type=text]:focus{border-color:var(--blue);box-shadow:0 0 0 
 .donebar{max-width:320px;margin:12px auto 4px}
 .donebar .pfill{animation:grow .8s var(--ease)}
 .donepct{font-size:13px;font-weight:800;color:var(--blue);margin-bottom:14px}
-.listitem{display:flex;align-items:flex-start;gap:10px;border:1px solid var(--line-soft);border-radius:var(--r-md);padding:12px 14px;margin:var(--sp2) 0;background:#fff;cursor:pointer;width:100%;text-align:left;font:inherit;color:var(--ink);transition:transform .12s var(--ease),background-color .18s ease,border-color .18s ease}
+.listitem{display:flex;align-items:flex-start;gap:10px;border:1px solid var(--line-soft);border-radius:var(--r-md);padding:12px 14px;margin:var(--sp3) 0;background:#fff;cursor:pointer;width:100%;text-align:left;font:inherit;color:var(--ink);transition:transform .12s var(--ease),background-color .18s ease,border-color .18s ease}
 .li-check{flex:0 0 auto;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--line);color:transparent;display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;margin-top:1px;background:#fff}
 .li-body{flex:1;min-width:0}
 .li-sub{display:block;color:var(--sub);font-size:14px;margin-top:2px}
@@ -132,7 +139,7 @@ textarea:focus,input[type=text]:focus{border-color:var(--blue);box-shadow:0 0 0 
 .xpgain{display:inline-block;background:#fdf3e0;color:var(--gold);font-weight:900;font-size:15px;border-radius:var(--r-pill);padding:3px 14px;margin-bottom:6px}
 .levelup{font-size:19px;font-weight:900;color:var(--blue);margin:2px 0 6px;animation:pop .45s var(--ease)}
 .quizcard{background:#fbfcff;border-color:var(--done-line)}
-.mapgrid{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp2);margin:10px 0 4px}
+.mapgrid{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp3);margin:10px 0 4px}
 .mapcard{background:#fff;border:1px solid var(--line-soft);border-radius:var(--r-md);padding:12px;text-align:left;font:inherit;color:var(--ink);cursor:pointer;box-shadow:var(--shadow);transition:transform .12s var(--ease),background-color .18s ease,border-color .18s ease}
 .mapcard:active{transform:scale(.98)}
 .map-top{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:15px}
@@ -155,7 +162,7 @@ summary{font-weight:800;cursor:pointer}
 <body>
 <div class="wrap">
 <header class="masthead">
-<div class="brandrow"><span class="logo" aria-hidden="true">U</span><span class="wordmark">UNE PHRASE</span><span class="verpill">버전 1.19.0</span></div>
+<div class="brandrow"><span class="logo" aria-hidden="true">U</span><span class="wordmark">UNE PHRASE</span><span class="verpill">버전 1.20.0</span></div>
 <h1>한 문장 프랑스어</h1>
 <div class="progress" id="progressArea">
 <div class="progress-top"><span id="progressLine">불러오는 중…</span><span class="todaychip" id="todayChip">오늘 0문장</span></div>
@@ -164,7 +171,7 @@ summary{font-weight:800;cursor:pointer}
 <div class="levelrow"><span class="lvlabel" id="lvLabel">Lv.1 문장 새싹</span><div class="pbar lvbar" id="lvBar" role="progressbar" aria-label="다음 레벨까지 진행" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="pfill gold" id="lvFill"></div></div><span class="lvnext" id="lvNext"></span></div>
 </div>
 </header>
-<div class="tabs">
+<div class="tabs" id="tabBar">
 <button class="tabbtn on" id="tabBtnStudy">공부하기</button>
 <button class="tabbtn" id="tabBtnBrowse">주제별</button>
 <button class="tabbtn" id="tabBtnWords">단어</button>
@@ -172,6 +179,7 @@ summary{font-weight:800;cursor:pointer}
 </div>
 
 <div id="tab-study">
+<div class="focusbar"><button class="exitbtn" id="exitFocusBtn" hidden>✕ 나가기</button></div>
 <div class="stepnav">
 <button class="stepbtn on" id="stepBtn1">1 · 읽어보기</button>
 <button class="stepbtn" id="stepBtn2">2 · 따라 쓰기</button>
@@ -179,18 +187,13 @@ summary{font-weight:800;cursor:pointer}
 </div>
 <div class="card" id="studyCard"></div>
 <div id="doneBox"></div>
-<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-<button class="ghost" id="prevBtn">← 이전 문장</button>
-<button class="ghost" id="nextBtn">다음 문장 →</button>
-<button class="ghost" id="listenBtn2">🔊 다시 듣기</button>
-</div>
 <div id="quizArea"></div>
 </div>
 
 <div id="tab-browse" hidden>
 <p class="lead">주제를 눌러 문장을 골라 볼 수 있어요.</p>
 <div id="topicMap"></div>
-<div id="topicFilter" style="display:flex;gap:6px;flex-wrap:wrap;margin:10px 0"></div>
+<div id="topicFilter" style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0"></div>
 <div id="browseList"></div>
 </div>
 
@@ -203,6 +206,7 @@ summary{font-weight:800;cursor:pointer}
 <details open><summary>어떻게 쓰나요 — 3단계</summary>
 <p>1 · 읽어보기: 문장과 뜻 덩어리를 보고, 듣기 버튼으로 소리를 확인합니다.<br>2 · 따라 쓰기: 문장을 보면서 그대로 타이핑합니다. 손이 철자를 기억합니다.<br>3 · 가리고 쓰기: 한국어 뜻만 보고 프랑스어 문장 전체를 씁니다. 이 단계가 진짜 암기입니다.</p>
 <p>기본 흐름은 <b>한 문장만</b>입니다. 한 문장을 끝내면 완료 화면이 나오고, 원하면 “한 문장 더”를 누르세요.</p>
+<p>공부하는 동안에는 위쪽 탭이 숨겨져 집중할 수 있어요. 다른 탭으로 가려면 카드 위의 “✕ 나가기”를 누르세요. 듣기가 빠르면 듣기 옆의 🐢 버튼으로 0.8배속으로 천천히 들을 수 있어요.</p>
 </details>
 <details><summary>이 문장들이 TEF Canada와 어떻게 연결되나요</summary>
 <p>EO 말하기: 의견 문장과 일상 설명 문장을 그대로 말하기 재료로 씁니다.<br>EE 쓰기: je pense que, d'une part… 같은 의견 구조와 연결어를 문장째로 익힙니다.<br>CE 읽기: 지문에 자주 나오는 표현과 관계절 구조를 문장 단위로 먼저 익힙니다.<br>CO 듣기: 듣기 버튼으로 문장 소리를 반복해 듣고, 가리고 쓰기로 받아쓰기까지 연결합니다.<br>각 문장 카드에 어떤 영역에 도움이 되는지 표시해 뒀습니다.</p>
@@ -224,12 +228,12 @@ summary{font-weight:800;cursor:pointer}
 
 <footer>
 <div class="footbrand"><span class="footlogo" aria-hidden="true">U</span><span class="footword">UNE PHRASE</span><span class="footko">한 문장 프랑스어</span></div>
-<div class="footmeta">v1.19.0 · © 2026 sidebatch</div>
+<div class="footmeta">v1.20.0 · © 2026 sidebatch</div>
 </footer>
 </div>
 <script>
 "use strict";
-const APP_VERSION = "1.19.0";
+const APP_VERSION = "1.20.0";
 const STORAGE_KEY = "une-phrase-progress-v1";
 const ITEMS = [
 {id:1,fr:"Je cherche un appartement près du métro parce que je n'ai pas de voiture.",ko:"나는 차가 없어서 지하철 근처 아파트를 찾고 있다.",chunks:[["Je cherche un appartement","아파트를 찾고 있다"],["près du métro","지하철 근처에"],["parce que je n'ai pas de voiture","차가 없기 때문에"]],pattern:"이유는 뒤에 붙인다: …parce que + 문장 → 연결어 parce que (왜냐하면)",words:[["appartement","아파트"],["près de","~ 근처에"]],topic:"일상",level:"B1",tef:"EO 말하기 · CE 읽기"},
@@ -604,7 +608,7 @@ async function vaultSet(key,val){ if(!vaultReady) return; try{ const db=await id
 async function vaultDelete(key){ try{ const db=await idbOpen(); await new Promise((res,rej)=>{ const tx=db.transaction("kv","readwrite").objectStore("kv").delete(key); tx.onsuccess=()=>res(); tx.onerror=()=>rej(tx.error); }); }catch(e){} }
 
 /* ---------- 상태 ---------- */
-function defaultProgress(){ return { index:0, completed:[], doneDates:[], step:1, reviewCorrect:0, completedAt:{}, sound:true }; }
+function defaultProgress(){ return { index:0, completed:[], doneDates:[], step:1, reviewCorrect:0, completedAt:{}, sound:true, slow:false }; }
 let progress = defaultProgress();
 function loadLocal(){ try{ const raw=localStorage.getItem(STORAGE_KEY); return raw?JSON.parse(raw):null; }catch(e){ return null; } }
 function saveProgress(){
@@ -632,6 +636,7 @@ function renderVaultState(){
 
 /* ---------- 음성 (Android 경합 방지: cancel 후 짧게 대기) ---------- */
 let speakTimer = null;
+function speakRate(){ return progress.slow ? 0.8 : 1.0; }
 function speakFr(text){
   try{
     if(!("speechSynthesis" in window)) return;
@@ -639,7 +644,7 @@ function speakFr(text){
     if(speakTimer) clearTimeout(speakTimer);
     speakTimer = setTimeout(()=>{
       const u = new SpeechSynthesisUtterance(text);
-      u.lang = "fr-FR"; u.rate = 0.92;
+      u.lang = "fr-FR"; u.rate = speakRate();
       const voices = window.speechSynthesis.getVoices().filter(v=>v.lang && v.lang.toLowerCase().startsWith("fr"));
       if(voices.length) u.voice = voices[0];
       window.speechSynthesis.speak(u);
@@ -682,6 +687,9 @@ let currentStep = 1;
 let quizItem = null;
 let completionInFlight = false;
 let quizAnswered = false;
+let currentTab = "study";
+let focusOff = false;
+let completionShown = false;
 function bindWordProg(inputId, progId, targetFr){
   const inp = document.getElementById(inputId), el = document.getElementById(progId);
   if(!inp || !el) return;
@@ -712,8 +720,10 @@ function renderProgress(){
   requestAnimationFrame(()=>{ document.getElementById("lvFill").style.width = lv.pct+"%"; });
   document.getElementById("lvBar").setAttribute("aria-valuenow", lv.pct);
 }
+function slowBtnHtml(){ return '<button class="ghost slowbtn'+(progress.slow?" on":"")+'" id="slowBtn" aria-pressed="'+(progress.slow?"true":"false")+'">🐢 느리게 0.8배속</button>'; }
 function renderStudy(){
   completionInFlight = false;
+  completionShown = false;
   const it = currentItem();
   document.querySelectorAll(".stepbtn").forEach((b,i)=>b.classList.toggle("on", i+1===currentStep));
   const done = progress.completed.includes(it.id);
@@ -724,27 +734,29 @@ function renderStudy(){
     h += '<div>'+it.chunks.map(c=>'<span class="chunk"><b>'+esc(c[0])+'</b><span>'+esc(c[1])+'</span></span>').join("")+'</div>';
     h += '<div class="pattern">'+esc(it.pattern)+'</div>';
     h += '<div class="words">핵심 단어: '+it.words.map(w=>'<b>'+esc(w[0])+'</b> '+esc(w[1])).join(" · ")+'</div>';
-    h += '<button class="primary" id="listenBtn">🔊 듣기</button> <button class="ghost" id="goStep2">다음으로 →</button>';
+    h += '<div class="btnrow"><button class="primary" id="listenBtn">🔊 듣기</button>'+slowBtnHtml()+'<button class="ghost" id="goStep2">다음으로 →</button></div>';
   } else if(currentStep===2){
     h += '<div class="fr">'+esc(it.fr)+'</div><p class="ko">'+esc(it.ko)+'</p>';
     h += '<p class="lead">위 문장을 보면서 그대로 타이핑하세요.</p>';
     h += '<textarea id="typeInput" rows="3" placeholder="문장을 보면서 써 보세요" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><div class="wordprog" id="wordProg" aria-live="polite"></div><div id="fb"></div>';
-    h += '<button class="primary" id="checkBtn">확인하기</button> <button class="ghost" id="listenBtn">🔊 듣기</button>';
+    h += '<div class="btnrow"><button class="primary" id="checkBtn">확인하기</button><button class="ghost" id="listenBtn">🔊 듣기</button>'+slowBtnHtml()+'</div>';
   } else {
     h += '<p class="ko" style="font-size:19px;font-weight:700">'+esc(it.ko)+'</p>';
     h += '<p class="lead">뜻만 보고 프랑스어로 써 보세요. 악센트(é, è)가 달라도 괜찮아요.</p>';
     h += '<textarea id="typeInput" rows="3" placeholder="프랑스어 문장을 써 보세요" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><div class="wordprog" id="wordProg" aria-live="polite"></div><div id="fb"></div>';
-    h += '<button class="primary" id="checkBtn">확인하기</button> <button class="ghost" id="hintBtn">힌트: 첫 단어 보기</button> <div id="hint"></div>';
+    h += '<div class="btnrow"><button class="primary" id="checkBtn">확인하기</button><button class="ghost" id="hintBtn">힌트: 첫 단어 보기</button>'+slowBtnHtml()+'</div><div id="hint"></div>';
   }
   document.getElementById("studyCard").innerHTML = h;
   document.getElementById("doneBox").innerHTML = "";
   const lb = document.getElementById("listenBtn"); if(lb) lb.onclick = ()=>speakFr(it.fr);
+  const slb = document.getElementById("slowBtn"); if(slb) slb.onclick = ()=>{ progress.slow = !progress.slow; saveProgress(); slb.classList.toggle("on", !!progress.slow); slb.setAttribute("aria-pressed", progress.slow ? "true" : "false"); };
   const g2 = document.getElementById("goStep2"); if(g2) g2.onclick = ()=>{ setStep(2); renderStudy(); };
   const cb = document.getElementById("checkBtn"); if(cb) cb.onclick = checkTyping;
   bindWordProg("typeInput", "wordProg", it.fr);
   const hb = document.getElementById("hintBtn"); if(hb) hb.onclick = ()=>{ document.getElementById("hint").innerHTML = '<p class="lead">첫 단어: <b>'+esc(it.fr.split(" ")[0])+'</b> · 덩어리: '+it.chunks.map(c=>esc(c[0])).join(" / ")+'</p>'; };
   renderQuizEntry();
   renderProgress();
+  applyFocus();
 }
 function checkTyping(){
   const it = currentItem();
@@ -786,12 +798,14 @@ function completeSentence(){
   if(lvAfter.lv > lvBefore.lv) extra += '<div class="levelup">레벨 업! Lv.'+lvAfter.lv+' '+esc(lvAfter.title)+'</div>';
   document.getElementById("studyCard").innerHTML = "";
   document.getElementById("doneBox").innerHTML = '<div class="card donebox"><div class="donecircle" aria-hidden="true">✓</div><div class="big">한 문장 완료!</div>'+extra+'<p>오늘 '+countToday(progress)+'문장째 · 지금까지 '+progress.completed.length+' / '+ITEMS.length+'문장</p><div class="pbar donebar"><div class="pfill" style="width:'+pctAll+'%"></div></div><div class="donepct">전체 '+pctAll+'%</div><button class="primary" id="oneMoreBtn">한 문장 더 →</button></div>';
-  document.getElementById("oneMoreBtn").onclick = ()=>{ setStep(1); renderStudy(); window.scrollTo({top:0,behavior:"smooth"}); };
+  document.getElementById("oneMoreBtn").onclick = ()=>{ focusOff = false; setStep(1); renderStudy(); window.scrollTo({top:0,behavior:"smooth"}); };
   const doneEl = document.getElementById("doneBox");
   if(doneEl && doneEl.scrollIntoView) doneEl.scrollIntoView({behavior:"smooth", block:"start"});
+  completionShown = true;
+  applyFocus();
   renderQuizEntry();
 }
-function goToItem(idx, step){ progress.index = idx; setStep(step||1); showTab("study"); renderStudy(); window.scrollTo({top:0,behavior:"smooth"}); }
+function goToItem(idx, step){ progress.index = idx; focusOff = false; setStep(step||1); showTab("study"); renderStudy(); window.scrollTo({top:0,behavior:"smooth"}); }
 
 /* ---------- 복습 퀴즈 ---------- */
 function renderQuizEntry(){
@@ -803,12 +817,13 @@ function renderQuizEntry(){
 }
 function startQuiz(excludeId){
   quizAnswered = false;
+  focusOff = false; applyFocus();
   let pool = quizPool(ITEMS, progress.completed, currentItem().id);
   if(excludeId && pool.length > 1) pool = pool.filter(i=>i.id!==excludeId);
   if(!pool.length) pool = ITEMS.filter(i=>progress.completed.includes(i.id) && i.id!==excludeId);
   if(!pool.length){ quizItem = null; renderQuizEntry(); return; }
   quizItem = pool[Math.floor(Math.random()*pool.length)];
-  document.getElementById("quizArea").innerHTML = '<div class="card quizcard"><div class="meta">복습 퀴즈 · 맞히면 +5 XP</div><p class="ko" style="font-size:19px;font-weight:700;margin-top:8px">'+esc(quizItem.ko)+'</p><textarea id="quizInput" rows="3" placeholder="프랑스어 문장을 써 보세요" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><div class="wordprog" id="quizWordProg" aria-live="polite"></div><div id="quizFb"></div><button class="primary" id="quizCheckBtn">확인하기</button> <button class="ghost" id="quizQuitBtn">그만하기</button></div>';
+  document.getElementById("quizArea").innerHTML = '<div class="card quizcard"><div class="meta">복습 퀴즈 · 맞히면 +5 XP</div><p class="ko" style="font-size:19px;font-weight:700;margin-top:8px">'+esc(quizItem.ko)+'</p><textarea id="quizInput" rows="3" placeholder="프랑스어 문장을 써 보세요" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><div class="wordprog" id="quizWordProg" aria-live="polite"></div><div id="quizFb"></div><div class="btnrow"><button class="primary" id="quizCheckBtn">확인하기</button><button class="ghost" id="quizQuitBtn">그만하기</button></div></div>';
   document.getElementById("quizCheckBtn").onclick = checkQuiz;
   document.getElementById("quizQuitBtn").onclick = endQuiz;
   bindWordProg("quizInput", "quizWordProg", quizItem.fr);
@@ -828,7 +843,7 @@ function checkQuiz(){
     playSound(false);
     h = wrongHtml(input, quizItem.fr);
   }
-  h += '<button class="primary" id="quizMoreBtn">한 문제 더</button> <button class="ghost" id="quizDoneBtn">끝내기</button>';
+  h += '<div class="btnrow" style="margin-top:12px"><button class="primary" id="quizMoreBtn">한 문제 더</button><button class="ghost" id="quizDoneBtn">끝내기</button></div>';
   document.getElementById("quizFb").innerHTML = h;
   const cb = document.getElementById("quizCheckBtn"); if(cb) cb.style.display = "none";
   const qb = document.getElementById("quizQuitBtn"); if(qb) qb.style.display = "none";
@@ -867,13 +882,23 @@ async function doReset(){
   vaultReady = true; await vaultDelete(STORAGE_KEY);
   renderVaultState(); renderSoundBtn(); renderResetZone(); renderStudy();
 }
+/* ---------- 포커스 모드 (공부 중에는 탭 바 숨김) ---------- */
+function inFocus(){ return currentTab === "study" && !focusOff && !completionShown; }
+function applyFocus(){
+  const f = inFocus();
+  const bar = document.getElementById("tabBar"); if(bar) bar.hidden = f;
+  const ex = document.getElementById("exitFocusBtn"); if(ex) ex.hidden = !f;
+}
+function exitFocus(){ focusOff = true; applyFocus(); }
 function showTab(name){
   if(name !== "about" && (resetStage !== 0 || resetDoneMsg)){ resetStage = 0; resetDoneMsg = false; renderResetZone(); }
+  currentTab = name;
   ["study","browse","words","about"].forEach(t=>{ document.getElementById("tab-"+t).hidden = t!==name; });
   document.getElementById("tabBtnStudy").classList.toggle("on", name==="study");
   document.getElementById("tabBtnBrowse").classList.toggle("on", name==="browse");
   document.getElementById("tabBtnWords").classList.toggle("on", name==="words");
   document.getElementById("tabBtnAbout").classList.toggle("on", name==="about");
+  applyFocus();
 }
 let browseTopic = "전체";
 function renderTopicMap(){
@@ -907,16 +932,14 @@ function renderWords(){
 }
 
 /* ---------- 이벤트 ---------- */
-document.getElementById("tabBtnStudy").onclick = ()=>showTab("study");
+document.getElementById("tabBtnStudy").onclick = ()=>{ focusOff = false; showTab("study"); };
+document.getElementById("exitFocusBtn").onclick = ()=>exitFocus();
 document.getElementById("tabBtnBrowse").onclick = ()=>{ showTab("browse"); renderBrowse(); };
 document.getElementById("tabBtnWords").onclick = ()=>{ showTab("words"); renderWords(); };
 document.getElementById("tabBtnAbout").onclick = ()=>showTab("about");
 document.getElementById("stepBtn1").onclick = ()=>{ setStep(1); renderStudy(); };
 document.getElementById("stepBtn2").onclick = ()=>{ setStep(2); renderStudy(); };
 document.getElementById("stepBtn3").onclick = ()=>{ setStep(3); renderStudy(); };
-document.getElementById("prevBtn").onclick = ()=>{ if(progress.index>0){ progress.index--; setStep(1); renderStudy(); } };
-document.getElementById("nextBtn").onclick = ()=>{ if(progress.index<ITEMS.length-1){ progress.index++; setStep(1); renderStudy(); } };
-document.getElementById("listenBtn2").onclick = ()=>speakFr(currentItem().fr);
 function renderSoundBtn(){ const b = document.getElementById("soundBtn"); if(b) b.textContent = soundEnabled() ? "효과음 끄기" : "효과음 켜기"; }
 document.getElementById("soundBtn").onclick = ()=>{ progress.sound = !soundEnabled(); saveProgress(); renderSoundBtn(); if(soundEnabled()) playSound(true); };
 renderSoundBtn();

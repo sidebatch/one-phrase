@@ -180,6 +180,9 @@ const smokePrelude = [
   'let quizItem = null;',
   'let completionInFlight = false;',
   'let quizAnswered = false;',
+  'let currentTab = "study";',
+  'let focusOff = false;',
+  'let completionShown = false;',
   'const document = documentStub;',
   'function saveProgress(){}',
   'function renderVaultState(){}',
@@ -190,6 +193,10 @@ const smokePrelude = [
 ].join("\n");
 const smokeFns = [
   escSrc, swSrc, dwSrc,
+  html.match(/function slowBtnHtml\(\)[^\n]*/)[0],
+  html.match(/function inFocus\(\)[^\n]*/)[0],
+  html.match(/function applyFocus\(\)[\s\S]*?\n\}/)[0],
+  html.match(/function exitFocus\(\)[^\n]*/)[0],
   html.match(/function correctHtml[\s\S]*?\n\}/)[0],
   html.match(/function setStep\(n\)\{[^}]*\}/)[0],
   html.match(/function currentItem\(\)\{[^}]*\}/)[0],
@@ -206,6 +213,12 @@ const smokeDriver = [
   'progress = { index:0, step:3, completed:[], doneDates:[], completedAt:{}, reviewCorrect:0, sound:true };',
   'currentStep = 3;',
   'renderStudy();',
+  'ok(STUB_ELS["tabBar"].hidden === true, "포커스 스모크: 공부 중에는 탭 바가 숨겨짐");',
+  'ok(STUB_ELS["exitFocusBtn"].hidden === false, "포커스 스모크: 공부 중에는 나가기 버튼이 보임");',
+  'exitFocus();',
+  'ok(STUB_ELS["tabBar"].hidden === false, "포커스 스모크: 나가기를 누르면 탭 바가 다시 보임");',
+  'focusOff = false; applyFocus();',
+  'ok(STUB_ELS["tabBar"].hidden === true, "포커스 스모크: 다시 공부하면 탭 바가 숨겨짐");',
   'ok(!!STUB_ELS["typeInput"], "스모크: 3단계 타이핑 박스 렌더됨");',
   'ok(STUB_ELS["wordProg"].innerHTML.indexOf("단어") > -1, "스모크: 단어 수 진행 표시 초기 렌더");',
   'STUB_ELS["typeInput"].value = ITEMS[0].fr;',
@@ -222,6 +235,7 @@ const smokeDriver = [
   'ok(idx1 === 1 && progress.index === 1, "회귀: 완료 연타해도 안 본 문장으로 건너뛰지 않음 (index " + progress.index + ")");',
   'ok(xpOf(progress.completed.length, progress.reviewCorrect) === 10, "회귀: XP도 1회분 +10만 적립");',
   'ok(STUB_ELS["studyCard"].innerHTML === "", "회귀: 완료 후 학습 카드가 비어 있음");',
+  'ok(STUB_ELS["tabBar"].hidden === false, "포커스 스모크: 완료 화면(쉬는 지점)에서는 탭 바가 보임");',
   'progress.completed = [ITEMS[0].id, ITEMS[1].id, ITEMS[2].id];',
   'progress.index = 0; currentStep = 1;',
   'startQuiz();',
@@ -288,6 +302,9 @@ const rzPrelude = [
   'let persistGranted = null;',
   'let resetStage = 0;',
   'let resetDoneMsg = false;',
+  'let currentTab = "about";',
+  'let focusOff = false;',
+  'let completionShown = false;',
   'const STORAGE_KEY = "une-phrase-progress-v1";',
   'const document = rzDocument;',
   'const rzLocalStore = new Map();',
@@ -301,6 +318,8 @@ const rzFns = [
   html.match(/function soundEnabled\(\)[^\n]*/)[0],
   html.match(/function renderSoundBtn\(\)[^\n]*/)[0],
   html.match(/function renderVaultState\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function inFocus\(\)[^\n]*/)[0],
+  html.match(/function applyFocus\(\)[\s\S]*?\n\}/)[0],
   html.match(/function showTab\(name\)\{[\s\S]*?\n\}/)[0],
   rzSrc, drSrc
 ].join("\n");
@@ -333,6 +352,36 @@ const rzDriver = [
   'ok(RZ_ELS["resetZone"].innerHTML.includes("초기화됐어요"), "초기화 스모크: 초기화 완료 안내가 표시됨");'
 ].join("\n");
 eval(rzPrelude + "\n" + rzFns + "\n" + rzDriver);
+
+console.log("\n[몰입 모드·느리게 듣기·하단 버튼 정리·간격 (v1.20.0)]");
+ok(html.includes('id="tabBar"') && html.includes('id="exitFocusBtn"') && html.includes("✕ 나가기"), "포커스: 탭 바 id와 조용한 나가기 버튼 있음");
+ok(/\.tabs\[hidden\]\{display:none\}/.test(html), "포커스: 숨긴 탭 바가 실제로 display:none 됨 (flex에 덮이지 않음)");
+ok(/\.exitbtn\[hidden\]\{display:none\}/.test(html), "포커스: 나가기 버튼도 hidden이면 확실히 숨겨짐");
+const ifSrc = html.match(/function inFocus\(\)[^\n]*/)[0];
+const afSrc = html.match(/function applyFocus\(\)[\s\S]*?\n\}/)[0];
+const stSrc2 = html.match(/function showTab\(name\)\{[\s\S]*?\n\}/)[0];
+ok(ifSrc.includes('currentTab === "study"') && ifSrc.includes("!focusOff") && ifSrc.includes("!completionShown"), "포커스 판정: 공부하기 탭 + 나가지 않음 + 완료 화면이 아닐 때만 몰입");
+ok(afSrc.includes('getElementById("tabBar")') && afSrc.includes('getElementById("exitFocusBtn")'), "포커스 적용: 탭 바와 나가기 버튼 표시를 함께 토글");
+ok(stSrc2.includes("currentTab = name") && stSrc2.includes("applyFocus()"), "탭 전환 시 포커스 상태도 함께 갱신");
+const rsSrc2 = html.match(/function renderStudy\(\)[\s\S]*?\n\}/)[0];
+const csSrc2 = html.match(/function completeSentence\(\)[\s\S]*?\n\}/)[0];
+ok(rsSrc2.includes("applyFocus()") && csSrc2.includes("completionShown = true"), "포커스: 학습 렌더 시 적용, 완료 화면에서는 해제 지점 표시");
+ok(!html.includes('id="prevBtn"') && !html.includes('id="nextBtn"'), "공부하기 하단: 이전/다음 문장 버튼 제거됨 (문장 고르기는 주제별 탭)");
+ok(!html.includes('id="listenBtn2"') && !html.includes("다시 듣기"), "공부하기 하단: 중복 다시 듣기 버튼 제거됨 (카드 안 듣기로 충분)");
+ok(html.includes("slow:false") && html.includes("🐢 느리게 0.8배속"), "느리게 듣기: 설정 기본값(끔)과 토글 칩 있음");
+ok(html.includes("u.rate = speakRate();"), "느리게 듣기: 모든 듣기가 중앙 speakFr의 속도를 따름");
+ok(rsSrc2.includes("slowBtnHtml()") && rsSrc2.includes("progress.slow = !progress.slow") && rsSrc2.includes("saveProgress()"), "느리게 토글: 학습 카드 단계마다 있고, 누르면 기록에 저장됨");
+ok(/\.slowbtn\.on\{background:var\(--blue\)/.test(html), "느리게 토글: 켜짐 상태는 딥블루로 표시");
+const srSrc = html.match(/function speakRate\(\)[^\n]*/)[0];
+eval(['let progress = { slow:false };', srSrc,
+  'ok(speakRate() === 1.0, "느리게 듣기: 끄면 속도 1.0");',
+  'progress.slow = true;',
+  'ok(speakRate() === 0.8, "느리게 듣기: 켜면 속도 0.8");'].join("\n"));
+ok(/\.btnrow\{[^}]*display:flex[^}]*gap:12px/.test(html), "간격: 카드 안 버튼 묶음은 flex gap 12px (.btnrow)");
+ok(/\.tabs\{[^}]*gap:10px/.test(html) && /\.stepnav\{[^}]*gap:10px/.test(html), "간격: 탭 바·단계 버튼 gap 10px");
+ok(/\.resetbtns\{[^}]*gap:12px/.test(html), "간격: 초기화 확인 버튼 gap 12px");
+ok(rsSrc2.includes('class="btnrow"'), "간격: 학습 카드 버튼들이 .btnrow로 묶임");
+ok(html.match(/function startQuiz[\s\S]*?\n\}/)[0].includes("btnrow") && cqSrc.includes("btnrow"), "간격: 퀴즈 버튼 행도 .btnrow로 묶임");
 
 console.log("\n[버전·파일]");
 const ver = html.match(/const APP_VERSION = "([^"]+)"/)[1];
