@@ -182,10 +182,10 @@ const smokePrelude = [
   'let quizAnswered = false;',
   'let currentTab = "study";',
   'let menuOpen = false;',
-  'let completionShown = false;',
   'let resetStage = 0;',
   'let resetDoneMsg = false;',
   'const document = documentStub;',
+  'const window = { scrollTo(){} };',
   'function saveProgress(){}',
   'function renderVaultState(){}',
   'function renderProgress(){}',
@@ -199,8 +199,6 @@ const smokePrelude = [
 const smokeFns = [
   escSrc, swSrc, dwSrc,
   html.match(/function slowListenBtnHtml\(\)[^\n]*/)[0],
-  html.match(/function inFocus\(\)[^\n]*/)[0],
-  html.match(/function applyFocus\(\)[\s\S]*?\n\}/)[0],
   html.match(/function openMenu\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function closeMenu\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function goMenu\(name\)\{[\s\S]*?\n\}/)[0],
@@ -221,12 +219,11 @@ const smokeDriver = [
   'progress = { index:0, step:3, completed:[], doneDates:[], completedAt:{}, reviewCorrect:0, sound:true };',
   'currentStep = 3;',
   'renderStudy();',
-  'ok(STUB_ELS["tabBar"].hidden === true, "포커스 스모크: 공부 중에는 탭 바가 숨겨짐");',
-  'ok(!documentStub.getElementById("menuBtn").hidden, "메뉴 스모크: 헤더 메뉴 버튼은 공부 중에도 항상 보임");',
+  'ok(STUB_ELS["studyCard"].innerHTML.includes("typeInput"), "스모크: 앱을 열면 탭 바 없이 공부 화면이 바로 렌더됨");',
   'openMenu();',
   'ok(STUB_ELS["menuOverlay"].hidden === false, "메뉴 스모크: 메뉴 버튼을 누르면 패널이 열림");',
   'closeMenu();',
-  'ok(STUB_ELS["menuOverlay"].hidden === true && STUB_ELS["tabBar"].hidden === true, "메뉴 스모크: 닫으면 메뉴만 닫히고 탭 바는 계속 숨김 (공부 계속)");',
+  'ok(STUB_ELS["menuOverlay"].hidden === true && currentTab === "study", "메뉴 스모크: 닫으면 메뉴만 닫히고 공부는 계속됨");',
   'ok(!!STUB_ELS["typeInput"], "스모크: 3단계 타이핑 박스 렌더됨");',
   'ok(STUB_ELS["wordProg"].innerHTML.indexOf("단어") > -1, "스모크: 단어 수 진행 표시 초기 렌더");',
   'STUB_ELS["typeInput"].value = ITEMS[0].fr;',
@@ -245,13 +242,14 @@ const smokeDriver = [
   'ok(idx1 === 1 && progress.index === 1, "회귀: 완료 연타해도 안 본 문장으로 건너뛰지 않음 (index " + progress.index + ")");',
   'ok(xpOf(progress.completed.length, progress.reviewCorrect) === 10, "회귀: XP도 1회분 +10만 적립");',
   'ok(STUB_ELS["studyCard"].innerHTML === "", "회귀: 완료 후 학습 카드가 비어 있음");',
-  'ok(STUB_ELS["tabBar"].hidden === false, "포커스 스모크: 완료 화면(쉬는 지점)에서는 탭 바가 보임");',
-  'ok(!documentStub.getElementById("menuBtn").hidden, "메뉴 스모크: 완료 화면에서도 헤더 메뉴 버튼은 그대로 보임");',
+  'ok(STUB_ELS["doneBox"].innerHTML.includes("한 문장 완료") && !!STUB_ELS["oneMoreBtn"], "스모크: 완료 화면이 탭 로직 없이 바로 표시되고 한 문장 더 버튼이 있음");',
+  'STUB_ELS["oneMoreBtn"].onclick();',
+  'ok(currentStep === 1 && STUB_ELS["studyCard"].innerHTML.includes("goStep2"), "스모크: 한 문장 더를 누르면 다음 문장 1단계로 이어짐");',
   'progress.completed = [ITEMS[0].id, ITEMS[1].id, ITEMS[2].id];',
-  'progress.index = 0; currentStep = 1; completionShown = false;',
+  'progress.index = 0; currentStep = 1;',
   'startQuiz();',
   'ok(!!quizItem, "스모크: 복습 퀴즈 출제됨");',
-  'ok(STUB_ELS["tabBar"].hidden === true && !documentStub.getElementById("menuBtn").hidden, "메뉴 스모크: 복습 퀴즈 중에도 탭 바 숨김, 헤더 메뉴 버튼 표시");',
+  'ok(!!STUB_ELS["quizInput"], "스모크: 복습 퀴즈 입력 박스 렌더됨");',
   'STUB_ELS["quizInput"].value = quizItem.fr;',
   'const rc0 = progress.reviewCorrect;',
   'checkQuiz(); checkQuiz();',
@@ -259,15 +257,15 @@ const smokeDriver = [
   'openMenu();',
   'ok(STUB_ELS["menuOverlay"].hidden === false, "메뉴 스모크: 퀴즈 중에도 메뉴를 열 수 있음");',
   'goMenu("words");',
-  'ok(currentTab === "words" && STUB_ELS["tabBar"].hidden === false && STUB_ELS["menuOverlay"].hidden === true, "메뉴 스모크: 메뉴에서 단어를 고르면 단어 탭으로 이동, 메뉴는 닫히고 탭 바가 보임");',
-  'showTab("study");',
-  'ok(STUB_ELS["tabBar"].hidden === true && !documentStub.getElementById("menuBtn").hidden, "메뉴 스모크: 공부하기로 돌아오면 다시 몰입 (탭 바 숨김·헤더 메뉴 버튼 표시)");',
-  'goMenu("words");',
-  'ok(currentTab === "words" && STUB_ELS["tabBar"].hidden === false, "메뉴 스모크: 메뉴로 단어 탭에 가면 탭 바가 보임");',
-  'openMenu(); goMenu("about");',
-  'ok(currentTab === "about" && STUB_ELS["menuOverlay"].hidden === true, "메뉴 스모크: 단어 탭에서 메뉴를 열어 설명 탭으로 이동할 수 있음");',
+  'ok(currentTab === "words" && STUB_ELS["menuOverlay"].hidden === true, "메뉴 스모크: 퀴즈 중에 메뉴에서 단어를 고르면 단어 화면으로 이동하고 메뉴는 닫힘");',
   'goMenu("study");',
-  'ok(currentTab === "study" && STUB_ELS["tabBar"].hidden === true, "메뉴 스모크: 메뉴의 공부하기를 고르면 공부 탭으로 이동해 다시 몰입");'
+  'ok(currentTab === "study" && STUB_ELS["menuOverlay"].hidden === true, "메뉴 스모크: 메뉴로 공부하기로 돌아올 수 있음");',
+  'goMenu("words");',
+  'ok(currentTab === "words", "메뉴 스모크: 메뉴로 단어 화면에 다시 갈 수 있음");',
+  'openMenu(); goMenu("about");',
+  'ok(currentTab === "about" && STUB_ELS["menuOverlay"].hidden === true, "메뉴 스모크: 단어 화면에서 메뉴를 열어 설명 화면으로 이동할 수 있음");',
+  'goMenu("study");',
+  'ok(currentTab === "study", "메뉴 스모크: 메뉴의 공부하기를 고르면 공부 화면으로 이동");'
 ].join("\n");
 eval(smokePrelude + "\n" + lvArrSrc + "\n" + lvlSrc + "\n" + xpSrc2 + "\n" + qpSrc + "\n" + normSrc + "\n" + corrSrc + "\n" + smokeFns + "\n" + smokeDriver);
 
@@ -328,7 +326,6 @@ const rzPrelude = [
   'let resetDoneMsg = false;',
   'let currentTab = "about";',
   'let menuOpen = false;',
-  'let completionShown = false;',
   'const STORAGE_KEY = "une-phrase-progress-v1";',
   'const document = rzDocument;',
   'const rzLocalStore = new Map();',
@@ -342,8 +339,6 @@ const rzFns = [
   html.match(/function soundEnabled\(\)[^\n]*/)[0],
   html.match(/function renderSoundBtn\(\)[^\n]*/)[0],
   html.match(/function renderVaultState\(\)\{[\s\S]*?\n\}/)[0],
-  html.match(/function inFocus\(\)[^\n]*/)[0],
-  html.match(/function applyFocus\(\)[\s\S]*?\n\}/)[0],
   html.match(/function closeMenu\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function showTab\(name\)\{[\s\S]*?\n\}/)[0],
   rzSrc, drSrc
@@ -378,27 +373,24 @@ const rzDriver = [
 ].join("\n");
 eval(rzPrelude + "\n" + rzFns + "\n" + rzDriver);
 
-console.log("\n[몰입 모드(메뉴)·느리게 듣기·하단 버튼 정리·간격 (v1.20.0 / v1.22.0)]");
-ok(html.includes('id="tabBar"') && html.includes('id="menuBtn"') && html.includes("☰ 메뉴"), "메뉴: 탭 바 id와 조용한 메뉴 버튼 있음");
+console.log("\n[메뉴 전용 이동 (v1.25.0)·느리게 듣기·하단 버튼 정리·간격]");
+ok(!html.includes('id="tabBar"') && !html.includes("tabBtn") && html.includes('id="menuBtn"') && html.includes("☰ 메뉴"), "탭 바 제거: #tabBar·탭 버튼이 없고 헤더 메뉴 버튼만 남음");
 ok(!html.includes("✕ 나가기") && !html.includes("exitFocus") && !html.includes("focusOff") && !html.includes("exitbtn"), "메뉴: 기존 나가기 버튼과 포커스 해제 상태(exitFocus·focusOff)가 완전히 제거됨");
 ok(html.includes('id="menuOverlay" hidden') && html.includes('id="menuBackdrop"') && html.includes('id="menuCloseBtn"') && html.includes("닫기"), "메뉴: 배경·닫기를 갖춘 메뉴 패널이 처음에는 숨겨져 있음");
 ok(html.includes('data-menu="study"') && html.includes('data-menu="browse"') && html.includes('data-menu="words"') && html.includes('data-menu="about"') && html.includes("지금 여기"), "메뉴: 목적지 4곳 행 (공부하기에는 '지금 여기' 표시)");
 ok(html.includes('role="dialog"') && html.includes('aria-haspopup="dialog"'), "메뉴: 패널에 dialog 역할, 버튼에 aria-haspopup 표시");
-ok(/\.tabs\[hidden\]\{display:none\}/.test(html), "포커스: 숨긴 탭 바가 실제로 display:none 됨 (flex에 덮이지 않음)");
+ok(!/\.tabs\{/.test(html) && !html.includes('class="tabs"'), "탭 바 제거: .tabs CSS도 함께 제거됨");
 ok(/\.menubtn\[hidden\]\{display:none\}/.test(html) && /\.menuoverlay\[hidden\]\{display:none\}/.test(html), "메뉴: 메뉴 버튼·패널도 hidden이면 확실히 숨겨짐");
-const ifSrc = html.match(/function inFocus\(\)[^\n]*/)[0];
-const afSrc = html.match(/function applyFocus\(\)[\s\S]*?\n\}/)[0];
 const stSrc2 = html.match(/function showTab\(name\)\{[\s\S]*?\n\}/)[0];
-ok(ifSrc.includes('currentTab === "study"') && ifSrc.includes("!completionShown"), "포커스 판정: 공부하기 탭 + 완료 화면이 아닐 때만 몰입");
-ok(afSrc.includes('getElementById("tabBar")') && !afSrc.includes("menuBtn"), "포커스 적용: 탭 바만 토글하고, 헤더 메뉴 버튼은 건드리지 않음 (전역 상시 표시)");
+ok(!html.includes("function inFocus") && !html.includes("function applyFocus") && !html.includes("completionShown"), "포커스 잔재 제거: inFocus·applyFocus·completionShown이 앱에서 완전히 사라짐");
+ok(stSrc2.includes("currentTab = name") && stSrc2.includes('getElementById("tab-"+t)') && !stSrc2.includes("tabBtn") && !stSrc2.includes("applyFocus"), "화면 전환(showTab): 현재 화면 기록 + 섹션 표시 토글만 함 (탭 버튼·포커스 로직 없음)");
 const gmSrc = html.match(/function goMenu\(name\)\{[\s\S]*?\n\}/)[0];
 ok(gmSrc.includes("closeMenu()") && gmSrc.includes('showTab("study")') && gmSrc.includes('showTab("browse")') && gmSrc.includes('showTab("words")') && gmSrc.includes('showTab("about")'), "메뉴 선택: 메뉴를 닫고 고른 탭으로 이동 (어느 화면에서 열어도 네 탭 모두 이동 가능)");
 ok(html.includes('getElementById("menuBtn").onclick') && html.includes('getElementById("menuCloseBtn").onclick') && html.includes('getElementById("menuBackdrop").onclick'), "메뉴: 메뉴 버튼·닫기·배경 클릭이 모두 연결됨");
 ok(html.includes('querySelectorAll("[data-menu]")'), "메뉴: 목적지 행 클릭이 goMenu로 연결됨");
-ok(stSrc2.includes("currentTab = name") && stSrc2.includes("applyFocus()"), "탭 전환 시 포커스 상태도 함께 갱신");
 const rsSrc2 = html.match(/function renderStudy\(\)[\s\S]*?\n\}/)[0];
 const csSrc2 = html.match(/function completeSentence\(\)[\s\S]*?\n\}/)[0];
-ok(rsSrc2.includes("applyFocus()") && csSrc2.includes("completionShown = true"), "포커스: 학습 렌더 시 적용, 완료 화면에서는 해제 지점 표시");
+ok(!rsSrc2.includes("applyFocus") && !csSrc2.includes("applyFocus") && !csSrc2.includes("completionShown"), "완료 화면: 탭을 다시 보이게 하는 포커스 로직 없이 완료 화면만 표시");
 ok(!html.includes('id="prevBtn"') && !html.includes('id="nextBtn"'), "공부하기 하단: 이전/다음 문장 버튼 제거됨 (문장 고르기는 주제별 탭)");
 ok(!html.includes('id="listenBtn2"') && !html.includes("다시 듣기"), "공부하기 하단: 중복 다시 듣기 버튼 제거됨 (카드 안 듣기로 충분)");
 ok(!html.includes("progress.slow") && !html.includes("speakRate") && !html.includes("🐢 느리게 0.8배속") && !html.includes("slowbtn"), "느리게 듣기: 토글 칩·속도 설정 저장·speakRate가 모두 제거됨 (v1.23.0)");
@@ -424,7 +416,7 @@ eval(sfPrelude + "\n" + sfSrc + "\n" + [
   'ok(sfUtterances.length === 3 && sfUtterances[2].rate === 1.0, "느리게 듣기 스모크: 다음 일반 듣기는 다시 1.0배속 (토글 아님, 상태 없음)");'
 ].join("\n"));
 ok(/\.btnrow\{[^}]*display:flex[^}]*gap:12px/.test(html), "간격: 카드 안 버튼 묶음은 flex gap 12px (.btnrow)");
-ok(/\.tabs\{[^}]*gap:10px/.test(html) && !/stepnav/.test(html), "간격: 탭 바 gap 10px (단계 탭 행은 제거됨)");
+ok(!/stepnav/.test(html) && /\.tabbtn\{/.test(html), "간격·정리: 단계 탭 행 없음, 주제 필터 칩(.tabbtn) 스타일은 유지");
 ok(/\.resetbtns\{[^}]*gap:12px/.test(html), "간격: 초기화 확인 버튼 gap 12px");
 ok(rsSrc2.includes('class="btnrow"'), "간격: 학습 카드 버튼들이 .btnrow로 묶임");
 ok(html.match(/function startQuiz[\s\S]*?\n\}/)[0].includes("btnrow") && cqSrc.includes("btnrow"), "간격: 퀴즈 버튼 행도 .btnrow로 묶임");
@@ -600,6 +592,58 @@ eval(omPrelude + "\n" + omSrc + "\n" + [
   'currentTab = "about"; openMenu();',
   'ok(OM_CHIPS[3].hidden === false && OM_CHIPS[2].hidden === true, "메뉴 스모크: 설명 탭에서 열면 \'지금 여기\'가 설명 행으로 이동");'
 ].join("\n"));
+
+console.log("\n[목록 행 구조 통일 (v1.25.0)]");
+ok(/\.li-ko\{[^}]*display:block/.test(html) && /\.li-meta\{[^}]*display:flex/.test(html), "행 구조: 뜻 줄(.li-ko)과 메타 줄(.li-meta)이 분리된 CSS로 있음");
+ok(!html.includes("li-sub"), "행 구조: 뜻 끝에 메타를 붙이던 .li-sub가 제거됨");
+const rbSrc = html.match(/function renderBrowse\(\)\{[\s\S]*?\n\}/)[0];
+ok(rbSrc.includes('class="li-ko"') && rbSrc.includes('class="li-meta"') && rbSrc.includes('class="donebadge">완료<'), "행 구조: renderBrowse가 뜻 줄·메타 줄·완료 배지를 분리해 렌더");
+// 목록 렌더 스모크: 주제별·단어 행을 실제로 그려 구조를 확인
+const BW_ELS = {};
+function makeBwEl(id){
+  const el = { id:id, value:"", style:{}, textContent:"", onclick:null, _html:"", _listeners:{},
+    classList:{ toggle(){}, add(){}, remove(){}, contains(){ return false; } },
+    setAttribute(){}, getAttribute(){ return null; },
+    addEventListener(t,f){ this._listeners[t] = f; },
+    focus(){}, scrollIntoView(){} };
+  Object.defineProperty(el, "innerHTML", {
+    get(){ return this._html; },
+    set(v){ this._html = v; const re = /id="([^"]+)"/g; let m; while((m = re.exec(v))){ if(!BW_ELS[m[1]]) BW_ELS[m[1]] = makeBwEl(m[1]); } }
+  });
+  return el;
+}
+const bwDocument = {
+  getElementById(id){ if(!BW_ELS[id]) BW_ELS[id] = makeBwEl(id); return BW_ELS[id]; },
+  querySelectorAll(){ return []; }
+};
+const bwPrelude = [
+  'let progress = null;',
+  'let browseTopic = "전체";',
+  'const document = bwDocument;',
+  'function speakFr(){}'
+].join("\n");
+const bwFns = [
+  escSrc, tsSrc,
+  html.match(/function renderTopicMap\(\)\{[\s\S]*?\n\}/)[0],
+  rbSrc,
+  html.match(/function renderWords\(\)\{[\s\S]*?\n\}/)[0]
+].join("\n");
+const bwDriver = [
+  'progress = { index:0, step:1, completed:[ITEMS[0].id], doneDates:[], completedAt:{}, reviewCorrect:0, sound:true };',
+  'renderBrowse();',
+  'const bl = BW_ELS["browseList"].innerHTML;',
+  'ok(bl.includes(\'<span class="li-ko">\' + ITEMS[0].ko + \'</span>\'), "행 스모크: 뜻이 메타 없이 자기 줄에만 있음");',
+  'ok(ITEMS.every(i => bl.includes(\'<span class="li-ko">\' + i.ko + \'</span>\')), "행 스모크: 모든 뜻 줄이 뜻만으로 끝나고 \'· 주제 · 레벨\'이 붙지 않음");',
+  'ok(bl.includes(\'<span class="li-meta">\' + ITEMS[0].topic + \' · \' + ITEMS[0].level + \' <span class="donebadge">완료</span></span>\'), "행 스모크: 완료 문장의 메타 줄 = 주제 · 레벨 + 완료 배지");',
+  'ok(bl.includes(\'<span class="li-meta">\' + ITEMS[1].topic + \' · \' + ITEMS[1].level + \'</span>\'), "행 스모크: 미완료 문장도 같은 자리·같은 순서의 메타 줄 (배지만 없음)");',
+  'ok((bl.match(/class="li-meta"/g) || []).length === ITEMS.length, "행 스모크: 모든 행에 메타 줄이 하나씩 — 세로 리듬이 동일");',
+  'ok((bl.match(/donebadge/g) || []).length === 1, "행 스모크: 완료 배지는 완료한 행에만 하나");',
+  'renderWords();',
+  'const wl = BW_ELS["wordsList"].innerHTML;',
+  'ok((wl.match(/class="wlearned"/g) || []).length === ITEMS[0].words.length, "단어 행 스모크: 완료한 문장의 단어에만 ✓ 학습 칩");',
+  'ok(wl.includes(\'</span><span class="wlearned">✓ 학습</span>\'), "단어 행 스모크: ✓ 학습 칩은 뜻 텍스트 밖, 행의 고정 위치(오른쪽)에 따로 붙음");'
+].join("\n");
+eval(bwPrelude + "\n" + bwFns + "\n" + bwDriver);
 
 console.log("\n[버전·파일]");
 const ver = html.match(/const APP_VERSION = "([^"]+)"/)[1];

@@ -58,8 +58,6 @@ h1{font-size:26px;line-height:1.25;margin:11px 0 3px;letter-spacing:-.01em}
 .progress-sub{display:flex;align-items:center;justify-content:space-between;margin-top:6px;font-size:12.5px;font-weight:700}
 .progress-pct{color:var(--blue);font-weight:800}
 .lead{color:var(--sub);font-size:15px;margin:0 0 var(--sp2)}
-.tabs{display:flex;gap:10px;margin:14px 0;flex-wrap:nowrap}
-.tabs[hidden]{display:none}
 .menubtn{flex:0 0 auto;white-space:nowrap;min-height:38px;background:#fff;color:var(--ink);border:1px solid var(--line-soft);border-radius:var(--r-pill);padding:7px 14px;font-size:13.5px;font-weight:800;cursor:pointer;font:inherit;box-shadow:var(--shadow);transition:transform .12s var(--ease),background-color .18s ease}
 .menubtn:active{transform:scale(.97)}
 .menubtn[hidden]{display:none}
@@ -78,7 +76,6 @@ h1{font-size:26px;line-height:1.25;margin:11px 0 3px;letter-spacing:-.01em}
 #resetZone{margin-top:12px}
 .tabbtn{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;min-height:38px;background:#fff;color:var(--ink);border:1px solid var(--line-soft);border-radius:var(--r-pill);padding:9px 14px;font-size:14px;font-weight:800;cursor:pointer;font:inherit;transition:transform .12s var(--ease),background-color .18s ease,border-color .18s ease}
 .tabbtn.on{background:var(--blue);color:#fff;border-color:var(--blue)}
-.tabs .tabbtn{flex:1 1 0;min-width:0;min-height:44px;padding:9px 2px;font-size:13px;text-align:center;white-space:nowrap}
 .tabbtn:active,button.primary:active,button.ghost:active{transform:scale(.97)}
 .listitem:active{transform:scale(.99)}
 @media (hover:hover){.tabbtn:not(.on):hover,button.ghost:hover{background:#f7f3ea}.listitem:hover{border-color:#d8cfba}}
@@ -134,11 +131,11 @@ textarea:focus,input[type=text]:focus{border-color:var(--blue);box-shadow:0 0 0 
 .listitem{display:flex;align-items:flex-start;gap:10px;border:1px solid var(--line-soft);border-radius:var(--r-md);padding:12px 14px;margin:var(--sp3) 0;background:#fff;cursor:pointer;width:100%;text-align:left;font:inherit;color:var(--ink);transition:transform .12s var(--ease),background-color .18s ease,border-color .18s ease}
 .li-check{flex:0 0 auto;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--line);color:transparent;display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;margin-top:1px;background:#fff}
 .li-body{flex:1;min-width:0;overflow-wrap:anywhere}
-.li-sub{display:block;color:var(--sub);font-size:14px;margin-top:2px}
+.li-ko{display:block;color:var(--sub);font-size:14px;margin-top:2px}
+.li-meta{display:flex;align-items:center;gap:6px;color:var(--sub);font-size:12.5px;font-weight:700;margin-top:5px}
 .listitem.isdone{background:var(--done-bg);border-color:var(--done-line)}
 .listitem.isdone .li-check{background:var(--blue);border-color:var(--blue);color:#fff;animation:pop .3s var(--ease)}
-.listitem .done{color:var(--blue);font-weight:800}
-.worditem{align-items:center;justify-content:space-between}
+.worditem{align-items:flex-start;justify-content:space-between}
 .worditem .wtext{flex:1;min-width:0;overflow-wrap:anywhere}
 .worditem.learned{background:#f4f8ff}
 .wlearned{flex:0 0 auto;font-size:12px;font-weight:800;color:var(--blue);background:var(--done-chip);border-radius:var(--r-pill);padding:2px 9px}
@@ -173,7 +170,7 @@ summary{font-weight:800;cursor:pointer}
 <body>
 <div class="wrap">
 <header class="masthead">
-<div class="brandrow"><span class="logo" aria-hidden="true">U</span><span class="wordmark">UNE PHRASE</span><span class="verpill">버전 1.24.0</span><button class="menubtn" id="menuBtn" aria-haspopup="dialog" aria-expanded="false">☰ 메뉴</button></div>
+<div class="brandrow"><span class="logo" aria-hidden="true">U</span><span class="wordmark">UNE PHRASE</span><span class="verpill">버전 1.25.0</span><button class="menubtn" id="menuBtn" aria-haspopup="dialog" aria-expanded="false">☰ 메뉴</button></div>
 <h1>한 문장 프랑스어</h1>
 <div class="progress" id="progressArea">
 <div class="progress-top"><span id="progressLine">불러오는 중…</span><span class="todaychip" id="todayChip">오늘 0문장</span></div>
@@ -182,13 +179,6 @@ summary{font-weight:800;cursor:pointer}
 <div class="levelrow"><span class="lvlabel" id="lvLabel">Lv.1 문장 새싹</span><div class="pbar lvbar" id="lvBar" role="progressbar" aria-label="다음 레벨까지 진행" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="pfill gold" id="lvFill"></div></div><span class="lvnext" id="lvNext"></span></div>
 </div>
 </header>
-<div class="tabs" id="tabBar">
-<button class="tabbtn on" id="tabBtnStudy">공부하기</button>
-<button class="tabbtn" id="tabBtnBrowse">주제별</button>
-<button class="tabbtn" id="tabBtnWords">단어</button>
-<button class="tabbtn" id="tabBtnAbout">설명</button>
-</div>
-
 <div class="menuoverlay" id="menuOverlay" hidden>
 <div class="menubackdrop" id="menuBackdrop"></div>
 <div class="menupanel" role="dialog" aria-modal="true" aria-label="메뉴">
@@ -222,7 +212,7 @@ summary{font-weight:800;cursor:pointer}
 <details open><summary>어떻게 쓰나요 — 3단계</summary>
 <p>1 · 읽어보기: 문장과 뜻 덩어리를 보고, 듣기 버튼으로 소리를 확인합니다.<br>2 · 따라 쓰기: 문장을 보면서 그대로 타이핑합니다. 손이 철자를 기억합니다.<br>3 · 가리고 쓰기: 한국어 뜻만 보고 프랑스어 문장 전체를 씁니다. 이 단계가 진짜 암기입니다.</p>
 <p>기본 흐름은 <b>한 문장만</b>입니다. 한 문장을 끝내면 완료 화면이 나오고, 원하면 “한 문장 더”를 누르세요.</p>
-<p>공부하는 동안에는 위쪽 탭이 숨겨져 집중할 수 있어요. 다른 곳으로 가려면 화면 위쪽의 “☰ 메뉴”를 눌러 이동하세요. 듣기가 빠르면 "느리게 듣기" 버튼으로 0.7배속으로 한 번 천천히 들을 수 있어요.</p>
+<p>화면 이동은 위쪽의 “☰ 메뉴”로만 합니다. 공부하기·주제별·단어·설명 중 골라 이동하세요. 듣기가 빠르면 "느리게 듣기" 버튼으로 0.7배속으로 한 번 천천히 들을 수 있어요.</p>
 </details>
 <details open><summary>공유하기</summary>
 <p>주변에 프랑스어를 공부하는 사람이 있으면 이 앱을 알려 주세요. 버튼을 누르면 공유 화면이 열리고, 공유가 안 되는 환경에서는 링크가 복사됩니다.</p>
@@ -233,7 +223,7 @@ summary{font-weight:800;cursor:pointer}
 <p>EO 말하기: 의견 문장과 일상 설명 문장을 그대로 말하기 재료로 씁니다.<br>EE 쓰기: je pense que, d'une part… 같은 의견 구조와 연결어를 문장째로 익힙니다.<br>CE 읽기: 지문에 자주 나오는 표현과 관계절 구조를 문장 단위로 먼저 익힙니다.<br>CO 듣기: 듣기 버튼으로 문장 소리를 반복해 듣고, 가리고 쓰기로 받아쓰기까지 연결합니다.<br>각 문장 카드에 어떤 영역에 도움이 되는지 표시해 뒀습니다.</p>
 </details>
 <details><summary>레벨과 XP, 복습 퀴즈</summary>
-<p>새 문장을 처음 완료하면 +10 XP, 복습 퀴즈를 맞히면 +5 XP가 쌓이고 레벨이 오릅니다. 복습 퀴즈는 완료한 문장이 3개 이상이면 공부하기 탭 아래에 나타납니다. 한 주제를 전부 완료하면 주제별 탭의 정복 지도에서 “정복”으로 표시됩니다.</p>
+<p>새 문장을 처음 완료하면 +10 XP, 복습 퀴즈를 맞히면 +5 XP가 쌓이고 레벨이 오릅니다. 복습 퀴즈는 완료한 문장이 3개 이상이면 공부하기 화면 아래에 나타납니다. 한 주제를 전부 완료하면 주제별 화면의 정복 지도에서 “정복”으로 표시됩니다.</p>
 </details>
 <details><summary>효과음</summary>
 <p>따라 쓰기·가리고 쓰기와 복습 퀴즈에서 정답·오답 소리를 냅니다.</p>
@@ -249,12 +239,12 @@ summary{font-weight:800;cursor:pointer}
 
 <footer>
 <div class="footbrand"><span class="footlogo" aria-hidden="true">U</span><span class="footword">UNE PHRASE</span><span class="footko">한 문장 프랑스어</span></div>
-<div class="footmeta">v1.24.0 · © 2026 sidebatch</div>
+<div class="footmeta">v1.25.0 · © 2026 sidebatch</div>
 </footer>
 </div>
 <script>
 "use strict";
-const APP_VERSION = "1.24.0";
+const APP_VERSION = "1.25.0";
 const STORAGE_KEY = "une-phrase-progress-v1";
 const ITEMS = [
 {id:1,fr:"Je cherche un appartement près du métro parce que je n'ai pas de voiture.",ko:"나는 차가 없어서 지하철 근처 아파트를 찾고 있다.",chunks:[["Je cherche un appartement","아파트를 찾고 있다"],["près du métro","지하철 근처에"],["parce que je n'ai pas de voiture","차가 없기 때문에"]],pattern:"이유는 뒤에 붙인다: …parce que + 문장 → 연결어 parce que (왜냐하면)",words:[["appartement","아파트"],["près de","~ 근처에"]],topic:"일상",level:"B1",tef:"EO 말하기 · CE 읽기"},
@@ -709,7 +699,6 @@ let completionInFlight = false;
 let quizAnswered = false;
 let currentTab = "study";
 let menuOpen = false;
-let completionShown = false;
 function bindWordProg(inputId, progId, targetFr){
   const inp = document.getElementById(inputId), el = document.getElementById(progId);
   if(!inp || !el) return;
@@ -743,7 +732,6 @@ function renderProgress(){
 function slowListenBtnHtml(){ return '<button class="ghost" id="slowListenBtn">🐢 느리게 듣기</button>'; }
 function renderStudy(){
   completionInFlight = false;
-  completionShown = false;
   const it = currentItem();
   const done = progress.completed.includes(it.id);
   let h = "";
@@ -777,7 +765,6 @@ function renderStudy(){
   const bb = document.getElementById("backBtn"); if(bb) bb.onclick = ()=>{ setStep(currentStep===3 ? 2 : 1); renderStudy(); };
   renderQuizEntry();
   renderProgress();
-  applyFocus();
 }
 function checkTyping(){
   const it = currentItem();
@@ -822,8 +809,6 @@ function completeSentence(){
   document.getElementById("oneMoreBtn").onclick = ()=>{ setStep(1); renderStudy(); window.scrollTo({top:0,behavior:"smooth"}); };
   const doneEl = document.getElementById("doneBox");
   if(doneEl && doneEl.scrollIntoView) doneEl.scrollIntoView({behavior:"smooth", block:"start"});
-  completionShown = true;
-  applyFocus();
   renderQuizEntry();
 }
 function goToItem(idx, step){ progress.index = idx; setStep(step||1); showTab("study"); renderStudy(); window.scrollTo({top:0,behavior:"smooth"}); }
@@ -838,7 +823,6 @@ function renderQuizEntry(){
 }
 function startQuiz(excludeId){
   quizAnswered = false;
-  applyFocus();
   let pool = quizPool(ITEMS, progress.completed, currentItem().id);
   if(excludeId && pool.length > 1) pool = pool.filter(i=>i.id!==excludeId);
   if(!pool.length) pool = ITEMS.filter(i=>progress.completed.includes(i.id) && i.id!==excludeId);
@@ -874,7 +858,6 @@ function checkQuiz(){
 }
 function endQuiz(){ quizItem = null; quizAnswered = false; renderQuizEntry(); }
 
-/* ---------- 탭 ---------- */
 /* ---------- 기록 초기화 (2단계 확인, 팝업 없음) ---------- */
 let resetStage = 0;
 let resetDoneMsg = false;
@@ -903,13 +886,7 @@ async function doReset(){
   vaultReady = true; await vaultDelete(STORAGE_KEY);
   renderVaultState(); renderSoundBtn(); renderResetZone(); renderStudy();
 }
-/* ---------- 포커스 모드 (공부 중에는 탭 바 숨김, 메뉴로 이동) ---------- */
-function inFocus(){ return currentTab === "study" && !completionShown; }
-function applyFocus(){
-  const f = inFocus();
-  const bar = document.getElementById("tabBar"); if(bar) bar.hidden = f;
-  if(!f) closeMenu();
-}
+/* ---------- 메뉴 (유일한 화면 이동 수단) ---------- */
 function openMenu(){
   menuOpen = true;
   const ov = document.getElementById("menuOverlay"); if(ov) ov.hidden = false;
@@ -933,11 +910,6 @@ function showTab(name){
   if(name !== "about" && (resetStage !== 0 || resetDoneMsg)){ resetStage = 0; resetDoneMsg = false; renderResetZone(); }
   currentTab = name;
   ["study","browse","words","about"].forEach(t=>{ document.getElementById("tab-"+t).hidden = t!==name; });
-  document.getElementById("tabBtnStudy").classList.toggle("on", name==="study");
-  document.getElementById("tabBtnBrowse").classList.toggle("on", name==="browse");
-  document.getElementById("tabBtnWords").classList.toggle("on", name==="words");
-  document.getElementById("tabBtnAbout").classList.toggle("on", name==="about");
-  applyFocus();
 }
 let browseTopic = "전체";
 function renderTopicMap(){
@@ -955,7 +927,7 @@ function renderBrowse(){
   const list = ITEMS.filter(i=>browseTopic==="전체"||i.topic===browseTopic);
   document.getElementById("browseList").innerHTML = list.map(i=>{
     const isDone = progress.completed.includes(i.id);
-    return '<button class="listitem'+(isDone?" isdone":"")+'" data-idx="'+(i.id-1)+'"><span class="li-check" aria-hidden="true">✓</span><span class="li-body"><b>'+i.id+'. '+esc(i.fr)+'</b><span class="li-sub">'+esc(i.ko)+' · '+esc(i.topic)+' · '+esc(i.level)+(isDone?' · <span class="done">완료</span>':'')+'</span></span></button>';
+    return '<button class="listitem'+(isDone?" isdone":"")+'" data-idx="'+(i.id-1)+'"><span class="li-check" aria-hidden="true">✓</span><span class="li-body"><b>'+i.id+'. '+esc(i.fr)+'</b><span class="li-ko">'+esc(i.ko)+'</span><span class="li-meta">'+esc(i.topic)+' · '+esc(i.level)+(isDone?' <span class="donebadge">완료</span>':'')+'</span></span></button>';
   }).join("");
   document.querySelectorAll("[data-idx]").forEach(b=>b.onclick=()=>goToItem(parseInt(b.getAttribute("data-idx"),10),1));
 }
@@ -971,14 +943,10 @@ function renderWords(){
 }
 
 /* ---------- 이벤트 ---------- */
-document.getElementById("tabBtnStudy").onclick = ()=>{ showTab("study"); };
 document.getElementById("menuBtn").onclick = ()=>openMenu();
 document.getElementById("menuCloseBtn").onclick = ()=>closeMenu();
 document.getElementById("menuBackdrop").onclick = ()=>closeMenu();
 document.querySelectorAll("[data-menu]").forEach(b=>b.onclick=()=>goMenu(b.getAttribute("data-menu")));
-document.getElementById("tabBtnBrowse").onclick = ()=>{ showTab("browse"); renderBrowse(); };
-document.getElementById("tabBtnWords").onclick = ()=>{ showTab("words"); renderWords(); };
-document.getElementById("tabBtnAbout").onclick = ()=>showTab("about");
 function renderSoundBtn(){ const b = document.getElementById("soundBtn"); if(b) b.textContent = soundEnabled() ? "효과음 끄기" : "효과음 켜기"; }
 document.getElementById("soundBtn").onclick = ()=>{ progress.sound = !soundEnabled(); saveProgress(); renderSoundBtn(); if(soundEnabled()) playSound(true); };
 renderSoundBtn();
