@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Une Phrase 상설 자동 점검. 실행: node tests/run-tests.js — 전부 PASS일 때만 푸시. */
+/* One Phrase 상설 자동 점검. 실행: node tests/run-tests.js — 전부 PASS일 때만 푸시. */
 const fs = require("fs");
 const path = require("path");
 const ROOT = path.join(__dirname, "..");
@@ -556,8 +556,8 @@ eval(flPrelude + "\n" + flFns + "\n" + flDriver);
 console.log("\n[공유 버튼 (v1.21.0)]");
 ok(html.includes('id="shareBtn"') && html.includes("🔗 이 앱 공유하기"), "공유: 더보기 탭에 '🔗 이 앱 공유하기' 버튼 있음");
 ok(html.indexOf('id="tab-about"') > -1 && html.indexOf('id="shareBtn"') > html.indexOf("어떻게 쓰나요") && html.indexOf('id="shareBtn"') < html.indexOf('id="resetZone"'), "공유: 버튼 위치는 더보기 탭 안, 사용법 아래·보관/초기화 영역 위");
-ok(html.includes('const SHARE_URL = "https://sidebatch.github.io/une-phrase/";'), "공유: 공유 주소는 실주소로 고정");
-ok(html.includes('const SHARE_TITLE = "Une Phrase — 한 문장 프랑스어";') && html.includes('const SHARE_TEXT = "켜면 바로 시작하는 프랑스어 한 문장 공부";'), "공유: 제목·소개 문구 고정");
+ok(html.includes('const SHARE_URL = "https://sidebatch.github.io/one-phrase/";'), "공유: 공유 주소는 실주소로 고정");
+ok(html.includes('const SHARE_TITLE = "One Phrase — 한 문장 프랑스어";') && html.includes('const SHARE_TEXT = "켜면 바로 시작하는 프랑스어 한 문장 공부";'), "공유: 제목·소개 문구 고정");
 ok(html.includes('getElementById("shareBtn").onclick') && html.includes('id="shareLink" hidden'), "공유: 버튼 핸들러 연결, 복사 실패 시 보여줄 주소 텍스트(숨김) 있음");
 const shareSrc = html.match(/function shareApp\(\)\{[\s\S]*?\n\}/)[0];
 const shareConstSrc = html.match(/const SHARE_TITLE[\s\S]*?const SHARE_BTN_LABEL = "[^"]*";/)[0];
@@ -578,7 +578,7 @@ const shDriver = [
   // 1) Web Share 사용 가능: 정확한 제목·소개·주소로 호출, 클립보드는 안 씀
   'navigator = { share(data){ shareCalls.push(data); return { catch(fn){ shareCatchFn = fn; return this; } }; } };',
   'shareApp();',
-  'ok(shareCalls.length === 1 && shareCalls[0].title === SHARE_TITLE && shareCalls[0].text === SHARE_TEXT && shareCalls[0].url === "https://sidebatch.github.io/une-phrase/", "공유 스모크: navigator.share에 제목·소개·실주소가 그대로 전달됨");',
+  'ok(shareCalls.length === 1 && shareCalls[0].title === SHARE_TITLE && shareCalls[0].text === SHARE_TEXT && shareCalls[0].url === "https://sidebatch.github.io/one-phrase/", "공유 스모크: navigator.share에 제목·소개·실주소가 그대로 전달됨");',
   'ok(clipCalls.length === 0 && SH_ELS.shareLink.hidden === true, "공유 스모크: 공유가 가능하면 클립보드·주소 텍스트는 안 씀");',
   // 1b) 사용자가 공유 창을 취소(AbortError): 오류 표시도, 대체 동작도 없음
   'let abortThrew = false;',
@@ -767,21 +767,42 @@ ok(!html.includes('class="menuver"'), "버전: 메뉴 헤더 버전 표기 제�
 ok(fs.existsSync(path.join(ROOT, "manifest.webmanifest")), "manifest 있음");
 ok(fs.existsSync(path.join(ROOT, "icons/icon-192.png")) && fs.existsSync(path.join(ROOT, "icons/icon-512.png")), "아이콘 있음");
 const man = JSON.parse(read("manifest.webmanifest"));
-ok(man.name.includes("Une Phrase"), "manifest 이름 확인");
+ok(man.name.includes("One Phrase"), "manifest 이름 확인");
 ok(html.includes('<script data-goatcounter="https://une-phrase.goatcounter.com/count"') && html.includes('async src="//gc.zgo.at/count.js"></script>'), "GoatCounter 카운트 스크립트 있음 (une-phrase)");
 ok(html.includes('class="gcvisits" id="gcBadge" hidden'), "방문 카운트 요소 있음 (처음엔 숨김)");
 ok(html.indexOf('id="gcBadge"') > html.indexOf("</header>") && html.indexOf('id="gcBadge"') > html.indexOf('id="tab-together"') && html.indexOf('id="gcBadge"') < html.indexOf('id="view-together"'), "방문 카운트 위치: 헤더가 아니라 Ensemble 화면 상단 (제목 아래)");
 ok((html.match(/id="gcBadge"/g) || []).length === 1, "방문 카운트 요소는 하나만 있음");
 ok(html.includes("fetch('https://une-phrase.goatcounter.com/counter/TOTAL.json')") && html.includes("'👥 지금까지 ' + Number(d.count).toLocaleString()") && html.includes("명이 다녀갔어요") && html.includes(".catch(function(){})"), "방문 카운트 fetch: une-phrase TOTAL.json(누적 방문 수)을 라벨과 함께 표시, 실패하면 줄이 숨은 채로 남음");
 ok(!html.includes("'👥 ' + d.count"), "방문 카운트 표기: 숫자만 있던 기존 표기는 라벨 포함으로 교체됨");
-ok(html.includes('property="og:image" content="https://sidebatch.github.io/une-phrase/og-image.png"'), "og:image 절대 URL 있음");
+ok(html.includes('property="og:image" content="https://sidebatch.github.io/one-phrase/og-image.png"'), "og:image 절대 URL 있음");
 ok(html.includes('property="og:image:width" content="1200"') && html.includes('property="og:image:height" content="630"'), "og:image 크기 메타 있음");
-ok(html.includes('property="og:type" content="website"') && html.includes('name="twitter:card" content="summary_large_image"') && html.includes('name="twitter:image" content="https://sidebatch.github.io/une-phrase/og-image.png"'), "og:type·Twitter Card 메타 있음");
+ok(html.includes('property="og:type" content="website"') && html.includes('name="twitter:card" content="summary_large_image"') && html.includes('name="twitter:image" content="https://sidebatch.github.io/one-phrase/og-image.png"'), "og:type·Twitter Card 메타 있음");
 const ogPngPath = path.join(ROOT, "og-image.png");
 ok(fs.existsSync(ogPngPath), "og-image.png 있음");
 if (fs.existsSync(ogPngPath)) {
   const ogBuf = fs.readFileSync(ogPngPath);
   ok(ogBuf.readUInt32BE(16) === 1200 && ogBuf.readUInt32BE(20) === 630, "og-image.png 실제 크기 1200×630");
+}
+
+console.log("\n[개명·새 아이콘 (v1.31.0)]");
+ok(html.includes('<span class="wordmark">ONE PHRASE</span>'), "워드마크: 헤더가 ONE PHRASE");
+ok(!html.includes("UNE PHRASE"), "개명: 옛 워드마크 UNE PHRASE 없음");
+ok(!html.includes("Une Phrase"), "개명: index.html에 옛 이름 Une Phrase 없음");
+ok(html.includes("<title>One Phrase — 한 문장 프랑스어"), "개명: <title>이 새 이름");
+ok(html.includes('property="og:title" content="One Phrase — 한 문장 프랑스어"'), "개명: og:title이 새 이름");
+ok(html.includes('property="og:url" content="https://sidebatch.github.io/one-phrase/"'), "개명: og:url이 새 주소");
+ok(html.includes('const SHARE_URL = "https://sidebatch.github.io/one-phrase/";'), "개명: 공유 주소가 새 주소");
+ok(man.name === "One Phrase — 한 문장 프랑스어" && man.short_name === "One Phrase", "manifest: name·short_name이 새 이름");
+ok(html.includes('class="logo" aria-hidden="true"><svg') && html.includes('class="footlogo" aria-hidden="true"><svg'), "로고: 헤더·푸터 로고 타일이 말풍선 SVG 마크");
+const iconSvg = read("icons/icon.svg");
+ok(iconSvg.includes('fill="#1C3A71"') && iconSvg.includes('fill="#FFFFFF"') && iconSvg.includes("<circle"), "아이콘 소스 SVG: 파랑 배경·흰 말풍선·마침표 요소 포함");
+for (const [f, w, h] of [["icons/icon-192.png",192,192],["icons/icon-512.png",512,512],["icons/apple-touch-icon.png",180,180],["icons/maskable-512.png",512,512]]) {
+  const fp = path.join(ROOT, f);
+  ok(fs.existsSync(fp), "아이콘 파일 있음: " + f);
+  if (fs.existsSync(fp)) {
+    const b = fs.readFileSync(fp);
+    ok(b.readUInt32BE(16) === w && b.readUInt32BE(20) === h, "아이콘 실제 크기 " + w + "×" + h + ": " + f);
+  }
 }
 
 console.log("\n[테마 3종 (v1.28.0)]");
