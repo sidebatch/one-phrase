@@ -745,5 +745,57 @@ if (fs.existsSync(ogPngPath)) {
   ok(ogBuf.readUInt32BE(16) === 1200 && ogBuf.readUInt32BE(20) === 630, "og-image.png 실제 크기 1200×630");
 }
 
+console.log("\n[테마 3종 (v1.28.0)]");
+const dpSrc = html.match(/function defaultProgress\(\)[^\n]*/)[0];
+eval(dpSrc);
+{ const dp = defaultProgress(); ok(dp.theme === "light", "테마: 진행 기록 기본값은 라이트"); }
+ok(html.indexOf('localStorage.getItem("une-phrase-progress-v1")') > -1 && html.indexOf('localStorage.getItem("une-phrase-progress-v1")') < html.indexOf("<style>"), "테마: head 이른 스크립트가 저장된 테마를 스타일보다 먼저 읽음 (깜빡임 방지)");
+ok(html.includes("document.documentElement.dataset.theme = t") && html.indexOf("dataset.theme") < html.indexOf("<style>"), "테마: 부팅 스크립트가 첫 페인트 전에 data-theme 세팅");
+ok(html.includes('data-theme-opt="light"') && html.includes('data-theme-opt="black"') && html.includes('data-theme-opt="paper"'), "테마: 설명 탭에 라이트·블랙·페이퍼 선택 3종 있음");
+ok(html.includes('class="themesw sw-light"') && html.includes('class="themesw sw-black"') && html.includes('class="themesw sw-paper"'), "테마: 각 옵션에 실제 색 견본 칩 있음");
+ok(html.includes("<summary>테마</summary>"), "테마: 설명 탭 테마 구역 있음");
+const blackBlock = (html.match(/html\[data-theme="black"\]\{[\s\S]*?\n\}/) || [""])[0];
+const paperBlock = (html.match(/html\[data-theme="paper"\]\{[\s\S]*?\n\}/) || [""])[0];
+ok(blackBlock.includes("--bg:#050607") && blackBlock.includes("--card:#14171c") && blackBlock.includes("--ink:#eef1f4") && blackBlock.includes("--sub:#9aa3ad"), "테마: 블랙 변수 블록 (배경 #050607·카드 #14171c·글자 #eef1f4·보조 #9aa3ad)");
+ok(paperBlock.includes("--bg:#f6efe3") && paperBlock.includes("--card:#fffaf0") && paperBlock.includes("--ink:#33302a") && paperBlock.includes("--line:#e3d9c6"), "테마: 페이퍼 변수 블록 (배경 #f6efe3·카드 #fffaf0·글자 #33302a·경계 #e3d9c6)");
+ok(html.includes('html[data-theme="black"] .t-study'), "테마: 블랙에서 메뉴 타일 어두운 변형 있음");
+const rootBlock = (html.match(/:root\{[\s\S]*?\n\}/) || [""])[0];
+ok(rootBlock.includes("--bg:#fffdf8") && rootBlock.includes("--card:#fff;") || rootBlock.includes("--bg:#fffdf8"), "테마: 라이트(:root) 기본값은 기존 색 그대로");
+const themeOfSrc = html.match(/function themeOf\(\)\{[\s\S]*?\n\}/)[0];
+const applySrc = html.match(/function applyTheme\(name, save\)\{[\s\S]*?\n\}/)[0];
+const renderOptsSrc = html.match(/function renderThemeOpts\(\)\{[\s\S]*?\n\}/)[0];
+{
+  const savedThemes = [];
+  const fakeMeta = { attrs: {}, setAttribute(k, v) { this.attrs[k] = v; } };
+  const fakeDoc = {
+    documentElement: { dataset: {} },
+    querySelector(sel) { return sel.indexOf("theme-color") > -1 ? fakeMeta : null; },
+    querySelectorAll() { return []; }
+  };
+  let progress = { theme: "light" };
+  const saveProgress = () => savedThemes.push(progress.theme);
+  const api = new Function("document", "progress", "saveProgress",
+    "const THEME_META_COLORS = { light:'#1C3A71', black:'#050607', paper:'#F6EFE3' };\n" + themeOfSrc + "\n" + renderOptsSrc + "\n" + applySrc + "\nreturn { themeOf, applyTheme };")(fakeDoc, progress, saveProgress);
+  ok(api.themeOf() === "light", "테마: themeOf 기본 라이트");
+  api.applyTheme("black", true);
+  ok(fakeDoc.documentElement.dataset.theme === "black" && progress.theme === "black" && savedThemes.join() === "black", "테마: applyTheme(블랙) → data-theme 세팅 + 진행 기록에 저장");
+  ok(fakeMeta.attrs.content === "#050607", "테마: 블랙에서 theme-color 메타 갱신");
+  api.applyTheme("paper", false);
+  ok(fakeDoc.documentElement.dataset.theme === "paper" && fakeMeta.attrs.content === "#F6EFE3", "테마: applyTheme(페이퍼) → data-theme·메타 갱신");
+  api.applyTheme("light", false);
+  ok(!("theme" in fakeDoc.documentElement.dataset) && fakeMeta.attrs.content === "#1C3A71", "테마: 라이트로 돌리면 data-theme 제거, 메타는 기본 파랑");
+  progress = { theme: "neon" };
+  const api2 = new Function("document", "progress", "saveProgress",
+    "const THEME_META_COLORS = { light:'#1C3A71', black:'#050607', paper:'#F6EFE3' };\n" + themeOfSrc + "\nreturn { themeOf };")(fakeDoc, progress, saveProgress);
+  ok(api2.themeOf() === "light", "테마: 알 수 없는 테마 값은 라이트로 취급");
+}
+const ptrSrcT = html.match(/function progressToRemote\(p\)\{[\s\S]*?\n\}/)[0];
+eval(ptrSrcT);
+{
+  const payload = progressToRemote({ completed: [1, 2], completedAt: { 1: "2026-10-22" }, reviewIds: [1], reviewCorrect: 3, theme: "black", index: 5, sound: false });
+  ok(!("theme" in payload) && JSON.stringify(payload).indexOf("theme") === -1, "테마: Supabase 동기화 페이로드에 theme 미포함 (기기별 설정)");
+  ok(Object.keys(payload).sort().join(",") === "completed,review_correct", "테마: 동기화 페이로드는 완료·복습 두 필드만");
+}
+
 console.log("\n결과: PASS " + pass + " / FAIL " + fail);
 process.exit(fail ? 1 : 0);
