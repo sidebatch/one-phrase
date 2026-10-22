@@ -61,8 +61,19 @@ h1{font-size:26px;line-height:1.25;margin:11px 0 3px;letter-spacing:-.01em}
 .tabs{display:flex;gap:10px;margin:14px 0;flex-wrap:nowrap}
 .tabs[hidden]{display:none}
 .focusbar{display:flex;justify-content:flex-end}
-.exitbtn{background:none;border:0;color:var(--sub);font-size:13px;font-weight:700;padding:6px 2px;cursor:pointer;font:inherit}
-.exitbtn[hidden]{display:none}
+.menubtn{min-height:38px;background:#fff;color:var(--ink);border:1px solid var(--line-soft);border-radius:var(--r-pill);padding:7px 14px;font-size:13.5px;font-weight:800;cursor:pointer;font:inherit;box-shadow:var(--shadow);transition:transform .12s var(--ease),background-color .18s ease}
+.menubtn:active{transform:scale(.97)}
+.menubtn[hidden]{display:none}
+.menuoverlay{position:fixed;inset:0;z-index:60}
+.menuoverlay[hidden]{display:none}
+.menubackdrop{position:absolute;inset:0;background:rgba(20,26,40,.45)}
+.menupanel{position:absolute;left:0;right:0;bottom:0;max-width:720px;margin:0 auto;background:var(--card);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:14px 16px calc(16px + env(safe-area-inset-bottom));box-shadow:0 -10px 34px rgba(20,26,40,.28)}
+.menuhead{font-size:15px;font-weight:900;color:var(--blue);margin:2px 2px 10px}
+.menurow{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:48px;background:#fff;border:1px solid var(--line-soft);border-radius:var(--r-md);padding:12px 14px;font-size:15px;font-weight:800;color:var(--ink);cursor:pointer;font:inherit;margin:0 0 8px;text-align:left}
+.menurow:active{transform:scale(.99)}
+.menuchip{flex:0 0 auto;font-size:11.5px;font-weight:800;color:var(--blue);background:var(--done-chip);border-radius:var(--r-pill);padding:2px 9px}
+.menurow.menuclose{justify-content:center;color:var(--sub);margin-bottom:0}
+@media (hover:hover){.menubtn:hover,.menurow:hover{background:#f7f3ea}}
 .btnrow{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
 .slowbtn.on{background:var(--blue);color:#fff;border-color:var(--blue)}
 #resetZone{margin-top:12px}
@@ -164,7 +175,7 @@ summary{font-weight:800;cursor:pointer}
 <body>
 <div class="wrap">
 <header class="masthead">
-<div class="brandrow"><span class="logo" aria-hidden="true">U</span><span class="wordmark">UNE PHRASE</span><span class="verpill">버전 1.21.0</span></div>
+<div class="brandrow"><span class="logo" aria-hidden="true">U</span><span class="wordmark">UNE PHRASE</span><span class="verpill">버전 1.22.0</span></div>
 <h1>한 문장 프랑스어</h1>
 <div class="progress" id="progressArea">
 <div class="progress-top"><span id="progressLine">불러오는 중…</span><span class="todaychip" id="todayChip">오늘 0문장</span></div>
@@ -181,7 +192,18 @@ summary{font-weight:800;cursor:pointer}
 </div>
 
 <div id="tab-study">
-<div class="focusbar"><button class="exitbtn" id="exitFocusBtn" hidden>✕ 나가기</button></div>
+<div class="focusbar"><button class="menubtn" id="menuBtn" hidden aria-haspopup="dialog" aria-expanded="false">☰ 메뉴</button></div>
+<div class="menuoverlay" id="menuOverlay" hidden>
+<div class="menubackdrop" id="menuBackdrop"></div>
+<div class="menupanel" role="dialog" aria-modal="true" aria-label="메뉴">
+<div class="menuhead">메뉴</div>
+<button class="menurow" data-menu="study">공부하기<span class="menuchip">지금 여기</span></button>
+<button class="menurow" data-menu="browse">주제별</button>
+<button class="menurow" data-menu="words">단어</button>
+<button class="menurow" data-menu="about">설명</button>
+<button class="menurow menuclose" id="menuCloseBtn">닫기</button>
+</div>
+</div>
 <div class="stepnav">
 <button class="stepbtn on" id="stepBtn1">1 · 읽어보기</button>
 <button class="stepbtn" id="stepBtn2">2 · 따라 쓰기</button>
@@ -208,7 +230,7 @@ summary{font-weight:800;cursor:pointer}
 <details open><summary>어떻게 쓰나요 — 3단계</summary>
 <p>1 · 읽어보기: 문장과 뜻 덩어리를 보고, 듣기 버튼으로 소리를 확인합니다.<br>2 · 따라 쓰기: 문장을 보면서 그대로 타이핑합니다. 손이 철자를 기억합니다.<br>3 · 가리고 쓰기: 한국어 뜻만 보고 프랑스어 문장 전체를 씁니다. 이 단계가 진짜 암기입니다.</p>
 <p>기본 흐름은 <b>한 문장만</b>입니다. 한 문장을 끝내면 완료 화면이 나오고, 원하면 “한 문장 더”를 누르세요.</p>
-<p>공부하는 동안에는 위쪽 탭이 숨겨져 집중할 수 있어요. 다른 탭으로 가려면 카드 위의 “✕ 나가기”를 누르세요. 듣기가 빠르면 듣기 옆의 🐢 버튼으로 0.8배속으로 천천히 들을 수 있어요.</p>
+<p>공부하는 동안에는 위쪽 탭이 숨겨져 집중할 수 있어요. 다른 곳으로 가려면 카드 위의 “☰ 메뉴”를 눌러 이동하세요. 듣기가 빠르면 듣기 옆의 🐢 버튼으로 0.8배속으로 천천히 들을 수 있어요.</p>
 </details>
 <details open><summary>공유하기</summary>
 <p>주변에 프랑스어를 공부하는 사람이 있으면 이 앱을 알려 주세요. 버튼을 누르면 공유 화면이 열리고, 공유가 안 되는 환경에서는 링크가 복사됩니다.</p>
@@ -235,12 +257,12 @@ summary{font-weight:800;cursor:pointer}
 
 <footer>
 <div class="footbrand"><span class="footlogo" aria-hidden="true">U</span><span class="footword">UNE PHRASE</span><span class="footko">한 문장 프랑스어</span></div>
-<div class="footmeta">v1.21.0 · © 2026 sidebatch</div>
+<div class="footmeta">v1.22.0 · © 2026 sidebatch</div>
 </footer>
 </div>
 <script>
 "use strict";
-const APP_VERSION = "1.21.0";
+const APP_VERSION = "1.22.0";
 const STORAGE_KEY = "une-phrase-progress-v1";
 const ITEMS = [
 {id:1,fr:"Je cherche un appartement près du métro parce que je n'ai pas de voiture.",ko:"나는 차가 없어서 지하철 근처 아파트를 찾고 있다.",chunks:[["Je cherche un appartement","아파트를 찾고 있다"],["près du métro","지하철 근처에"],["parce que je n'ai pas de voiture","차가 없기 때문에"]],pattern:"이유는 뒤에 붙인다: …parce que + 문장 → 연결어 parce que (왜냐하면)",words:[["appartement","아파트"],["près de","~ 근처에"]],topic:"일상",level:"B1",tef:"EO 말하기 · CE 읽기"},
@@ -695,7 +717,7 @@ let quizItem = null;
 let completionInFlight = false;
 let quizAnswered = false;
 let currentTab = "study";
-let focusOff = false;
+let menuOpen = false;
 let completionShown = false;
 function bindWordProg(inputId, progId, targetFr){
   const inp = document.getElementById(inputId), el = document.getElementById(progId);
@@ -805,14 +827,14 @@ function completeSentence(){
   if(lvAfter.lv > lvBefore.lv) extra += '<div class="levelup">레벨 업! Lv.'+lvAfter.lv+' '+esc(lvAfter.title)+'</div>';
   document.getElementById("studyCard").innerHTML = "";
   document.getElementById("doneBox").innerHTML = '<div class="card donebox"><div class="donecircle" aria-hidden="true">✓</div><div class="big">한 문장 완료!</div>'+extra+'<p>오늘 '+countToday(progress)+'문장째 · 지금까지 '+progress.completed.length+' / '+ITEMS.length+'문장</p><div class="pbar donebar"><div class="pfill" style="width:'+pctAll+'%"></div></div><div class="donepct">전체 '+pctAll+'%</div><button class="primary" id="oneMoreBtn">한 문장 더 →</button></div>';
-  document.getElementById("oneMoreBtn").onclick = ()=>{ focusOff = false; setStep(1); renderStudy(); window.scrollTo({top:0,behavior:"smooth"}); };
+  document.getElementById("oneMoreBtn").onclick = ()=>{ setStep(1); renderStudy(); window.scrollTo({top:0,behavior:"smooth"}); };
   const doneEl = document.getElementById("doneBox");
   if(doneEl && doneEl.scrollIntoView) doneEl.scrollIntoView({behavior:"smooth", block:"start"});
   completionShown = true;
   applyFocus();
   renderQuizEntry();
 }
-function goToItem(idx, step){ progress.index = idx; focusOff = false; setStep(step||1); showTab("study"); renderStudy(); window.scrollTo({top:0,behavior:"smooth"}); }
+function goToItem(idx, step){ progress.index = idx; setStep(step||1); showTab("study"); renderStudy(); window.scrollTo({top:0,behavior:"smooth"}); }
 
 /* ---------- 복습 퀴즈 ---------- */
 function renderQuizEntry(){
@@ -824,7 +846,7 @@ function renderQuizEntry(){
 }
 function startQuiz(excludeId){
   quizAnswered = false;
-  focusOff = false; applyFocus();
+  applyFocus();
   let pool = quizPool(ITEMS, progress.completed, currentItem().id);
   if(excludeId && pool.length > 1) pool = pool.filter(i=>i.id!==excludeId);
   if(!pool.length) pool = ITEMS.filter(i=>progress.completed.includes(i.id) && i.id!==excludeId);
@@ -889,14 +911,30 @@ async function doReset(){
   vaultReady = true; await vaultDelete(STORAGE_KEY);
   renderVaultState(); renderSoundBtn(); renderResetZone(); renderStudy();
 }
-/* ---------- 포커스 모드 (공부 중에는 탭 바 숨김) ---------- */
-function inFocus(){ return currentTab === "study" && !focusOff && !completionShown; }
+/* ---------- 포커스 모드 (공부 중에는 탭 바 숨김, 메뉴로 이동) ---------- */
+function inFocus(){ return currentTab === "study" && !completionShown; }
 function applyFocus(){
   const f = inFocus();
   const bar = document.getElementById("tabBar"); if(bar) bar.hidden = f;
-  const ex = document.getElementById("exitFocusBtn"); if(ex) ex.hidden = !f;
+  const mb = document.getElementById("menuBtn"); if(mb) mb.hidden = !f;
+  if(!f) closeMenu();
 }
-function exitFocus(){ focusOff = true; applyFocus(); }
+function openMenu(){
+  menuOpen = true;
+  const ov = document.getElementById("menuOverlay"); if(ov) ov.hidden = false;
+  const mb = document.getElementById("menuBtn"); if(mb) mb.setAttribute("aria-expanded", "true");
+}
+function closeMenu(){
+  menuOpen = false;
+  const ov = document.getElementById("menuOverlay"); if(ov) ov.hidden = true;
+  const mb = document.getElementById("menuBtn"); if(mb) mb.setAttribute("aria-expanded", "false");
+}
+function goMenu(name){
+  closeMenu();
+  if(name === "browse"){ showTab("browse"); renderBrowse(); }
+  else if(name === "words"){ showTab("words"); renderWords(); }
+  else if(name === "about"){ showTab("about"); }
+}
 function showTab(name){
   if(name !== "about" && (resetStage !== 0 || resetDoneMsg)){ resetStage = 0; resetDoneMsg = false; renderResetZone(); }
   currentTab = name;
@@ -939,8 +977,11 @@ function renderWords(){
 }
 
 /* ---------- 이벤트 ---------- */
-document.getElementById("tabBtnStudy").onclick = ()=>{ focusOff = false; showTab("study"); };
-document.getElementById("exitFocusBtn").onclick = ()=>exitFocus();
+document.getElementById("tabBtnStudy").onclick = ()=>{ showTab("study"); };
+document.getElementById("menuBtn").onclick = ()=>openMenu();
+document.getElementById("menuCloseBtn").onclick = ()=>closeMenu();
+document.getElementById("menuBackdrop").onclick = ()=>closeMenu();
+document.querySelectorAll("[data-menu]").forEach(b=>b.onclick=()=>goMenu(b.getAttribute("data-menu")));
 document.getElementById("tabBtnBrowse").onclick = ()=>{ showTab("browse"); renderBrowse(); };
 document.getElementById("tabBtnWords").onclick = ()=>{ showTab("words"); renderWords(); };
 document.getElementById("tabBtnAbout").onclick = ()=>showTab("about");

@@ -181,13 +181,18 @@ const smokePrelude = [
   'let completionInFlight = false;',
   'let quizAnswered = false;',
   'let currentTab = "study";',
-  'let focusOff = false;',
+  'let menuOpen = false;',
   'let completionShown = false;',
+  'let resetStage = 0;',
+  'let resetDoneMsg = false;',
   'const document = documentStub;',
   'function saveProgress(){}',
   'function renderVaultState(){}',
   'function renderProgress(){}',
   'function renderQuizEntry(){}',
+  'function renderResetZone(){}',
+  'function renderBrowse(){}',
+  'function renderWords(){}',
   'function playSound(){}',
   'function speakFr(){}'
 ].join("\n");
@@ -196,7 +201,10 @@ const smokeFns = [
   html.match(/function slowBtnHtml\(\)[^\n]*/)[0],
   html.match(/function inFocus\(\)[^\n]*/)[0],
   html.match(/function applyFocus\(\)[\s\S]*?\n\}/)[0],
-  html.match(/function exitFocus\(\)[^\n]*/)[0],
+  html.match(/function openMenu\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function closeMenu\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function goMenu\(name\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function showTab\(name\)\{[\s\S]*?\n\}/)[0],
   html.match(/function correctHtml[\s\S]*?\n\}/)[0],
   html.match(/function setStep\(n\)\{[^}]*\}/)[0],
   html.match(/function currentItem\(\)\{[^}]*\}/)[0],
@@ -214,16 +222,18 @@ const smokeDriver = [
   'currentStep = 3;',
   'renderStudy();',
   'ok(STUB_ELS["tabBar"].hidden === true, "포커스 스모크: 공부 중에는 탭 바가 숨겨짐");',
-  'ok(STUB_ELS["exitFocusBtn"].hidden === false, "포커스 스모크: 공부 중에는 나가기 버튼이 보임");',
-  'exitFocus();',
-  'ok(STUB_ELS["tabBar"].hidden === false, "포커스 스모크: 나가기를 누르면 탭 바가 다시 보임");',
-  'focusOff = false; applyFocus();',
-  'ok(STUB_ELS["tabBar"].hidden === true, "포커스 스모크: 다시 공부하면 탭 바가 숨겨짐");',
+  'ok(STUB_ELS["menuBtn"].hidden === false, "메뉴 스모크: 공부 중에는 메뉴 버튼이 보임");',
+  'openMenu();',
+  'ok(STUB_ELS["menuOverlay"].hidden === false, "메뉴 스모크: 메뉴 버튼을 누르면 패널이 열림");',
+  'closeMenu();',
+  'ok(STUB_ELS["menuOverlay"].hidden === true && STUB_ELS["tabBar"].hidden === true, "메뉴 스모크: 닫으면 메뉴만 닫히고 탭 바는 계속 숨김 (공부 계속)");',
   'ok(!!STUB_ELS["typeInput"], "스모크: 3단계 타이핑 박스 렌더됨");',
   'ok(STUB_ELS["wordProg"].innerHTML.indexOf("단어") > -1, "스모크: 단어 수 진행 표시 초기 렌더");',
   'STUB_ELS["typeInput"].value = ITEMS[0].fr;',
   'STUB_ELS["typeInput"]._listeners.input();',
   'ok(STUB_ELS["wordProg"].innerHTML.indexOf("<b>" + splitWords(ITEMS[0].fr).length + "</b>") === 0, "스모크: 입력하면 단어 수 진행 표시 갱신");',
+  'openMenu(); goMenu("study");',
+  'ok(STUB_ELS["menuOverlay"].hidden === true && currentStep === 3 && STUB_ELS["typeInput"].value === ITEMS[0].fr, "메뉴 스모크: 메뉴에서 공부하기를 고르면 메뉴만 닫히고 단계·입력이 그대로");',
   'checkTyping();',
   'ok(!!STUB_ELS["advanceBtn"], "스모크: 정답 후 완료하기 버튼 표시");',
   'STUB_ELS["advanceBtn"].onclick();',
@@ -236,14 +246,22 @@ const smokeDriver = [
   'ok(xpOf(progress.completed.length, progress.reviewCorrect) === 10, "회귀: XP도 1회분 +10만 적립");',
   'ok(STUB_ELS["studyCard"].innerHTML === "", "회귀: 완료 후 학습 카드가 비어 있음");',
   'ok(STUB_ELS["tabBar"].hidden === false, "포커스 스모크: 완료 화면(쉬는 지점)에서는 탭 바가 보임");',
+  'ok(STUB_ELS["menuBtn"].hidden === true, "메뉴 스모크: 완료 화면에서는 메뉴 버튼도 숨겨짐");',
   'progress.completed = [ITEMS[0].id, ITEMS[1].id, ITEMS[2].id];',
-  'progress.index = 0; currentStep = 1;',
+  'progress.index = 0; currentStep = 1; completionShown = false;',
   'startQuiz();',
   'ok(!!quizItem, "스모크: 복습 퀴즈 출제됨");',
+  'ok(STUB_ELS["tabBar"].hidden === true && STUB_ELS["menuBtn"].hidden === false, "메뉴 스모크: 복습 퀴즈 중에도 탭 바 숨김, 메뉴 버튼 표시");',
   'STUB_ELS["quizInput"].value = quizItem.fr;',
   'const rc0 = progress.reviewCorrect;',
   'checkQuiz(); checkQuiz();',
-  'ok(progress.reviewCorrect === rc0 + 1, "회귀: 퀴즈 정답을 두 번 제출해도 복습 XP는 1회만 (reviewCorrect " + progress.reviewCorrect + ")");'
+  'ok(progress.reviewCorrect === rc0 + 1, "회귀: 퀴즈 정답을 두 번 제출해도 복습 XP는 1회만 (reviewCorrect " + progress.reviewCorrect + ")");',
+  'openMenu();',
+  'ok(STUB_ELS["menuOverlay"].hidden === false, "메뉴 스모크: 퀴즈 중에도 메뉴를 열 수 있음");',
+  'goMenu("words");',
+  'ok(currentTab === "words" && STUB_ELS["tabBar"].hidden === false && STUB_ELS["menuOverlay"].hidden === true, "메뉴 스모크: 메뉴에서 단어를 고르면 단어 탭으로 이동, 메뉴는 닫히고 탭 바가 보임");',
+  'showTab("study");',
+  'ok(STUB_ELS["tabBar"].hidden === true && STUB_ELS["menuBtn"].hidden === false, "메뉴 스모크: 공부하기로 돌아오면 다시 몰입 (탭 바 숨김·메뉴 버튼 표시)");'
 ].join("\n");
 eval(smokePrelude + "\n" + lvArrSrc + "\n" + lvlSrc + "\n" + xpSrc2 + "\n" + qpSrc + "\n" + normSrc + "\n" + corrSrc + "\n" + smokeFns + "\n" + smokeDriver);
 
@@ -303,7 +321,7 @@ const rzPrelude = [
   'let resetStage = 0;',
   'let resetDoneMsg = false;',
   'let currentTab = "about";',
-  'let focusOff = false;',
+  'let menuOpen = false;',
   'let completionShown = false;',
   'const STORAGE_KEY = "une-phrase-progress-v1";',
   'const document = rzDocument;',
@@ -320,6 +338,7 @@ const rzFns = [
   html.match(/function renderVaultState\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function inFocus\(\)[^\n]*/)[0],
   html.match(/function applyFocus\(\)[\s\S]*?\n\}/)[0],
+  html.match(/function closeMenu\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function showTab\(name\)\{[\s\S]*?\n\}/)[0],
   rzSrc, drSrc
 ].join("\n");
@@ -353,15 +372,23 @@ const rzDriver = [
 ].join("\n");
 eval(rzPrelude + "\n" + rzFns + "\n" + rzDriver);
 
-console.log("\n[몰입 모드·느리게 듣기·하단 버튼 정리·간격 (v1.20.0)]");
-ok(html.includes('id="tabBar"') && html.includes('id="exitFocusBtn"') && html.includes("✕ 나가기"), "포커스: 탭 바 id와 조용한 나가기 버튼 있음");
+console.log("\n[몰입 모드(메뉴)·느리게 듣기·하단 버튼 정리·간격 (v1.20.0 / v1.22.0)]");
+ok(html.includes('id="tabBar"') && html.includes('id="menuBtn"') && html.includes("☰ 메뉴"), "메뉴: 탭 바 id와 조용한 메뉴 버튼 있음");
+ok(!html.includes("✕ 나가기") && !html.includes("exitFocus") && !html.includes("focusOff") && !html.includes("exitbtn"), "메뉴: 기존 나가기 버튼과 포커스 해제 상태(exitFocus·focusOff)가 완전히 제거됨");
+ok(html.includes('id="menuOverlay" hidden') && html.includes('id="menuBackdrop"') && html.includes('id="menuCloseBtn"') && html.includes("닫기"), "메뉴: 배경·닫기를 갖춘 메뉴 패널이 처음에는 숨겨져 있음");
+ok(html.includes('data-menu="study"') && html.includes('data-menu="browse"') && html.includes('data-menu="words"') && html.includes('data-menu="about"') && html.includes("지금 여기"), "메뉴: 목적지 4곳 행 (공부하기에는 '지금 여기' 표시)");
+ok(html.includes('role="dialog"') && html.includes('aria-haspopup="dialog"'), "메뉴: 패널에 dialog 역할, 버튼에 aria-haspopup 표시");
 ok(/\.tabs\[hidden\]\{display:none\}/.test(html), "포커스: 숨긴 탭 바가 실제로 display:none 됨 (flex에 덮이지 않음)");
-ok(/\.exitbtn\[hidden\]\{display:none\}/.test(html), "포커스: 나가기 버튼도 hidden이면 확실히 숨겨짐");
+ok(/\.menubtn\[hidden\]\{display:none\}/.test(html) && /\.menuoverlay\[hidden\]\{display:none\}/.test(html), "메뉴: 메뉴 버튼·패널도 hidden이면 확실히 숨겨짐");
 const ifSrc = html.match(/function inFocus\(\)[^\n]*/)[0];
 const afSrc = html.match(/function applyFocus\(\)[\s\S]*?\n\}/)[0];
 const stSrc2 = html.match(/function showTab\(name\)\{[\s\S]*?\n\}/)[0];
-ok(ifSrc.includes('currentTab === "study"') && ifSrc.includes("!focusOff") && ifSrc.includes("!completionShown"), "포커스 판정: 공부하기 탭 + 나가지 않음 + 완료 화면이 아닐 때만 몰입");
-ok(afSrc.includes('getElementById("tabBar")') && afSrc.includes('getElementById("exitFocusBtn")'), "포커스 적용: 탭 바와 나가기 버튼 표시를 함께 토글");
+ok(ifSrc.includes('currentTab === "study"') && ifSrc.includes("!completionShown"), "포커스 판정: 공부하기 탭 + 완료 화면이 아닐 때만 몰입");
+ok(afSrc.includes('getElementById("tabBar")') && afSrc.includes('getElementById("menuBtn")'), "포커스 적용: 탭 바와 메뉴 버튼 표시를 함께 토글");
+const gmSrc = html.match(/function goMenu\(name\)\{[\s\S]*?\n\}/)[0];
+ok(gmSrc.includes("closeMenu()") && gmSrc.includes('showTab("browse")') && gmSrc.includes('showTab("words")') && gmSrc.includes('showTab("about")'), "메뉴 선택: 메뉴를 닫고 해당 탭으로 이동 (공부하기는 닫기만 하고 공부 상태 유지)");
+ok(html.includes('getElementById("menuBtn").onclick') && html.includes('getElementById("menuCloseBtn").onclick') && html.includes('getElementById("menuBackdrop").onclick'), "메뉴: 메뉴 버튼·닫기·배경 클릭이 모두 연결됨");
+ok(html.includes('querySelectorAll("[data-menu]")'), "메뉴: 목적지 행 클릭이 goMenu로 연결됨");
 ok(stSrc2.includes("currentTab = name") && stSrc2.includes("applyFocus()"), "탭 전환 시 포커스 상태도 함께 갱신");
 const rsSrc2 = html.match(/function renderStudy\(\)[\s\S]*?\n\}/)[0];
 const csSrc2 = html.match(/function completeSentence\(\)[\s\S]*?\n\}/)[0];
