@@ -58,16 +58,16 @@ html[data-theme="black"]{
 --dim:rgba(0,0,0,.65);--sheet-shadow:0 -10px 34px rgba(0,0,0,.6);--input-shadow:inset 0 1px 3px rgba(0,0,0,.5);--focus-shadow:0 0 0 3px rgba(143,176,236,.38),inset 0 1px 3px rgba(0,0,0,.4);--diff-under:rgba(255,132,120,.55);--accent-shadow:0 6px 18px rgba(0,0,0,.55);--gold2:#eec25e;
 --shadow:0 1px 2px rgba(0,0,0,.45),0 6px 18px rgba(0,0,0,.4)
 }
-html[data-theme="black"] .t-study{background:#1d2c47}
-html[data-theme="black"] .t-browse{background:#2b2145}
-html[data-theme="black"] .t-words{background:#1e3320}
-html[data-theme="black"] .t-together{background:#3d2130}
-html[data-theme="black"] .t-about{background:#262b32}
-html[data-theme="paper"] .t-study{background:#e2ebfa}
-html[data-theme="paper"] .t-browse{background:#eadff8}
-html[data-theme="paper"] .t-words{background:#e0efdb}
-html[data-theme="paper"] .t-together{background:#f9e4d6}
-html[data-theme="paper"] .t-about{background:#efe6cf}
+html[data-theme="black"] .t-study{background:#1d2c47;color:#8fb0ec}
+html[data-theme="black"] .t-browse{background:#2b2145;color:#bda6f5}
+html[data-theme="black"] .t-words{background:#1e3320;color:#93d197}
+html[data-theme="black"] .t-together{background:#3d2130;color:#f2a7c8}
+html[data-theme="black"] .t-about{background:#262b32;color:#aeb6bf}
+html[data-theme="paper"] .t-study{background:#e2ebfa;color:#2b4f96}
+html[data-theme="paper"] .t-browse{background:#eadff8;color:#5d3fb8}
+html[data-theme="paper"] .t-words{background:#e0efdb;color:#27662a}
+html[data-theme="paper"] .t-together{background:#f9e4d6;color:#a83a6c}
+html[data-theme="paper"] .t-about{background:#efe6cf;color:#6e6350}
 html[data-theme="paper"]{
 --bg:#f6efe3;--card:#fffaf0;--ink:#33302a;--sub:#8a8172;
 --line:#e3d9c6;--line-soft:#e7dcc6;--soft:#f0e7d3;--track:#e9dec6;
@@ -121,11 +121,23 @@ h1{font-size:26px;line-height:1.25;margin:11px 0 3px;letter-spacing:-.01em}
 .menurow{display:flex;align-items:center;width:100%;min-height:56px;background:var(--card);border:1px solid var(--line-soft);border-radius:14px;padding:9px 12px;color:var(--ink);cursor:pointer;font:inherit;margin:0 0 8px;text-align:left;transition:transform .12s var(--ease),background-color .18s ease,border-color .18s ease}
 .menurow:active{transform:scale(.99)}
 .menutile{flex:0 0 auto;width:42px;height:42px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;font-size:20px;line-height:1}
-.t-study{background:#e1ebfd}
-.t-browse{background:#ece5fb}
-.t-words{background:#e2f3e2}
-.t-together{background:#fbe7ee}
-.t-about{background:#eceae2}
+.t-study{background:#e1ebfd;color:#2f5aa8}
+.t-browse{background:#ece5fb;color:#6a4bc4}
+.t-words{background:#e2f3e2;color:#2e7d32}
+.t-together{background:#fbe7ee;color:#c2437f}
+.t-about{background:#eceae2;color:#6f6a5c}
+.menutile svg{width:23px;height:23px;display:block}
+#listenBtn,#slowListenBtn{display:inline-flex;align-items:center;justify-content:center;gap:7px}
+.btnicon{width:18px;height:18px;flex:0 0 auto;display:block}
+button.ghost.playing{background:var(--blue);color:#fff;border-color:var(--blue)}
+.worditem.playing{background:var(--done-bg);border-color:var(--blue-text)}
+.profilebtn svg{width:19px;height:19px;display:block}
+.avatar svg{width:22px;height:22px;display:block}
+.avatar.big svg{width:32px;height:32px}
+.heroicon{color:var(--blue-text)}
+.heroicon svg{width:54px;height:54px;display:block;margin:0 auto}
+.profileemail.maskable{cursor:pointer}
+.emailhint{font-size:11px;font-weight:800;color:var(--blue-text);margin-left:5px;white-space:nowrap}
 .menutext{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;margin-left:12px}
 .menulabel{font-size:16px;font-weight:800;line-height:1.25}
 .menusub{font-size:12px;font-weight:600;color:var(--sub)}
@@ -284,7 +296,7 @@ summary{font-weight:800;cursor:pointer}
 <body>
 <div class="wrap">
 <header class="masthead">
-<div class="brandrow"><span class="logo" aria-hidden="true">U</span><span class="wordmark">UNE PHRASE</span><button class="profilebtn" id="profileBtn" aria-label="내 정보" aria-haspopup="dialog">👤</button><button class="menubtn" id="menuBtn" aria-haspopup="dialog" aria-expanded="false">☰ 메뉴</button></div>
+<div class="brandrow"><span class="logo" aria-hidden="true">U</span><span class="wordmark">UNE PHRASE</span><button class="profilebtn" id="profileBtn" aria-label="내 정보" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M5.2 19.8c.8-3.6 3.4-5.4 6.8-5.4s6 1.8 6.8 5.4"/></svg></button><button class="menubtn" id="menuBtn" aria-haspopup="dialog" aria-expanded="false">☰ 메뉴</button></div>
 <h1>한 문장 프랑스어</h1>
 <div class="progress" id="progressArea">
 <div class="progress-top"><span id="progressLine">불러오는 중…</span><span class="todaychip" id="todayChip">오늘 0문장</span></div>
@@ -298,11 +310,11 @@ summary{font-weight:800;cursor:pointer}
 <div class="menupanel" role="dialog" aria-modal="true" aria-label="메뉴">
 <div class="menuhandle" aria-hidden="true"></div>
 <div class="menuhead"><span class="menuword">UNE PHRASE</span></div>
-<button class="menurow on" data-menu="study"><span class="menutile t-study" aria-hidden="true">📖</span><span class="menutext"><span class="menulabel">공부하기</span><span class="menusub">이어서 바로 공부</span></span><span class="menudot" aria-hidden="true"></span></button>
-<button class="menurow" data-menu="browse"><span class="menutile t-browse" aria-hidden="true">🗂️</span><span class="menutext"><span class="menulabel">주제별</span><span class="menusub">주제 골라 보기</span></span><span class="menudot" aria-hidden="true" hidden></span></button>
-<button class="menurow" data-menu="words"><span class="menutile t-words" aria-hidden="true">🔤</span><span class="menutext"><span class="menulabel">단어</span><span class="menusub">단어 모아 보기</span></span><span class="menudot" aria-hidden="true" hidden></span></button>
-<button class="menurow" data-menu="together"><span class="menutile t-together" aria-hidden="true">👥</span><span class="menutext"><span class="menulabel">Ensemble</span><span class="menusub">서로의 진도 보기</span></span><span class="menudot" aria-hidden="true" hidden></span></button>
-<button class="menurow" data-menu="about"><span class="menutile t-about" aria-hidden="true">ℹ️</span><span class="menutext"><span class="menulabel">더보기</span><span class="menusub">안내·공유·설정</span></span><span class="menudot" aria-hidden="true" hidden></span></button>
+<button class="menurow on" data-menu="study"><span class="menutile t-study" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.2C10.2 4.7 8 4.1 5.5 4.1c-.6 0-1 .4-1 1v13.2c0 .6.4 1 1 1 2.5 0 4.7.6 6.5 2.1 1.8-1.5 4-2.1 6.5-2.1.6 0 1-.4 1-1V5.1c0-.6-.4-1-1-1-2.5 0-4.7.6-6.5 2.1z"/><path d="M12 6.2v13.2"/></svg></span><span class="menutext"><span class="menulabel">공부하기</span><span class="menusub">이어서 바로 공부</span></span><span class="menudot" aria-hidden="true"></span></button>
+<button class="menurow" data-menu="browse"><span class="menutile t-browse" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.4 21 8.3l-9 4.9L3 8.3l9-4.9z"/><path d="M3.9 12.9 12 17.3l8.1-4.4"/><path d="M3.9 16.9 12 21.3l8.1-4.4"/></svg></span><span class="menutext"><span class="menulabel">주제별</span><span class="menusub">주제 골라 보기</span></span><span class="menudot" aria-hidden="true" hidden></span></button>
+<button class="menurow" data-menu="words"><span class="menutile t-words" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.6" y="3.6" width="16.8" height="16.8" rx="3.6"/><path d="M8.4 16.6 12 8.6l3.6 8"/><path d="M9.8 13.7h4.4"/></svg></span><span class="menutext"><span class="menulabel">단어</span><span class="menusub">단어 모아 보기</span></span><span class="menudot" aria-hidden="true" hidden></span></button>
+<button class="menurow" data-menu="together"><span class="menutile t-together" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8.2" r="3.1"/><path d="M3.6 19.4c.6-3 2.7-4.6 5.4-4.6s4.8 1.6 5.4 4.6"/><circle cx="17.2" cy="9.2" r="2.5"/><path d="M16.9 14.9c2 .3 3.4 1.7 3.9 4"/></svg></span><span class="menutext"><span class="menulabel">Ensemble</span><span class="menusub">서로의 진도 보기</span></span><span class="menudot" aria-hidden="true" hidden></span></button>
+<button class="menurow" data-menu="about"><span class="menutile t-about" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.7" fill="currentColor" stroke="none"/></svg></span><span class="menutext"><span class="menulabel">더보기</span><span class="menusub">안내·공유·설정</span></span><span class="menudot" aria-hidden="true" hidden></span></button>
 <button class="menurow menuclose" id="menuCloseBtn">닫기</button>
 </div>
 </div>
@@ -388,12 +400,12 @@ summary{font-weight:800;cursor:pointer}
 
 <footer>
 <div class="footbrand"><span class="footlogo" aria-hidden="true">U</span><span class="footword">UNE PHRASE</span><span class="footko">한 문장 프랑스어</span></div>
-<div class="footmeta">v1.29.0 · © 2026 sidebatch</div>
+<div class="footmeta">v1.30.0 · © 2026 sidebatch</div>
 </footer>
 </div>
 <script>
 "use strict";
-const APP_VERSION = "1.29.0";
+const APP_VERSION = "1.30.0";
 const STORAGE_KEY = "une-phrase-progress-v1";
 const SUPABASE_URL = "https://cmhitsgoicxvmlwtrdrb.supabase.co";
 const SUPABASE_KEY = "sb_publishable_iZugJ1l1p3DSk_BB2Y3N3Q_qZwSo637";
@@ -727,17 +739,25 @@ function countToday(p){ if(!p||!p.doneDates) return 0; return p.doneDates.filter
 const LEVELS = [
   { lv:1, title:"문장 새싹", at:0 },
   { lv:2, title:"문장 걸음마", at:30 },
-  { lv:3, title:"문장 수집가", at:80 },
-  { lv:4, title:"문장 탐험가", at:160 },
-  { lv:5, title:"문장 연금술사", at:280 },
-  { lv:6, title:"문장 기사", at:450 },
-  { lv:7, title:"문장 현자", at:700 },
-  { lv:8, title:"문장 대가", at:1050 },
-  { lv:9, title:"문장 장인", at:1550 },
-  { lv:10, title:"문장 전설", at:2300 }
+  { lv:3, title:"문장 수집가", at:90 },
+  { lv:4, title:"문장 탐험가", at:190 },
+  { lv:5, title:"문장 연금술사", at:350 },
+  { lv:6, title:"문장 기사", at:590 },
+  { lv:7, title:"문장 현자", at:940 },
+  { lv:8, title:"문장 대가", at:1420 },
+  { lv:9, title:"문장 장인", at:2080 },
+  { lv:10, title:"문장 전설", at:2900 }
 ];
 const LEVEL_MEDALS = ["🌱","🌿","🍀","🥉","🥈","🥇","💎","🔥","⭐","👑"];
 function medalOf(lv){ return LEVEL_MEDALS[lv-1] || ""; }
+function maskEmail(email){
+  const e = String(email || "");
+  const at = e.indexOf("@");
+  if(at < 1) return e;
+  const name = e.slice(0, at);
+  const keep = name.length <= 2 ? name.slice(0, 1) : name.slice(0, 2);
+  return keep + "***" + e.slice(at);
+}
 function xpOf(completedCount, reviewCorrect){ return (completedCount||0)*10 + (reviewCorrect||0)*5; }
 function levelOf(xp){
   let cur = LEVELS[0], next = null;
@@ -847,22 +867,83 @@ function renderVaultState(){
   const b=document.getElementById("vaultFooter"); if(b) b.textContent = txt;
 }
 
-/* ---------- 음성 (Android 경합 방지: cancel 후 짧게 대기) ---------- */
-let speakTimer = null;
-function speakFr(text, rate){
+/* ---------- 아이콘 (인라인 SVG) ---------- */
+const SPEAKER_SVG = '<svg class="btnicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5.2 6.6 9H4v6h2.6L11 18.8V5.2z" fill="currentColor" stroke="none"/><path d="M15.2 9.4a3.7 3.7 0 0 1 0 5.2"/><path d="M17.8 6.9a7.3 7.3 0 0 1 0 10.2"/></svg>';
+const SPEAKER_SLOW_SVG = '<svg class="btnicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5.2 6.6 9H4v6h2.6L11 18.8V5.2z" fill="currentColor" stroke="none"/><path d="M15.2 9.4a3.7 3.7 0 0 1 0 5.2"/><text x="14.6" y="20.2" font-size="6.4" font-weight="800" fill="currentColor" stroke="none">0.7</text></svg>';
+const PERSON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M5.2 19.8c.8-3.6 3.4-5.4 6.8-5.4s6 1.8 6.8 5.4"/></svg>';
+const PEOPLE_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8.2" r="3.1"/><path d="M3.6 19.4c.6-3 2.7-4.6 5.4-4.6s4.8 1.6 5.4 4.6"/><circle cx="17.2" cy="9.2" r="2.5"/><path d="M16.9 14.9c2 .3 3.4 1.7 3.9 4"/></svg>';
+
+/* ---------- 음성 (캐시·로컬 우선·즉시 재생) ---------- */
+let voiceCache = [];
+let speakBtn = null;
+let speakSafetyTimer = null;
+let speakWaitTimer = null;
+let speakSeq = 0;
+function refreshVoices(){
   try{
     if(!("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
-    if(speakTimer) clearTimeout(speakTimer);
-    speakTimer = setTimeout(()=>{
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = "fr-FR"; u.rate = (typeof rate === "number") ? rate : 1.0;
-      const voices = window.speechSynthesis.getVoices().filter(v=>v.lang && v.lang.toLowerCase().startsWith("fr"));
-      if(voices.length) u.voice = voices[0];
-      window.speechSynthesis.speak(u);
-    }, 120);
+    const list = window.speechSynthesis.getVoices() || [];
+    if(list.length) voiceCache = list;
   }catch(e){}
 }
+function pickFrVoice(voices){
+  const fr = (voices || []).filter(v=>v && v.lang && String(v.lang).toLowerCase().startsWith("fr"));
+  if(!fr.length) return null;
+  for(let i=0;i<fr.length;i++){ if(fr[i].localService) return fr[i]; }
+  return fr[0];
+}
+function clearSpeakingUI(){
+  if(speakBtn && speakBtn.classList) speakBtn.classList.remove("playing");
+  speakBtn = null;
+  if(speakSafetyTimer){ clearTimeout(speakSafetyTimer); speakSafetyTimer = null; }
+}
+function speakFr(text, rate, btn){
+  try{
+    if(!("speechSynthesis" in window)) return;
+    const ss = window.speechSynthesis;
+    const busy = !!(ss.speaking || ss.pending);
+    ss.cancel();
+    if(speakWaitTimer) clearTimeout(speakWaitTimer);
+    const go = ()=>{
+      speakWaitTimer = null;
+      if(typeof ss.resume === "function") ss.resume();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "fr-FR"; u.rate = (typeof rate === "number") ? rate : 1.0;
+      const voice = pickFrVoice(voiceCache.length ? voiceCache : (typeof ss.getVoices === "function" ? ss.getVoices() : []));
+      if(voice) u.voice = voice;
+      const seq = ++speakSeq;
+      clearSpeakingUI();
+      if(btn && btn.classList){ btn.classList.add("playing"); speakBtn = btn; }
+      const finish = ()=>{ if(seq === speakSeq) clearSpeakingUI(); };
+      u.onend = finish;
+      u.onerror = finish;
+      speakSafetyTimer = setTimeout(finish, Math.min(40000, Math.max(3000, Math.round(String(text).length * 130 / u.rate) + 2500)));
+      ss.speak(u);
+    };
+    if(busy) speakWaitTimer = setTimeout(go, 40);
+    else go();
+  }catch(e){}
+}
+refreshVoices();
+try{
+  if("speechSynthesis" in window && typeof window.speechSynthesis.addEventListener === "function")
+    window.speechSynthesis.addEventListener("voiceschanged", refreshVoices);
+}catch(e){}
+let speechWarmed = false;
+function warmUpSpeech(){
+  if(speechWarmed) return;
+  speechWarmed = true;
+  try{
+    if(!("speechSynthesis" in window)) return;
+    const u = new SpeechSynthesisUtterance("a");
+    u.volume = 0; u.lang = "fr-FR";
+    window.speechSynthesis.speak(u);
+  }catch(e){}
+}
+try{
+  if(typeof window.addEventListener === "function")
+    window.addEventListener("pointerdown", warmUpSpeech, { once:true });
+}catch(e){}
 
 /* ---------- 효과음 (WebAudio, 파일 없음) ---------- */
 let audioCtx = null;
@@ -926,14 +1007,15 @@ function renderProgress(){
   document.getElementById("progressPct").textContent = "전체 "+pct+"%";
   document.getElementById("progressLeft").textContent = doneCount>=total ? "전부 완료했어요" : (total-doneCount)+"문장 남음";
   const lv = levelOf(xpOf(doneCount, progress.reviewCorrect||0));
-  document.getElementById("lvLabel").textContent = "Lv."+lv.lv+" "+lv.title;
+  document.getElementById("lvLabel").textContent = medalOf(lv.lv)+" Lv."+lv.lv+" "+lv.title;
   document.getElementById("lvNext").textContent = lv.nextAt===null ? "최고 레벨" : "다음 레벨까지 "+lv.toNext+" XP";
   requestAnimationFrame(()=>{ document.getElementById("lvFill").style.width = lv.pct+"%"; });
   document.getElementById("lvBar").setAttribute("aria-valuenow", lv.pct);
 }
-function slowListenBtnHtml(){ return '<button class="ghost" id="slowListenBtn">🐢 느리게 듣기</button>'; }
+function slowListenBtnHtml(){ return '<button class="ghost" id="slowListenBtn">'+SPEAKER_SLOW_SVG+'느리게 듣기</button>'; }
 function renderStudy(){
   completionInFlight = false;
+  clearSpeakingUI();
   const it = currentItem();
   const done = progress.completed.includes(it.id);
   let h = "";
@@ -944,12 +1026,12 @@ function renderStudy(){
     h += '<div>'+it.chunks.map(c=>'<span class="chunk"><b>'+esc(c[0])+'</b><span>'+esc(c[1])+'</span></span>').join("")+'</div>';
     h += '<div class="pattern">'+esc(it.pattern)+'</div>';
     h += '<div class="words">핵심 단어: '+it.words.map(w=>'<b>'+esc(w[0])+'</b> '+esc(w[1])).join(" · ")+'</div>';
-    h += '<div class="btnrow"><button class="ghost" id="listenBtn">🔊 듣기</button>'+slowListenBtnHtml()+'<button class="primary" id="goStep2">따라 쓰기</button></div>';
+    h += '<div class="btnrow"><button class="ghost" id="listenBtn">'+SPEAKER_SVG+'듣기</button>'+slowListenBtnHtml()+'<button class="primary" id="goStep2">따라 쓰기</button></div>';
   } else if(currentStep===2){
     h += '<div class="fr">'+esc(it.fr)+'</div><p class="ko">'+esc(it.ko)+'</p>';
     h += '<p class="lead">위 문장을 보면서 그대로 타이핑하세요.</p>';
     h += '<textarea id="typeInput" rows="3" placeholder="문장을 보면서 써 보세요" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><div class="wordprog" id="wordProg" aria-live="polite"></div><div id="fb"></div>';
-    h += '<div class="btnrow"><button class="primary" id="checkBtn">확인하기</button><button class="ghost" id="listenBtn">🔊 듣기</button>'+slowListenBtnHtml()+'</div>';
+    h += '<div class="btnrow"><button class="primary" id="checkBtn">확인하기</button><button class="ghost" id="listenBtn">'+SPEAKER_SVG+'듣기</button>'+slowListenBtnHtml()+'</div>';
     h += '<div class="backwrap"><button class="ghost" id="backBtn">← 뒤로</button></div>';
   } else {
     h += '<p class="ko" style="font-size:19px;font-weight:700">'+esc(it.ko)+'</p>';
@@ -959,8 +1041,8 @@ function renderStudy(){
   }
   document.getElementById("studyCard").innerHTML = h;
   document.getElementById("doneBox").innerHTML = "";
-  const lb = document.getElementById("listenBtn"); if(lb) lb.onclick = ()=>speakFr(it.fr);
-  const slb = document.getElementById("slowListenBtn"); if(slb) slb.onclick = ()=>speakFr(it.fr, 0.7);
+  const lb = document.getElementById("listenBtn"); if(lb) lb.onclick = ()=>speakFr(it.fr, 1, lb);
+  const slb = document.getElementById("slowListenBtn"); if(slb) slb.onclick = ()=>speakFr(it.fr, 0.7, slb);
   const g2 = document.getElementById("goStep2"); if(g2) g2.onclick = ()=>{ setStep(2); renderStudy(); };
   const cb = document.getElementById("checkBtn"); if(cb) cb.onclick = checkTyping;
   bindWordProg("typeInput", "wordProg", it.fr);
@@ -989,6 +1071,7 @@ function checkTyping(){
 function completeSentence(){
   if(completionInFlight) return;
   completionInFlight = true;
+  clearSpeakingUI();
   const it = currentItem();
   const lvBefore = levelOf(xpOf(progress.completed.length, progress.reviewCorrect||0));
   let gained = 0;
@@ -1253,7 +1336,7 @@ function renderProfileBtn(){
     b.textContent = sbProfile.nickname.charAt(0);
     b.style.background = avatarBg(sbProfile.nickname);
   } else {
-    b.textContent = "👤";
+    b.innerHTML = PERSON_SVG;
     b.style.background = "";
   }
 }
@@ -1265,8 +1348,13 @@ function openProfile(){
 function closeProfile(){
   const ov = document.getElementById("profileOverlay"); if(ov) ov.hidden = true;
 }
+let emailShown = false;
 function renderProfile(){
   const el = document.getElementById("profileBody"); if(!el) return;
+  emailShown = false;
+  const emailBlock = (sbUser && sbUser.email)
+    ? '<div class="profileemail maskable" id="profileEmail" role="button" tabindex="0" title="탭하면 전체 보이기/가리기"><span id="profileEmailTxt">'+esc(maskEmail(sbUser.email))+'</span><span class="emailhint" id="profileEmailHint">탭하면 보이기</span></div>'
+    : '<div class="profileemail"></div>';
   const xp = xpOf(progress.completed.length, progress.reviewCorrect||0);
   const lv = levelOf(xp);
   const medalBlock = '<div class="profilemedal" aria-hidden="true">'+medalOf(lv.lv)+'</div><div class="profilelv">Lv.'+lv.lv+' '+esc(lv.title)+'</div>';
@@ -1275,20 +1363,26 @@ function renderProfile(){
     + '<div class="profilestats"><span>총 '+xp+' XP</span><span>완료 '+progress.completed.length+' / '+ITEMS.length+'문장</span><span>복습 맞힘 '+(progress.reviewCorrect||0)+'개</span></div>';
   let h = "";
   if(sbUser && sbProfile){
-    h += '<div class="profiletop">'+avatarHtml(sbProfile.nickname, true)+'<div><div class="profilename">'+esc(sbProfile.nickname)+'</div><div class="profileemail">'+esc(sbUser.email||"")+'</div></div></div>';
+    h += '<div class="profiletop">'+avatarHtml(sbProfile.nickname, true)+'<div><div class="profilename">'+esc(sbProfile.nickname)+'</div>'+emailBlock+'</div></div>';
     h += medalBlock + stats;
     h += '<div class="btnrow" style="margin-top:14px"><button class="ghost" id="profileLogoutBtn">로그아웃</button></div>';
   } else if(sbUser){
-    h += '<div class="profiletop"><span class="avatar big" style="background:var(--soft)" aria-hidden="true">👤</span><div><div class="profilename">닉네임이 없어요</div><div class="profileemail">'+esc(sbUser.email||"")+'</div></div></div>';
+    h += '<div class="profiletop"><span class="avatar big" style="background:var(--soft)" aria-hidden="true">'+PERSON_SVG+'</span><div><div class="profilename">닉네임이 없어요</div>'+emailBlock+'</div></div>';
     h += medalBlock + stats;
     h += '<div class="btnrow" style="margin-top:14px"><button class="primary" id="profileNickBtn">닉네임 정하기</button><button class="ghost" id="profileLogoutBtn">로그아웃</button></div>';
   } else {
-    h += '<div class="profiletop"><span class="avatar big" style="background:var(--soft)" aria-hidden="true">👤</span><div><div class="profilename">게스트</div><div class="profileemail">이 기기의 기록만 보여요</div></div></div>';
+    h += '<div class="profiletop"><span class="avatar big" style="background:var(--soft)" aria-hidden="true">'+PERSON_SVG+'</span><div><div class="profilename">게스트</div><div class="profileemail">이 기기의 기록만 보여요</div></div></div>';
     h += medalBlock + stats;
     h += '<p class="modaldesc" style="margin-top:12px">로그인하면 기록이 서버에도 보관되고, Ensemble에서 서로의 진도를 볼 수 있어요.</p>';
     h += '<button class="primary modalbtn" id="profileLoginBtn">구글로 시작하기</button>';
   }
   el.innerHTML = h;
+  const em = document.getElementById("profileEmail");
+  if(em) em.onclick = ()=>{
+    emailShown = !emailShown;
+    const t = document.getElementById("profileEmailTxt"); if(t) t.textContent = emailShown ? (sbUser.email||"") : maskEmail(sbUser.email);
+    const hint = document.getElementById("profileEmailHint"); if(hint) hint.textContent = emailShown ? "탭하면 가리기" : "탭하면 보이기";
+  };
   const lb = document.getElementById("profileLoginBtn"); if(lb) lb.onclick = ()=>{ sbLogin(); };
   const nb = document.getElementById("profileNickBtn"); if(nb) nb.onclick = ()=>{ closeProfile(); openNickModal(false); };
   const ob = document.getElementById("profileLogoutBtn"); if(ob) ob.onclick = ()=>{ closeProfile(); sbLogout(); };
@@ -1305,7 +1399,7 @@ async function renderTogether(){
   wireSbAuth();
   await sbCurrentUser();
   if(!sbUser){
-    el.innerHTML = '<div class="card herocard"><div class="heroicon" aria-hidden="true">👥</div><div class="herotitle">Ensemble</div><p class="ko">같이 공부하는 사람들과 서로의 레벨과 완료 문장을 볼 수 있어요. 보이는 건 닉네임뿐입니다.</p><button class="primary" id="sbLoginBtn">구글로 시작하기</button></div>';
+    el.innerHTML = '<div class="card herocard"><div class="heroicon" aria-hidden="true">'+PEOPLE_SVG+'</div><div class="herotitle">Ensemble</div><p class="ko">같이 공부하는 사람들과 서로의 레벨과 완료 문장을 볼 수 있어요. 보이는 건 닉네임뿐입니다.</p><button class="primary" id="sbLoginBtn">구글로 시작하기</button></div>';
     const lb = document.getElementById("sbLoginBtn"); if(lb) lb.onclick = sbLogin;
     return;
   }
@@ -1442,6 +1536,7 @@ function goMenu(name){
   else if(name === "about"){ showTab("about"); }
 }
 function showTab(name){
+  clearSpeakingUI();
   if(name !== "about" && (resetStage !== 0 || resetDoneMsg)){ resetStage = 0; resetDoneMsg = false; renderResetZone(); }
   currentTab = name;
   ["study","browse","words","together","about"].forEach(t=>{ document.getElementById("tab-"+t).hidden = t!==name; });
@@ -1474,7 +1569,7 @@ function renderWords(){
     const isLearned = learned.has(e[0]);
     return '<button class="listitem worditem'+(isLearned?" learned":"")+'" data-word="'+esc(e[0])+'"><span class="wtext"><b>'+esc(e[0])+'</b> — '+esc(e[1])+'</span>'+(isLearned?'<span class="wlearned">✓ 학습</span>':'')+'</button>';
   }).join("");
-  document.querySelectorAll("[data-word]").forEach(b=>b.onclick=()=>speakFr(b.getAttribute("data-word")));
+  document.querySelectorAll("[data-word]").forEach(b=>b.onclick=()=>speakFr(b.getAttribute("data-word"), 1, b));
 }
 
 /* ---------- 이벤트 ---------- */

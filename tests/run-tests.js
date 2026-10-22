@@ -98,7 +98,9 @@ ok(xpOf(0,0)===0 && xpOf(1,0)===10 && xpOf(0,1)===5 && xpOf(286,0)===2860, "XP �
 ok(LEVELS.length===10 && LEVELS.every(l=>l.title && l.title.trim()), "레벨 10단계, 칭호 있음");
 ok(LEVELS.every((l,i)=> i===0 ? l.at===0 : l.at>LEVELS[i-1].at), "레벨 임계값 오름차순, Lv.1은 0 XP");
 ok(levelOf(0).lv===1 && levelOf(LEVELS[1].at-1).lv===1 && levelOf(LEVELS[1].at).lv===2, "레벨 경계 판정");
-ok(levelOf(xpOf(286,0)).lv>=9, "전 문장 완료(2860 XP) 시 Lv.9 이상 (실제 Lv."+levelOf(xpOf(286,0)).lv+")");
+ok(LEVELS.map(l=>l.at).join(",") === "0,30,90,190,350,590,940,1420,2080,2900", "레벨 임계값: v1.30.0 곡선 (간격 30→60→100→160→240→350→480→660→820)");
+ok(LEVELS.every((l,i)=> i<2 ? true : (l.at-LEVELS[i-1].at) > (LEVELS[i-1].at-LEVELS[i-2].at)), "레벨 곡선: 레벨 간 필요 XP 간격이 단조 증가");
+ok(levelOf(xpOf(286,0)).lv===9 && levelOf(xpOf(286,8)).lv===10, "레벨 도달: 전 문장 완료(2860 XP)는 Lv.9, 복습 8개(+40 XP) 더하면 Lv.10");
 ok(levelOf(99999).nextAt===null && levelOf(99999).toNext===0 && levelOf(99999).pct===100, "최고 레벨: 다음 레벨 없음");
 { const mid = levelOf(100); ok(mid.nextAt!==null && mid.toNext===mid.nextAt-100 && mid.pct>0 && mid.pct<100, "중간 레벨: 남은 XP·진행률 계산"); }
 { const fakeItems = [{id:1,topic:"일상"},{id:2,topic:"일상"},{id:3,topic:"건강"}];
@@ -194,10 +196,13 @@ const smokePrelude = [
   'function renderBrowse(){}',
   'function renderWords(){}',
   'function playSound(){}',
-  'function speakFr(){}'
+  'function speakFr(){}',
+  'function clearSpeakingUI(){}'
 ].join("\n");
 const smokeFns = [
   escSrc, swSrc, dwSrc,
+  html.match(/const SPEAKER_SVG = [^\n]*/)[0],
+  html.match(/const SPEAKER_SLOW_SVG = [^\n]*/)[0],
   html.match(/function slowListenBtnHtml\(\)[^\n]*/)[0],
   html.match(/function openMenu\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function closeMenu\(\)\{[\s\S]*?\n\}/)[0],
@@ -394,27 +399,57 @@ ok(!rsSrc2.includes("applyFocus") && !csSrc2.includes("applyFocus") && !csSrc2.i
 ok(!html.includes('id="prevBtn"') && !html.includes('id="nextBtn"'), "공부하기 하단: 이전/다음 문장 버튼 제거됨 (문장 고르기는 주제별 탭)");
 ok(!html.includes('id="listenBtn2"') && !html.includes("다시 듣기"), "공부하기 하단: 중복 다시 듣기 버튼 제거됨 (카드 안 듣기로 충분)");
 ok(!html.includes("progress.slow") && !html.includes("speakRate") && !html.includes("🐢 느리게 0.8배속") && !html.includes("slowbtn"), "느리게 듣기: 토글 칩·속도 설정 저장·speakRate가 모두 제거됨 (v1.23.0)");
-ok(html.includes("🐢 느리게 듣기") && html.includes('id="slowListenBtn"'), "느리게 듣기: 누를 때만 0.7배속으로 1회 재생하는 버튼 있음");
+ok(html.match(/function slowListenBtnHtml\(\)[^\n]*/)[0].includes("SPEAKER_SLOW_SVG") && html.match(/function slowListenBtnHtml\(\)[^\n]*/)[0].includes("느리게 듣기") && html.includes('id="slowListenBtn"'), "느리게 듣기: 누를 때만 0.7배속으로 1회 재생하는 버튼 있음 (스피커 SVG)");
 ok(html.includes('u.rate = (typeof rate === "number") ? rate : 1.0;'), "느리게 듣기: speakFr가 명시 속도 인자를 받고 기본값은 1.0");
-ok(rsSrc2.includes("slowListenBtnHtml()") && rsSrc2.includes("speakFr(it.fr, 0.7)"), "느리게 듣기: 읽어보기·따라 쓰기에 버튼이 있고 0.7 인자로 speakFr를 호출");
-// speakFr 속도 스텁: speechSynthesis를 흉내내 발화 객체의 rate를 직접 확인
-const sfSrc = html.match(/function speakFr\(text, rate\)[\s\S]*?\n\}/)[0];
+ok(rsSrc2.includes("slowListenBtnHtml()") && rsSrc2.includes("speakFr(it.fr, 0.7, slb)") && rsSrc2.includes("speakFr(it.fr, 1, lb)"), "느리게 듣기: 읽어보기·따라 쓰기에 버튼이 있고 0.7 인자+버튼으로 speakFr를 호출 (듣기는 1배속+버튼)");
+// speakFr 스모크: 음성 캐시·로컬 우선·속도·재생 중 표시·대기 경로를 스텁으로 확인
+const pickVoiceSrc = html.match(/function pickFrVoice\(voices\)\{[\s\S]*?\n\}/)[0];
+eval(pickVoiceSrc);
+ok(pickFrVoice([]) === null && pickFrVoice([{lang:"en-US",localService:true}]) === null, "음성 선택: fr 음성이 없으면 null");
+ok(pickFrVoice([{lang:"fr-FR",localService:false},{lang:"fr-CA",localService:true}]).lang === "fr-CA", "음성 선택: 로컬 fr 음성을 네트워크 음성보다 우선");
+ok(pickFrVoice([{lang:"fr-FR",localService:false}]).lang === "fr-FR", "음성 선택: 로컬이 없으면 첫 fr 음성");
+const clearUiSrc = html.match(/function clearSpeakingUI\(\)\{[\s\S]*?\n\}/)[0];
+const sfSrc = html.match(/function speakFr\(text, rate, btn\)\{[\s\S]*?\n\}/)[0];
 const sfPrelude = [
   'const sfUtterances = [];',
-  'function SpeechSynthesisUtterance(t){ this.text = t; this.lang = ""; this.rate = 1; this.voice = null; }',
-  'const window = { speechSynthesis: { cancel(){}, getVoices(){ return []; }, speak(u){ sfUtterances.push(u); } } };',
-  'const setTimeout = (fn)=>{ fn(); return 0; };',
+  'const sfTimers = [];',
+  'function SpeechSynthesisUtterance(t){ this.text = t; this.lang = ""; this.rate = 1; this.voice = null; this.volume = 1; }',
+  'const sfNetVoice = { lang:"fr-FR", localService:false };',
+  'const sfLocalVoice = { lang:"fr-FR", localService:true };',
+  'const window = { speechSynthesis: { speaking:false, pending:false, cancel(){}, resume(){}, getVoices(){ return [sfNetVoice]; }, speak(u){ sfUtterances.push(u); } } };',
+  'const setTimeout = (fn, ms)=>{ sfTimers.push(fn); return sfTimers.length; };',
   'const clearTimeout = ()=>{};',
-  'let speakTimer = null;'
+  'let voiceCache = [];',
+  'let speakBtn = null;',
+  'let speakSafetyTimer = null;',
+  'let speakWaitTimer = null;',
+  'let speakSeq = 0;'
 ].join("\n");
-eval(sfPrelude + "\n" + sfSrc + "\n" + [
+eval(sfPrelude + "\n" + clearUiSrc + "\n" + sfSrc + "\n" + [
   'speakFr("Bonjour.");',
   'ok(sfUtterances.length === 1 && sfUtterances[0].rate === 1.0 && sfUtterances[0].lang === "fr-FR", "듣기 스모크: 인자 없이 부르면 1.0배속 발화");',
+  'ok(sfUtterances[0].voice === sfNetVoice, "듣기 스모크: 캐시가 비어 있으면 getVoices의 fr 음성 사용");',
+  'voiceCache = [sfLocalVoice];',
   'speakFr("Bonjour.", 0.7);',
-  'ok(sfUtterances.length === 2 && sfUtterances[1].rate === 0.7, "느리게 듣기 스모크: 0.7 인자를 주면 그 발화만 0.7배속");',
+  'ok(sfUtterances.length === 2 && sfUtterances[1].rate === 0.7 && sfUtterances[1].voice === sfLocalVoice, "느리게 듣기 스모크: 0.7배속 + 캐시의 로컬 음성 우선");',
   'speakFr("Bonjour.");',
-  'ok(sfUtterances.length === 3 && sfUtterances[2].rate === 1.0, "느리게 듣기 스모크: 다음 일반 듣기는 다시 1.0배속 (토글 아님, 상태 없음)");'
+  'ok(sfUtterances.length === 3 && sfUtterances[2].rate === 1.0, "느리게 듣기 스모크: 다음 일반 듣기는 다시 1.0배속 (토글 아님, 상태 없음)");',
+  'const fakeBtn = { classes:{} };',
+  'fakeBtn.classList = { add(c){ fakeBtn.classes[c] = true; }, remove(c){ delete fakeBtn.classes[c]; } };',
+  'speakFr("Bonjour.", 1, fakeBtn);',
+  'ok(fakeBtn.classes.playing === true, "재생 표시 스모크: 발화 시작 시 누른 버튼에 playing 클래스");',
+  'sfUtterances[3].onend();',
+  'ok(fakeBtn.classes.playing !== true, "재생 표시 스모크: 발화 종료(onend) 시 playing 해제");',
+  'window.speechSynthesis.speaking = true;',
+  'const beforeBusy = sfUtterances.length;',
+  'speakFr("Bonjour.");',
+  'ok(sfUtterances.length === beforeBusy, "듣기 지연 스모크: 재생 중이면 즉시 speak하지 않고 짧게 대기");',
+  'sfTimers[sfTimers.length-1]();',
+  'ok(sfUtterances.length === beforeBusy + 1, "듣기 지연 스모크: 대기 타이머가 돌면 발화 시작");',
+  'window.speechSynthesis.speaking = false;'
 ].join("\n"));
+ok(sfSrc.includes("ss.resume") && sfSrc.includes("ss.speaking || ss.pending") && sfSrc.includes("40") && !sfSrc.includes("120"), "듣기 지연: speak 직전 resume 호출 + 재생 중일 때만 40ms 대기 (고정 120ms 대기 제거)");
+ok(html.includes('"voiceschanged"') && html.includes("refreshVoices();") && html.includes("function warmUpSpeech()") && html.includes('"pointerdown"'), "음성 캐시·예열: voiceschanged로 캐시 갱신, 시작 시 미리 읽기, 첫 pointerdown에 무음 발화로 예열");
 ok(/\.btnrow\{[^}]*display:flex[^}]*gap:12px/.test(html), "간격: 카드 안 버튼 묶음은 flex gap 12px (.btnrow)");
 ok(!/stepnav/.test(html) && /\.tabbtn\{/.test(html), "간격·정리: 단계 탭 행 없음, 주제 필터 칩(.tabbtn) 스타일은 유지");
 ok(/\.resetbtns\{[^}]*gap:12px/.test(html), "간격: 초기화 확인 버튼 gap 12px");
@@ -464,10 +499,13 @@ const flPrelude = [
   'function applyFocus(){}',
   'function playSound(){}',
   'function speakFr(){}',
+  'function clearSpeakingUI(){}',
   'function completeSentence(){}'
 ].join("\n");
 const flFns = [
   escSrc, swSrc, dwSrc, normSrc, corrSrc, chSrc, whSrc,
+  html.match(/const SPEAKER_SVG = [^\n]*/)[0],
+  html.match(/const SPEAKER_SLOW_SVG = [^\n]*/)[0],
   html.match(/function slowListenBtnHtml\(\)[^\n]*/)[0],
   html.match(/function setStep\(n\)\{[^}]*\}/)[0],
   html.match(/function currentItem\(\)\{[^}]*\}/)[0],
@@ -817,13 +855,29 @@ ok(html.includes('getElementById("profileBtn").onclick') && html.includes("funct
 const rpSrc = html.match(/function renderProfile\(\)\{[\s\S]*?\n\}/)[0];
 ok(rpSrc.includes("medalOf(lv.lv)") && rpSrc.includes("profilemedal") && rpSrc.includes("다음 레벨까지") && rpSrc.includes("복습 맞힘"), "내 정보: 메달 크게 + 다음 레벨까지 진행 바 + 복습 맞힘 수 표시");
 ok(rpSrc.includes("게스트") && rpSrc.includes('id="profileLoginBtn"') && rpSrc.includes("구글로 시작하기") && rpSrc.includes("sbLogin()"), "내 정보: 비로그인이면 게스트로 로컬 통계를 보여주고, 그 자리에서 구글로 시작하기(지연 로드+OAuth) 실행");
-ok(rpSrc.includes("sbUser.email") && rpSrc.includes("profileemail") && rpSrc.includes('id="profileLogoutBtn"') && rpSrc.includes("로그아웃"), "내 정보: 로그인 상태면 본인 확인용 이메일(작게)과 로그아웃 버튼 표시");
+ok(rpSrc.includes("sbUser.email") && rpSrc.includes("profileemail") && rpSrc.includes('id="profileLogoutBtn"') && rpSrc.includes("로그아웃"), "내 정보: 로그인 상태면 마스킹된 이메일과 로그아웃 버튼 표시");
 ok(html.includes("function renderProfileBtn()") && html.includes("renderProfileBtn();"), "내 정보: 로그인·닉네임 상태가 바뀌면 헤더 아바타(닉네임 첫 글자/👤)도 갱신됨");
 ok(html.includes('<span class="menulabel">더보기</span>') && !html.includes('<span class="menulabel">설명</span>'), "더보기: 메뉴 라벨이 '설명'에서 '더보기'로 교체됨");
 ok(!html.includes("이 문장들이 TEF Canada와 어떻게 연결되나요") && html.includes("특정 시험 전용이 아니라, 일상에서 바로 쓰는 프랑스어 문장을 익히는 앱이에요"), "더보기: TEF 연결 섹션은 삭제되고 일상 프랑스어 앱이라는 한 줄로 교체");
 ok(html.includes("기록은 이 기기에 저장되고, 로그인하면 서버에도 보관돼 기기를 바꿔도 이어서 공부할 수 있어요") && !html.includes("그 경우를 막을 완전한 방법은 아직 없습니다"), "더보기: 기록 보관 설명이 기기 저장 + 로그인 시 서버 보관으로 짧게 현행화");
 ok(html.includes("<summary>Ensemble</summary>") && html.includes("서로의 레벨과 완료 문장을 볼 수 있어요"), "더보기: Ensemble 안내 한 줄이 있음");
 ok(html.includes("<summary>어떻게 쓰나요</summary>") && html.includes("한 문장을 3단계로 외우는 앱이에요"), "더보기: 사용법이 3단계 한 줄로 단축됨");
+
+console.log("\n[듣기 개선·이메일 가리기·레벨 곡선·SVG 아이콘 (v1.30.0)]");
+const maskSrc = html.match(/function maskEmail\(email\)\{[\s\S]*?\n\}/)[0];
+eval(maskSrc);
+ok(maskEmail("going123@gmail.com") === "go***@gmail.com", "이메일 가리기: 아이디 앞 2글자만 남기고 마스킹 (go***@gmail.com)");
+ok(maskEmail("ab@example.com") === "a***@example.com" && maskEmail("a@example.com") === "a***@example.com", "이메일 가리기: 짧은 아이디는 1글자만 남김");
+ok(maskEmail("") === "" && maskEmail("no-at-sign") === "no-at-sign", "이메일 가리기: 이메일 형식이 아니면 그대로 반환");
+ok(rpSrc.includes("maskEmail(sbUser.email)") && rpSrc.includes('id="profileEmail"') && rpSrc.includes('id="profileEmailTxt"') && rpSrc.includes("탭하면 보이기") && rpSrc.includes("탭하면 가리기"), "내 정보: 이메일은 마스킹이 기본값, 탭하면 전체 표시/다시 가리기 토글 + 힌트 문구");
+ok(html.includes('getElementById("lvLabel").textContent = medalOf(lv.lv)+'), "첫 화면: 공부하기 레벨 표시줄에 현재 레벨 메달 함께 표시");
+ok(html.includes("button.ghost.playing") && html.includes(".worditem.playing"), "재생 표시: 재생 중 버튼 스타일(.playing)이 듣기 버튼과 단어 버튼에 정의됨");
+ok(rsSrc2.includes("clearSpeakingUI();") && stSrc2.includes("clearSpeakingUI();"), "재생 표시: 단계·화면이 바뀌면 재생 중 표시 해제");
+ok(["t-study","t-browse","t-words","t-together","t-about"].every(c=>html.includes('menutile '+c+'" aria-hidden="true"><svg')), "아이콘: 메뉴 타일 5종이 모두 인라인 SVG로 교체됨");
+ok(!html.includes("📖") && !html.includes("🗂️") && !html.includes("🔤") && !html.includes("ℹ️"), "아이콘: 메뉴 타일의 기존 이모지 제거됨");
+ok(html.includes("const SPEAKER_SVG") && html.includes("const SPEAKER_SLOW_SVG") && !html.includes("🔊") && !html.includes("🐢"), "아이콘: 듣기·느리게 듣기 버튼이 스피커 SVG로 교체됨 (파형 수·0.7 표기로 구분)");
+ok(html.includes("const PERSON_SVG") && html.includes("const PEOPLE_SVG") && !html.includes("👤"), "아이콘: 게스트 아바타·Ensemble 히어로가 사람 실루엣 SVG로 교체됨");
+ok(html.includes("PERSON_SVG") && html.match(/function renderProfileBtn\(\)\{[\s\S]*?\n\}/)[0].includes("PERSON_SVG"), "아이콘: 헤더 아바타 버튼의 게스트 표시도 PERSON_SVG 사용");
 
 console.log("\n결과: PASS " + pass + " / FAIL " + fail);
 process.exit(fail ? 1 : 0);
