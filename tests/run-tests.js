@@ -222,7 +222,7 @@ const smokeDriver = [
   'currentStep = 3;',
   'renderStudy();',
   'ok(STUB_ELS["tabBar"].hidden === true, "포커스 스모크: 공부 중에는 탭 바가 숨겨짐");',
-  'ok(STUB_ELS["menuBtn"].hidden === false, "메뉴 스모크: 공부 중에는 메뉴 버튼이 보임");',
+  'ok(!documentStub.getElementById("menuBtn").hidden, "메뉴 스모크: 헤더 메뉴 버튼은 공부 중에도 항상 보임");',
   'openMenu();',
   'ok(STUB_ELS["menuOverlay"].hidden === false, "메뉴 스모크: 메뉴 버튼을 누르면 패널이 열림");',
   'closeMenu();',
@@ -246,12 +246,12 @@ const smokeDriver = [
   'ok(xpOf(progress.completed.length, progress.reviewCorrect) === 10, "회귀: XP도 1회분 +10만 적립");',
   'ok(STUB_ELS["studyCard"].innerHTML === "", "회귀: 완료 후 학습 카드가 비어 있음");',
   'ok(STUB_ELS["tabBar"].hidden === false, "포커스 스모크: 완료 화면(쉬는 지점)에서는 탭 바가 보임");',
-  'ok(STUB_ELS["menuBtn"].hidden === true, "메뉴 스모크: 완료 화면에서는 메뉴 버튼도 숨겨짐");',
+  'ok(!documentStub.getElementById("menuBtn").hidden, "메뉴 스모크: 완료 화면에서도 헤더 메뉴 버튼은 그대로 보임");',
   'progress.completed = [ITEMS[0].id, ITEMS[1].id, ITEMS[2].id];',
   'progress.index = 0; currentStep = 1; completionShown = false;',
   'startQuiz();',
   'ok(!!quizItem, "스모크: 복습 퀴즈 출제됨");',
-  'ok(STUB_ELS["tabBar"].hidden === true && STUB_ELS["menuBtn"].hidden === false, "메뉴 스모크: 복습 퀴즈 중에도 탭 바 숨김, 메뉴 버튼 표시");',
+  'ok(STUB_ELS["tabBar"].hidden === true && !documentStub.getElementById("menuBtn").hidden, "메뉴 스모크: 복습 퀴즈 중에도 탭 바 숨김, 헤더 메뉴 버튼 표시");',
   'STUB_ELS["quizInput"].value = quizItem.fr;',
   'const rc0 = progress.reviewCorrect;',
   'checkQuiz(); checkQuiz();',
@@ -261,7 +261,13 @@ const smokeDriver = [
   'goMenu("words");',
   'ok(currentTab === "words" && STUB_ELS["tabBar"].hidden === false && STUB_ELS["menuOverlay"].hidden === true, "메뉴 스모크: 메뉴에서 단어를 고르면 단어 탭으로 이동, 메뉴는 닫히고 탭 바가 보임");',
   'showTab("study");',
-  'ok(STUB_ELS["tabBar"].hidden === true && STUB_ELS["menuBtn"].hidden === false, "메뉴 스모크: 공부하기로 돌아오면 다시 몰입 (탭 바 숨김·메뉴 버튼 표시)");'
+  'ok(STUB_ELS["tabBar"].hidden === true && !documentStub.getElementById("menuBtn").hidden, "메뉴 스모크: 공부하기로 돌아오면 다시 몰입 (탭 바 숨김·헤더 메뉴 버튼 표시)");',
+  'goMenu("words");',
+  'ok(currentTab === "words" && STUB_ELS["tabBar"].hidden === false, "메뉴 스모크: 메뉴로 단어 탭에 가면 탭 바가 보임");',
+  'openMenu(); goMenu("about");',
+  'ok(currentTab === "about" && STUB_ELS["menuOverlay"].hidden === true, "메뉴 스모크: 단어 탭에서 메뉴를 열어 설명 탭으로 이동할 수 있음");',
+  'goMenu("study");',
+  'ok(currentTab === "study" && STUB_ELS["tabBar"].hidden === true, "메뉴 스모크: 메뉴의 공부하기를 고르면 공부 탭으로 이동해 다시 몰입");'
 ].join("\n");
 eval(smokePrelude + "\n" + lvArrSrc + "\n" + lvlSrc + "\n" + xpSrc2 + "\n" + qpSrc + "\n" + normSrc + "\n" + corrSrc + "\n" + smokeFns + "\n" + smokeDriver);
 
@@ -384,9 +390,9 @@ const ifSrc = html.match(/function inFocus\(\)[^\n]*/)[0];
 const afSrc = html.match(/function applyFocus\(\)[\s\S]*?\n\}/)[0];
 const stSrc2 = html.match(/function showTab\(name\)\{[\s\S]*?\n\}/)[0];
 ok(ifSrc.includes('currentTab === "study"') && ifSrc.includes("!completionShown"), "포커스 판정: 공부하기 탭 + 완료 화면이 아닐 때만 몰입");
-ok(afSrc.includes('getElementById("tabBar")') && afSrc.includes('getElementById("menuBtn")'), "포커스 적용: 탭 바와 메뉴 버튼 표시를 함께 토글");
+ok(afSrc.includes('getElementById("tabBar")') && !afSrc.includes("menuBtn"), "포커스 적용: 탭 바만 토글하고, 헤더 메뉴 버튼은 건드리지 않음 (전역 상시 표시)");
 const gmSrc = html.match(/function goMenu\(name\)\{[\s\S]*?\n\}/)[0];
-ok(gmSrc.includes("closeMenu()") && gmSrc.includes('showTab("browse")') && gmSrc.includes('showTab("words")') && gmSrc.includes('showTab("about")'), "메뉴 선택: 메뉴를 닫고 해당 탭으로 이동 (공부하기는 닫기만 하고 공부 상태 유지)");
+ok(gmSrc.includes("closeMenu()") && gmSrc.includes('showTab("study")') && gmSrc.includes('showTab("browse")') && gmSrc.includes('showTab("words")') && gmSrc.includes('showTab("about")'), "메뉴 선택: 메뉴를 닫고 고른 탭으로 이동 (어느 화면에서 열어도 네 탭 모두 이동 가능)");
 ok(html.includes('getElementById("menuBtn").onclick') && html.includes('getElementById("menuCloseBtn").onclick') && html.includes('getElementById("menuBackdrop").onclick'), "메뉴: 메뉴 버튼·닫기·배경 클릭이 모두 연결됨");
 ok(html.includes('querySelectorAll("[data-menu]")'), "메뉴: 목적지 행 클릭이 goMenu로 연결됨");
 ok(stSrc2.includes("currentTab = name") && stSrc2.includes("applyFocus()"), "탭 전환 시 포커스 상태도 함께 갱신");
@@ -565,6 +571,35 @@ const shDriver = [
   'ok(SH_ELS.shareLink.hidden === false, "공유 스모크: 공유·클립보드가 모두 없으면 주소 텍스트 표시");'
 ].join("\n");
 eval(shPrelude + "\n" + shareConstSrc + "\n" + shareSrc + "\n" + shDriver);
+
+console.log("\n[단어 탭 안내 제거·줄바꿈·메뉴 전역화 (v1.24.0)]");
+ok(!html.includes("누르면 발음이 나옵니다") && !html.includes("학습 표시는 완료한"), "단어 탭: 발음·학습 표시 안내 문구가 완전히 제거됨");
+ok(/\.worditem \.wtext\{[^}]*min-width:0[^}]*overflow-wrap:anywhere/.test(html), "줄바꿈 QA: 단어 행 텍스트(.wtext)에 min-width:0 + overflow-wrap 규칙이 있어 긴 단어도 행 안에서 꺾임");
+ok(/\.li-body\{[^}]*overflow-wrap:anywhere/.test(html), "줄바꿈 QA: 주제별 행 본문(.li-body)에도 overflow-wrap 규칙 (같은 부류의 넘침 방지)");
+ok(html.includes('class="wtext"'), "단어 행: 텍스트가 .wtext로 감싸져 렌더됨");
+ok(!html.includes("focusbar") && !html.includes("Focusbar"), "메뉴 전역화: 공부 전용 포커스 바(focusbar) 마크업·CSS 제거됨");
+ok(html.indexOf('id="menuBtn"') > html.indexOf('class="brandrow"') && html.indexOf('id="menuBtn"') < html.indexOf("</header>"), "메뉴 전역화: 메뉴 버튼이 헤더(brandrow) 안에 있음 — 모든 화면에서 보임");
+ok(html.indexOf('id="menuOverlay"') < html.indexOf('id="tab-study"'), "메뉴 전역화: 메뉴 패널이 공부 탭 밖(전역)에 있어 어느 탭에서도 열림");
+ok((html.match(/class="menuchip"/g) || []).length === 4, "메뉴: 네 행 모두 '지금 여기' 칩을 갖고 있고, 여는 위치에 따라 표시가 바뀜");
+const omSrc = html.match(/function openMenu\(\)\{[\s\S]*?\n\}/)[0];
+ok(omSrc.includes('querySelectorAll(".menuchip")') && omSrc.includes("currentTab"), "메뉴: 열 때 현재 탭에 맞춰 '지금 여기' 칩을 다시 맞춤");
+// '지금 여기' 칩 스모크: 현재 탭이 단어일 때 열면 단어 행에만 칩이 보임
+const OM_CHIPS = [{ hidden: false }, { hidden: true }, { hidden: true }, { hidden: true }];
+const omDoc = {
+  getElementById(){ return { hidden: true, setAttribute(){} }; },
+  querySelectorAll(sel){ return sel === ".menuchip" ? OM_CHIPS : []; }
+};
+const omPrelude = [
+  'let menuOpen = false;',
+  'let currentTab = "words";',
+  'const document = omDoc;'
+].join("\n");
+eval(omPrelude + "\n" + omSrc + "\n" + [
+  'openMenu();',
+  'ok(OM_CHIPS[0].hidden === true && OM_CHIPS[1].hidden === true && OM_CHIPS[2].hidden === false && OM_CHIPS[3].hidden === true, "메뉴 스모크: 단어 탭에서 열면 \'지금 여기\'는 단어 행에만 표시");',
+  'currentTab = "about"; openMenu();',
+  'ok(OM_CHIPS[3].hidden === false && OM_CHIPS[2].hidden === true, "메뉴 스모크: 설명 탭에서 열면 \'지금 여기\'가 설명 행으로 이동");'
+].join("\n"));
 
 console.log("\n[버전·파일]");
 const ver = html.match(/const APP_VERSION = "([^"]+)"/)[1];
