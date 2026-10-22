@@ -96,6 +96,10 @@ textarea:focus,input[type=text]:focus{border-color:var(--blue);box-shadow:0 0 0 
 .feedback.ok{background:#e6f4ea;color:var(--ok)}
 .feedback.bad{background:#fdecea;color:var(--bad)}
 .feedback.diff{background:#fbf9f3;color:var(--ink);border:1px solid var(--line-soft);border-left:4px solid var(--gold);padding:12px 14px}
+.answerbox{background:#fbf9f3;border:1px solid var(--line-soft);border-left:4px solid var(--blue);border-radius:var(--r-md);padding:10px 14px;margin:0 0 12px}
+.answer-label{display:inline-block;font-size:11.5px;font-weight:800;color:var(--sub);background:var(--soft);border-radius:var(--r-pill);padding:2px 8px;margin-bottom:5px}
+.answer-fr{font-size:16.5px;font-weight:700;line-height:1.55;overflow-wrap:break-word}
+.advancewrap{margin:14px 0}
 .diff-title{font-weight:900;font-size:14.5px;margin-bottom:6px}
 .diff-row{display:flex;gap:8px;margin:5px 0;line-height:1.65}
 .diff-label{flex:0 0 auto;align-self:flex-start;font-size:11.5px;font-weight:800;color:var(--sub);background:var(--soft);border-radius:var(--r-pill);padding:2px 8px;margin-top:3px;white-space:nowrap}
@@ -151,7 +155,7 @@ summary{font-weight:800;cursor:pointer}
 <body>
 <div class="wrap">
 <header class="masthead">
-<div class="brandrow"><span class="logo" aria-hidden="true">U</span><span class="wordmark">UNE PHRASE</span><span class="verpill">버전 1.18.1</span></div>
+<div class="brandrow"><span class="logo" aria-hidden="true">U</span><span class="wordmark">UNE PHRASE</span><span class="verpill">버전 1.19.0</span></div>
 <h1>한 문장 프랑스어</h1>
 <div class="progress" id="progressArea">
 <div class="progress-top"><span id="progressLine">불러오는 중…</span><span class="todaychip" id="todayChip">오늘 0문장</span></div>
@@ -220,12 +224,12 @@ summary{font-weight:800;cursor:pointer}
 
 <footer>
 <div class="footbrand"><span class="footlogo" aria-hidden="true">U</span><span class="footword">UNE PHRASE</span><span class="footko">한 문장 프랑스어</span></div>
-<div class="footmeta">v1.18.1 · © 2026 sidebatch</div>
+<div class="footmeta">v1.19.0 · © 2026 sidebatch</div>
 </footer>
 </div>
 <script>
 "use strict";
-const APP_VERSION = "1.18.1";
+const APP_VERSION = "1.19.0";
 const STORAGE_KEY = "une-phrase-progress-v1";
 const ITEMS = [
 {id:1,fr:"Je cherche un appartement près du métro parce que je n'ai pas de voiture.",ko:"나는 차가 없어서 지하철 근처 아파트를 찾고 있다.",chunks:[["Je cherche un appartement","아파트를 찾고 있다"],["près du métro","지하철 근처에"],["parce que je n'ai pas de voiture","차가 없기 때문에"]],pattern:"이유는 뒤에 붙인다: …parce que + 문장 → 연결어 parce que (왜냐하면)",words:[["appartement","아파트"],["près de","~ 근처에"]],topic:"일상",level:"B1",tef:"EO 말하기 · CE 읽기"},
@@ -531,6 +535,10 @@ function diffWords(mine, answer){
   }
   return { mine:a, answer:b, mineDiff:mineDiff, ansDiff:ansDiff };
 }
+function correctHtml(answerFr, xpNote){
+  return '<div class="feedback ok">✓ 맞았어요!'+(xpNote||"")+'</div>'
+    + '<div class="answerbox"><span class="answer-label">정답</span><div class="answer-fr">'+esc(answerFr)+'</div></div>';
+}
 function wrongHtml(mine, answer){
   const d = diffWords(mine, answer);
   const segMine = d.mine.length ? d.mine.map((w,i)=> d.mineDiff[i] ? '<span class="wdiff">'+esc(w)+'</span>' : esc(w)).join(" ") : '<span class="diff-empty">아직 쓰지 않았어요</span>';
@@ -716,7 +724,7 @@ function renderStudy(){
     h += '<div>'+it.chunks.map(c=>'<span class="chunk"><b>'+esc(c[0])+'</b><span>'+esc(c[1])+'</span></span>').join("")+'</div>';
     h += '<div class="pattern">'+esc(it.pattern)+'</div>';
     h += '<div class="words">핵심 단어: '+it.words.map(w=>'<b>'+esc(w[0])+'</b> '+esc(w[1])).join(" · ")+'</div>';
-    h += '<button class="primary" id="listenBtn">🔊 듣기</button> <button class="ghost" id="goStep2">다음: 2 · 따라 쓰기 →</button>';
+    h += '<button class="primary" id="listenBtn">🔊 듣기</button> <button class="ghost" id="goStep2">다음으로 →</button>';
   } else if(currentStep===2){
     h += '<div class="fr">'+esc(it.fr)+'</div><p class="ko">'+esc(it.ko)+'</p>';
     h += '<p class="lead">위 문장을 보면서 그대로 타이핑하세요.</p>';
@@ -724,7 +732,7 @@ function renderStudy(){
     h += '<button class="primary" id="checkBtn">확인하기</button> <button class="ghost" id="listenBtn">🔊 듣기</button>';
   } else {
     h += '<p class="ko" style="font-size:19px;font-weight:700">'+esc(it.ko)+'</p>';
-    h += '<p class="lead">프랑스어 문장은 가려져 있어요. 뜻만 보고 문장 전체를 써 보세요. 악센트(é, è 등)가 달라도 뜻이 맞으면 정답으로 셉니다.</p>';
+    h += '<p class="lead">뜻만 보고 프랑스어로 써 보세요. 악센트(é, è)가 달라도 괜찮아요.</p>';
     h += '<textarea id="typeInput" rows="3" placeholder="프랑스어 문장을 써 보세요" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><div class="wordprog" id="wordProg" aria-live="polite"></div><div id="fb"></div>';
     h += '<button class="primary" id="checkBtn">확인하기</button> <button class="ghost" id="hintBtn">힌트: 첫 단어 보기</button> <div id="hint"></div>';
   }
@@ -744,8 +752,8 @@ function checkTyping(){
   const fb = document.getElementById("fb");
   if(isCorrect(input, it.fr)){
     playSound(true);
-    const label = currentStep===2 ? "다음으로 → 3 · 가리고 쓰기" : "완료하기 →";
-    fb.innerHTML = '<div class="feedback ok">✓ 맞았어요! 정답: '+esc(it.fr)+'</div><button class="primary" id="advanceBtn">'+label+'</button>';
+    const label = currentStep===2 ? "다음으로 →" : "완료하기 →";
+    fb.innerHTML = correctHtml(it.fr) + '<div class="advancewrap"><button class="primary" id="advanceBtn">'+label+'</button></div>';
     const cb = document.getElementById("checkBtn"); if(cb) cb.style.display = "none";
     document.getElementById("advanceBtn").onclick = ()=>{
       if(currentStep===2){ setStep(3); renderStudy(); }
@@ -815,7 +823,7 @@ function checkQuiz(){
     playSound(true);
     progress.reviewCorrect = (progress.reviewCorrect||0)+1;
     saveProgress(); renderVaultState(); renderProgress();
-    h = '<div class="feedback ok">✓ 맞았어요! +5 XP<br>정답: '+esc(quizItem.fr)+'</div>';
+    h = correctHtml(quizItem.fr, " +5 XP");
   } else {
     playSound(false);
     h = wrongHtml(input, quizItem.fr);

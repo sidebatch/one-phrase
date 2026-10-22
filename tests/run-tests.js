@@ -190,6 +190,7 @@ const smokePrelude = [
 ].join("\n");
 const smokeFns = [
   escSrc, swSrc, dwSrc,
+  html.match(/function correctHtml[\s\S]*?\n\}/)[0],
   html.match(/function setStep\(n\)\{[^}]*\}/)[0],
   html.match(/function currentItem\(\)\{[^}]*\}/)[0],
   html.match(/function todayKey\(\)\{[^}]*\}/)[0],
@@ -231,6 +232,23 @@ const smokeDriver = [
   'ok(progress.reviewCorrect === rc0 + 1, "회귀: 퀴즈 정답을 두 번 제출해도 복습 XP는 1회만 (reviewCorrect " + progress.reviewCorrect + ")");'
 ].join("\n");
 eval(smokePrelude + "\n" + lvArrSrc + "\n" + lvlSrc + "\n" + xpSrc2 + "\n" + qpSrc + "\n" + normSrc + "\n" + corrSrc + "\n" + smokeFns + "\n" + smokeDriver);
+
+console.log("\n[정답 피드백 분리·짧은 라벨·짧은 안내 (v1.19.0)]");
+const chSrc = html.match(/function correctHtml[\s\S]*?\n\}/)[0];
+eval(chSrc);
+{ const fr = "Je cherche un appartement près du métro.";
+  const ch = correctHtml(fr);
+  const okLine = ch.split('<div class="answerbox">')[0];
+  ok(okLine.includes("✓ 맞았어요!") && !okLine.includes(fr), "정답 피드백: 성공 문구만 따로, 전체 문장이 붙지 않음");
+  ok(ch.includes('class="answerbox"') && ch.includes('class="answer-label">정답<') && ch.includes(fr), "정답 피드백: 정답 문장은 라벨과 함께 별도 블록에 표시");
+  const chq = correctHtml(fr, " +5 XP");
+  ok(chq.split('<div class="answerbox">')[0].includes("+5 XP") && !chq.split('<div class="answerbox">')[0].includes(fr), "퀴즈 정답 피드백: +5 XP는 성공 문구에, 문장은 별도 블록에");
+  ok(!html.includes("맞았어요! 정답:"), "학습·퀴즈 어디에도 성공 문구와 정답을 한 줄로 붙이지 않음"); }
+ok(ctSrc.includes('"다음으로 →"') && !ctSrc.includes("3 · 가리고 쓰기"), "진행 버튼: '다음으로 →'만 표시 (단계 이름 제거)");
+ok(!html.includes("다음: 2 · 따라 쓰기"), "읽어보기 단계 진행 버튼도 단계 이름 없이 짧게");
+ok(ctSrc.includes("advancewrap") && /\.advancewrap\{margin:14px 0\}/.test(html), "정답 후 진행 버튼 영역: 위아래 14px 간격으로 듣기 버튼과 분리");
+ok(html.includes("뜻만 보고 프랑스어로 써 보세요. 악센트(é, è)가 달라도 괜찮아요."), "가리고 쓰기 안내: 짧은 문구로 교체");
+ok(!html.includes("프랑스어 문장은 가려져 있어요"), "가리고 쓰기 안내: 긴 설명 문구 제거");
 
 console.log("\n[기록 초기화: 2단계 확인]");
 ok(html.includes('id="resetZone"') && html.includes("기록 초기화"), "초기화: 설명 탭에 기록 초기화 진입점 있음");
