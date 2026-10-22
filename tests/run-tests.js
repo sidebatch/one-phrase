@@ -163,7 +163,7 @@ function makeStubEl(id){
     classList:{ toggle(){}, add(){}, remove(){}, contains(){ return false; } },
     setAttribute(){}, getAttribute(){ return null; },
     addEventListener(t,f){ this._listeners[t] = f; },
-    focus(){}, scrollIntoView(){} };
+    focus(){}, scrollIntoView(){}, querySelector(){ return { hidden: true }; } };
   Object.defineProperty(el, "innerHTML", {
     get(){ return this._html; },
     set(v){ this._html = v; const re = /id="([^"]+)"/g; let m; while((m = re.exec(v))){ if(!STUB_ELS[m[1]]) STUB_ELS[m[1]] = makeStubEl(m[1]); } }
@@ -377,7 +377,7 @@ console.log("\n[메뉴 전용 이동 (v1.25.0)·느리게 듣기·하단 버튼 
 ok(!html.includes('id="tabBar"') && !html.includes("tabBtn") && html.includes('id="menuBtn"') && html.includes("☰ 메뉴"), "탭 바 제거: #tabBar·탭 버튼이 없고 헤더 메뉴 버튼만 남음");
 ok(!html.includes("✕ 나가기") && !html.includes("exitFocus") && !html.includes("focusOff") && !html.includes("exitbtn"), "메뉴: 기존 나가기 버튼과 포커스 해제 상태(exitFocus·focusOff)가 완전히 제거됨");
 ok(html.includes('id="menuOverlay" hidden') && html.includes('id="menuBackdrop"') && html.includes('id="menuCloseBtn"') && html.includes("닫기"), "메뉴: 배경·닫기를 갖춘 메뉴 패널이 처음에는 숨겨져 있음");
-ok(html.includes('data-menu="study"') && html.includes('data-menu="browse"') && html.includes('data-menu="words"') && html.includes('data-menu="together"') && html.includes('data-menu="about"') && html.includes("지금 여기"), "메뉴: 목적지 5곳 행 (공부하기에는 '지금 여기' 표시)");
+ok(html.includes('data-menu="study"') && html.includes('data-menu="browse"') && html.includes('data-menu="words"') && html.includes('data-menu="together"') && html.includes('data-menu="about"') && !html.includes("지금 여기"), "메뉴: 목적지 5곳 행 ('지금 여기' 칩은 제거되고 틴트+점으로 대체)");
 ok(html.includes('role="dialog"') && html.includes('aria-haspopup="dialog"'), "메뉴: 패널에 dialog 역할, 버튼에 aria-haspopup 표시");
 ok(!/\.tabs\{/.test(html) && !html.includes('class="tabs"'), "탭 바 제거: .tabs CSS도 함께 제거됨");
 ok(/\.menubtn\[hidden\]\{display:none\}/.test(html) && /\.menuoverlay\[hidden\]\{display:none\}/.test(html), "메뉴: 메뉴 버튼·패널도 hidden이면 확실히 숨겨짐");
@@ -572,14 +572,24 @@ ok(html.includes('class="wtext"'), "단어 행: 텍스트가 .wtext로 감싸져
 ok(!html.includes("focusbar") && !html.includes("Focusbar"), "메뉴 전역화: 공부 전용 포커스 바(focusbar) 마크업·CSS 제거됨");
 ok(html.indexOf('id="menuBtn"') > html.indexOf('class="brandrow"') && html.indexOf('id="menuBtn"') < html.indexOf("</header>"), "메뉴 전역화: 메뉴 버튼이 헤더(brandrow) 안에 있음 — 모든 화면에서 보임");
 ok(html.indexOf('id="menuOverlay"') < html.indexOf('id="tab-study"'), "메뉴 전역화: 메뉴 패널이 공부 탭 밖(전역)에 있어 어느 탭에서도 열림");
-ok((html.match(/class="menuchip"/g) || []).length === 5, "메뉴: 다섯 행 모두 '지금 여기' 칩을 갖고 있고, 여는 위치에 따라 표시가 바뀜");
+ok((html.match(/class="menudot"/g) || []).length === 5, "메뉴: 다섯 행 모두 활성 표시 점(.menudot)을 갖고 있고, 여는 위치에 따라 표시가 바뀜");
+ok((html.match(/class="menutile /g) || []).length === 5, "메뉴: 다섯 행 모두 아이콘 타일(.menutile)을 갖고 있음");
+ok(html.includes('class="menuhandle"') && html.includes("이어서 바로 공부") && html.includes("주제 골라 보기") && html.includes("단어 모아 보기") && html.includes("서로의 진도 보기") && html.includes("안내·공유·설정"), "메뉴: 드래그 핸들 + 목적지별 부제 한 줄씩");
+ok(/\.menurow\.on\{[^}]*background:var\(--done-bg\)/.test(html) && /\.menudot\{[^}]*background:var\(--blue\)/.test(html), "메뉴: 활성 행은 파랑 틴트 배경 + 파랑 점 (활성 표시는 파랑 한 색만)");
 const omSrc = html.match(/function openMenu\(\)\{[\s\S]*?\n\}/)[0];
-ok(omSrc.includes('querySelectorAll(".menuchip")') && omSrc.includes("currentTab"), "메뉴: 열 때 현재 탭에 맞춰 '지금 여기' 칩을 다시 맞춤");
-// '지금 여기' 칩 스모크: 현재 탭이 단어일 때 열면 단어 행에만 칩이 보임
-const OM_CHIPS = [{ hidden: false }, { hidden: true }, { hidden: true }, { hidden: true }, { hidden: true }];
+ok(omSrc.includes('querySelectorAll(".menurow[data-menu]")') && omSrc.includes("currentTab") && omSrc.includes("menudot"), "메뉴: 열 때 현재 탭 행에 틴트(.on)와 점을 다시 맞춤");
+// 활성 행 표시 스모크: 현재 탭이 단어일 때 열면 단어 행에만 틴트와 점이 보임
+function makeOmRow(name){
+  const row = { _name: name, _on: false, _dot: { hidden: true } };
+  row.getAttribute = ()=>name;
+  row.classList = { toggle(c, v){ if(c === "on") row._on = !!v; } };
+  row.querySelector = ()=>row._dot;
+  return row;
+}
+const OM_ROWS = ["study", "browse", "words", "together", "about"].map(makeOmRow);
 const omDoc = {
   getElementById(){ return { hidden: true, setAttribute(){} }; },
-  querySelectorAll(sel){ return sel === ".menuchip" ? OM_CHIPS : []; }
+  querySelectorAll(sel){ return sel === ".menurow[data-menu]" ? OM_ROWS : []; }
 };
 const omPrelude = [
   'let menuOpen = false;',
@@ -588,11 +598,11 @@ const omPrelude = [
 ].join("\n");
 eval(omPrelude + "\n" + omSrc + "\n" + [
   'openMenu();',
-  'ok(OM_CHIPS[0].hidden === true && OM_CHIPS[1].hidden === true && OM_CHIPS[2].hidden === false && OM_CHIPS[3].hidden === true && OM_CHIPS[4].hidden === true, "메뉴 스모크: 단어 탭에서 열면 \'지금 여기\'는 단어 행에만 표시");',
+  'ok(OM_ROWS.every((r,i)=> r._on === (i === 2) && r._dot.hidden === (i !== 2)), "메뉴 스모크: 단어 탭에서 열면 단어 행만 활성 틴트+점 표시");',
   'currentTab = "together"; openMenu();',
-  'ok(OM_CHIPS[3].hidden === false && OM_CHIPS[2].hidden === true && OM_CHIPS[4].hidden === true, "메뉴 스모크: 함께 공부 탭에서 열면 \'지금 여기\'가 함께 공부 행으로 이동");',
+  'ok(OM_ROWS[3]._on === true && OM_ROWS[3]._dot.hidden === false && OM_ROWS[2]._on === false && OM_ROWS[2]._dot.hidden === true && OM_ROWS[4]._on === false, "메뉴 스모크: Ensemble 탭에서 열면 활성 표시가 Ensemble 행으로 이동");',
   'currentTab = "about"; openMenu();',
-  'ok(OM_CHIPS[4].hidden === false && OM_CHIPS[3].hidden === true, "메뉴 스모크: 설명 탭에서 열면 \'지금 여기\'가 설명 행으로 이동");'
+  'ok(OM_ROWS[4]._on === true && OM_ROWS[4]._dot.hidden === false && OM_ROWS[3]._on === false && OM_ROWS[3]._dot.hidden === true, "메뉴 스모크: 설명 탭에서 열면 활성 표시가 설명 행으로 이동");'
 ].join("\n"));
 
 console.log("\n[목록 행 구조 통일 (v1.25.0)]");
@@ -647,16 +657,31 @@ const bwDriver = [
 ].join("\n");
 eval(bwPrelude + "\n" + bwFns + "\n" + bwDriver);
 
-console.log("\n[함께 공부: Supabase 연동 (v1.26.0)]");
+console.log("\n[Ensemble: Supabase 연동 + 완성도 개편 (v1.27.0)]");
 ok(html.includes('const SUPABASE_URL = "https://cmhitsgoicxvmlwtrdrb.supabase.co";') && html.includes('const SUPABASE_KEY = "sb_publishable_'), "Supabase 상수: 프로젝트 URL + publishable 키가 코드에 있음");
-ok(html.includes('id="view-together"') && html.includes('id="tab-together" hidden'), "함께 공부: 전용 화면(#view-together)이 탭으로 있고 처음에는 숨겨져 있음");
-ok(html.includes('data-menu="together"') && html.includes("👥 함께 공부"), "함께 공부: 메뉴 행이 단어와 설명 사이에 있음");
-ok(html.indexOf('data-menu="words"') < html.indexOf('data-menu="together"') && html.indexOf('data-menu="together"') < html.indexOf('data-menu="about"'), "함께 공부: 메뉴 순서가 단어 → 함께 공부 → 설명");
-ok(html.includes("cdn.jsdelivr.net/npm/@supabase/supabase-js@2") && html.includes('document.createElement("script")') && html.includes("function loadSupabase()"), "함께 공부: supabase-js는 처음부터 넣지 않고 동적 스크립트로 지연 로드");
-ok(html.includes("구글로 시작하기"), "함께 공부: 비로그인 상태에서 '구글로 시작하기' 버튼을 제시함");
-ok(html.includes("signInWithOAuth") && html.includes('provider: "google"') && html.includes("redirectTo: location.origin + location.pathname"), "함께 공부: 구글 OAuth 로그인 호출 (앱 주소로 복귀)");
-ok(html.includes('"23505"') && html.includes("이미 쓰는 닉네임이에요"), "함께 공부: 닉네임 중복(23505) 안내 있음");
-ok(html.includes("네트워크가 필요해요"), "함께 공부: 오프라인·로드 실패 시 안내 문구 있음");
+ok(html.includes('id="view-together"') && html.includes('id="tab-together" hidden'), "Ensemble: 전용 화면(#view-together)이 탭으로 있고 처음에는 숨겨져 있음");
+ok(!html.includes("함께 공부"), "이름 교체: 앱 어디에도 '함께 공부' 표기가 남아 있지 않음");
+ok(html.includes('class="viewtitle">Ensemble</h2>') && html.includes("서로의 진도를 보며 같이 공부해요"), "Ensemble: 화면 제목 Ensemble + 상단 한 줄 설명");
+ok(html.includes('data-menu="together"') && html.includes('<span class="menulabel">Ensemble</span>') && html.includes("서로의 진도 보기"), "Ensemble: 메뉴 라벨 Ensemble, 부제는 '서로의 진도 보기'");
+ok(html.indexOf('data-menu="words"') < html.indexOf('data-menu="together"') && html.indexOf('data-menu="together"') < html.indexOf('data-menu="about"'), "Ensemble: 메뉴 순서가 단어 → Ensemble → 설명");
+ok(html.includes("cdn.jsdelivr.net/npm/@supabase/supabase-js@2") && html.includes('document.createElement("script")') && html.includes("function loadSupabase()"), "Ensemble: supabase-js는 처음부터 넣지 않고 동적 스크립트로 지연 로드");
+ok(html.includes("구글로 시작하기") && html.includes('class="card herocard"') && html.includes("heroicon"), "Ensemble: 비로그인 상태는 히어로 카드 + '구글로 시작하기' 버튼");
+ok(html.includes("signInWithOAuth") && html.includes('provider: "google"') && html.includes("redirectTo: location.origin + location.pathname"), "Ensemble: 구글 OAuth 로그인 호출 (앱 주소로 복귀)");
+ok(html.includes('"23505"') && html.includes("이미 쓰이는 닉네임이에요"), "Ensemble: 닉네임 중복(23505) 안내가 모달 안에 표시됨");
+ok(html.includes("네트워크가 필요해요"), "Ensemble: 오프라인·로드 실패 시 안내 문구 있음");
+ok(html.includes('id="nickOverlay" hidden') && html.includes('id="nickBackdrop"') && html.includes('id="nickCloseBtn"') && html.includes("닉네임 정하기") && html.includes("다른 참여자에게 보이는 이름이에요"), "닉네임 모달: 바텀시트형 모달(배경·닫기 ✕·제목·안내)이 전역에 있음");
+ok(html.includes('id="sbNickBtn">시작하기</button>') && !html.includes('id="sbNickBtn">정하기</button>'), "닉네임 모달: 주 버튼 라벨은 '시작하기'");
+const snsSrc = html.match(/function sbSetNickname\(\)\{[\s\S]*?\n\}/)[0];
+ok(snsSrc.includes("closeNickModal()") && snsSrc.includes("23505"), "닉네임 모달: 성공하면 닫고, 중복이면 모달을 닫지 않고 오류를 표시 (닫기 호출은 성공 경로에만)");
+ok(html.includes("function isOAuthReturn()") && html.includes("[?&]code=") && html.includes("access_token="), "복귀 감지: code 파라미터·access_token 해시가 있을 때만 로그인 복귀로 판정");
+ok(html.includes("if(isOAuthReturn()){ sbAuthReturnInit(); }") && html.includes("openNickModal(true)"), "복귀 처리: 복귀 시에만 즉시 초기화하고 프로필이 없으면 닉네임 모달을 자동으로 염");
+const onmSrc = html.match(/function openNickModal\(auto\)\{[\s\S]*?\n\}/)[0];
+ok(onmSrc.includes("nickAutoShown") && onmSrc.includes("return"), "닉네임 모달: 자동 팝업은 실행당 1회만 (닫으면 그 세션에서 다시 자동으로 띄우지 않음)");
+const rtSrc = html.match(/async function renderTogether\(\)\{[\s\S]*?\n\}/)[0];
+ok(rtSrc.includes("sbOpenNickBtn") && rtSrc.includes("openNickModal(false)") && rtSrc.includes("nickbanner"), "Ensemble: 닉네임이 없으면 얇은 배너 + 버튼으로 모달을 열 수 있음");
+const rtmSrc = html.match(/async function renderTogetherMembers\(\)\{[\s\S]*?\n\}/)[0];
+ok(rtmSrc.includes("avatarHtml(") && rtmSrc.includes('class="card mycard"') && rtmSrc.includes('class="card membercard') && rtmSrc.includes("lvbadge"), "Ensemble: 내 카드·참여자 카드에 아바타 원·Lv 배지가 있음");
+ok(rtmSrc.includes("pctOf(") && rtmSrc.includes('class="pfill"') && rtmSrc.includes("Math.round"), "Ensemble: 카드마다 진행 바(완료 N/전체, %)가 있음");
 const spSrc = html.match(/function saveProgress\(\)\{[\s\S]*?\n\}/)[0];
 ok(spSrc.includes("scheduleSbUpload()"), "동기화: saveProgress가 서버 업로드를 예약함 (디바운스)");
 ok(html.includes("setTimeout(()=>{ pushSbProgress(); }, 1500)"), "동기화: 업로드 디바운스 1.5초");

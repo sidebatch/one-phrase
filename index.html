@@ -64,14 +64,58 @@ h1{font-size:26px;line-height:1.25;margin:11px 0 3px;letter-spacing:-.01em}
 .menuoverlay{position:fixed;inset:0;z-index:60}
 .menuoverlay[hidden]{display:none}
 .menubackdrop{position:absolute;inset:0;background:rgba(20,26,40,.45)}
-.menupanel{position:absolute;left:0;right:0;bottom:0;max-width:720px;margin:0 auto;background:var(--card);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:14px 16px calc(16px + env(safe-area-inset-bottom));box-shadow:0 -10px 34px rgba(20,26,40,.28)}
-.menuhead{font-size:15px;font-weight:900;color:var(--blue);margin:2px 2px 10px}
-.menurow{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:48px;background:#fff;border:1px solid var(--line-soft);border-radius:var(--r-md);padding:12px 14px;font-size:15px;font-weight:800;color:var(--ink);cursor:pointer;font:inherit;margin:0 0 8px;text-align:left}
+@keyframes slideUp{from{transform:translateY(26px);opacity:.4}to{transform:none;opacity:1}}
+.menupanel{position:absolute;left:0;right:0;bottom:0;max-width:720px;margin:0 auto;background:var(--card);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:12px 16px calc(16px + env(safe-area-inset-bottom));box-shadow:0 -10px 34px rgba(20,26,40,.28);animation:slideUp .25s var(--ease)}
+.menuhandle{width:40px;height:4.5px;border-radius:var(--r-pill);background:#ddd5c2;margin:0 auto 12px}
+.menuhead{display:flex;align-items:center;justify-content:space-between;margin:0 2px 12px}
+.menuword{font-weight:900;color:var(--blue);letter-spacing:.14em;font-size:13px}
+.menuver{font-size:11.5px;font-weight:700;color:var(--sub)}
+.menurow{display:flex;align-items:center;width:100%;min-height:56px;background:#fff;border:1px solid var(--line-soft);border-radius:14px;padding:9px 12px;color:var(--ink);cursor:pointer;font:inherit;margin:0 0 8px;text-align:left;transition:transform .12s var(--ease),background-color .18s ease,border-color .18s ease}
 .menurow:active{transform:scale(.99)}
-.menuchip[hidden]{display:none}
-.menuchip{flex:0 0 auto;font-size:11.5px;font-weight:800;color:var(--blue);background:var(--done-chip);border-radius:var(--r-pill);padding:2px 9px}
-.menurow.menuclose{justify-content:center;color:var(--sub);margin-bottom:0}
-@media (hover:hover){.menubtn:hover,.menurow:hover{background:#f7f3ea}}
+.menutile{flex:0 0 auto;width:42px;height:42px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;font-size:20px;line-height:1}
+.t-study{background:#e1ebfd}
+.t-browse{background:#ece5fb}
+.t-words{background:#e2f3e2}
+.t-together{background:#fbe7ee}
+.t-about{background:#eceae2}
+.menutext{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;margin-left:12px}
+.menulabel{font-size:16px;font-weight:800;line-height:1.25}
+.menusub{font-size:12px;font-weight:600;color:var(--sub)}
+.menudot{flex:0 0 auto;width:8px;height:8px;border-radius:50%;background:var(--blue);margin-left:10px}
+.menudot[hidden]{display:none}
+.menurow.on{background:var(--done-bg);border-color:var(--done-line)}
+.menurow.on .menulabel{font-weight:900}
+.menurow.menuclose{justify-content:center;color:var(--sub);font-size:14.5px;font-weight:700;min-height:44px;border-color:transparent;margin-bottom:0}
+.modaloverlay{position:fixed;inset:0;z-index:70}
+.modaloverlay[hidden]{display:none}
+.modalbackdrop{position:absolute;inset:0;background:rgba(20,26,40,.45)}
+.modalpanel{position:absolute;left:0;right:0;bottom:0;max-width:720px;margin:0 auto;background:var(--card);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:16px 18px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -10px 34px rgba(20,26,40,.28);animation:slideUp .25s var(--ease)}
+.modalhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.modaltitle{font-size:17px;font-weight:900}
+.modalclose{flex:0 0 auto;width:36px;height:36px;border-radius:50%;border:1px solid var(--line-soft);background:#fff;font-size:14px;color:var(--sub);cursor:pointer;font:inherit}
+.modaldesc{color:var(--sub);font-size:14px;margin:0 0 12px}
+.modalbtn{width:100%;margin-top:12px}
+.viewtitle{font-size:22px;font-weight:900;margin:6px 0 2px;letter-spacing:-.01em}
+.herocard{text-align:center;padding:28px 18px}
+.heroicon{font-size:42px;line-height:1.1}
+.herotitle{font-size:22px;font-weight:900;margin:8px 0 4px}
+.loadcard{color:var(--sub);font-weight:700}
+.nickbanner{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 16px}
+.banneremoji{font-size:22px;line-height:1}
+.bannertext{flex:1;min-width:180px;display:flex;flex-direction:column;gap:1px}
+.bannertext span{font-size:13px;color:var(--sub);font-weight:600}
+.mycard{background:var(--done-bg);border-color:var(--done-line)}
+.memhead{display:flex;align-items:center;gap:10px}
+.avatar{flex:0 0 auto;width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;color:var(--ink)}
+.memname{flex:1;min-width:0;font-size:16.5px;font-weight:800;overflow-wrap:anywhere}
+.lvbadge{flex:0 0 auto;background:var(--done-chip);color:var(--blue);font-size:12px;font-weight:800;border-radius:var(--r-pill);padding:2px 9px;white-space:nowrap}
+.memprog{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:700;color:var(--sub);margin-top:5px}
+.memprog .progress-pct{color:var(--blue);font-weight:800}
+.membercard{margin:10px 0;padding:14px 16px}
+.membercard.me{background:var(--done-bg);border-color:var(--done-line)}
+.donelist{margin-top:8px}
+.doneitem{padding:7px 0;border-top:1px solid var(--line-soft);font-size:14.5px}
+@media (hover:hover){.menubtn:hover,.menurow:hover{background:#f7f3ea}.menurow.on:hover{background:var(--done-bg)}.modalclose:hover{background:#f7f3ea}}
 .btnrow{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
 #resetZone{margin-top:12px}
 .tabbtn{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;min-height:38px;background:#fff;color:var(--ink);border:1px solid var(--line-soft);border-radius:var(--r-pill);padding:9px 14px;font-size:14px;font-weight:800;cursor:pointer;font:inherit;transition:transform .12s var(--ease),background-color .18s ease,border-color .18s ease}
@@ -171,7 +215,7 @@ summary{font-weight:800;cursor:pointer}
 <body>
 <div class="wrap">
 <header class="masthead">
-<div class="brandrow"><span class="logo" aria-hidden="true">U</span><span class="wordmark">UNE PHRASE</span><span class="verpill">버전 1.26.0</span><span id="gcBadge" style="display:none"></span><button class="menubtn" id="menuBtn" aria-haspopup="dialog" aria-expanded="false">☰ 메뉴</button></div>
+<div class="brandrow"><span class="logo" aria-hidden="true">U</span><span class="wordmark">UNE PHRASE</span><span class="verpill">버전 1.27.0</span><span id="gcBadge" style="display:none"></span><button class="menubtn" id="menuBtn" aria-haspopup="dialog" aria-expanded="false">☰ 메뉴</button></div>
 <h1>한 문장 프랑스어</h1>
 <div class="progress" id="progressArea">
 <div class="progress-top"><span id="progressLine">불러오는 중…</span><span class="todaychip" id="todayChip">오늘 0문장</span></div>
@@ -183,13 +227,24 @@ summary{font-weight:800;cursor:pointer}
 <div class="menuoverlay" id="menuOverlay" hidden>
 <div class="menubackdrop" id="menuBackdrop"></div>
 <div class="menupanel" role="dialog" aria-modal="true" aria-label="메뉴">
-<div class="menuhead">메뉴</div>
-<button class="menurow" data-menu="study">공부하기<span class="menuchip">지금 여기</span></button>
-<button class="menurow" data-menu="browse">주제별<span class="menuchip" hidden>지금 여기</span></button>
-<button class="menurow" data-menu="words">단어<span class="menuchip" hidden>지금 여기</span></button>
-<button class="menurow" data-menu="together">👥 함께 공부<span class="menuchip" hidden>지금 여기</span></button>
-<button class="menurow" data-menu="about">설명<span class="menuchip" hidden>지금 여기</span></button>
+<div class="menuhandle" aria-hidden="true"></div>
+<div class="menuhead"><span class="menuword">UNE PHRASE</span><span class="menuver">v1.27.0</span></div>
+<button class="menurow on" data-menu="study"><span class="menutile t-study" aria-hidden="true">📖</span><span class="menutext"><span class="menulabel">공부하기</span><span class="menusub">이어서 바로 공부</span></span><span class="menudot" aria-hidden="true"></span></button>
+<button class="menurow" data-menu="browse"><span class="menutile t-browse" aria-hidden="true">🗂️</span><span class="menutext"><span class="menulabel">주제별</span><span class="menusub">주제 골라 보기</span></span><span class="menudot" aria-hidden="true" hidden></span></button>
+<button class="menurow" data-menu="words"><span class="menutile t-words" aria-hidden="true">🔤</span><span class="menutext"><span class="menulabel">단어</span><span class="menusub">단어 모아 보기</span></span><span class="menudot" aria-hidden="true" hidden></span></button>
+<button class="menurow" data-menu="together"><span class="menutile t-together" aria-hidden="true">👥</span><span class="menutext"><span class="menulabel">Ensemble</span><span class="menusub">서로의 진도 보기</span></span><span class="menudot" aria-hidden="true" hidden></span></button>
+<button class="menurow" data-menu="about"><span class="menutile t-about" aria-hidden="true">ℹ️</span><span class="menutext"><span class="menulabel">설명</span><span class="menusub">안내·공유·설정</span></span><span class="menudot" aria-hidden="true" hidden></span></button>
 <button class="menurow menuclose" id="menuCloseBtn">닫기</button>
+</div>
+</div>
+<div class="modaloverlay" id="nickOverlay" hidden>
+<div class="modalbackdrop" id="nickBackdrop"></div>
+<div class="modalpanel" role="dialog" aria-modal="true" aria-label="닉네임 정하기">
+<div class="modalhead"><span class="modaltitle">닉네임 정하기</span><button class="modalclose" id="nickCloseBtn" aria-label="닫기">✕</button></div>
+<p class="modaldesc">다른 참여자에게 보이는 이름이에요.</p>
+<input type="text" id="sbNickInput" maxlength="20" placeholder="닉네임 (1~20자)" autocomplete="off" autocapitalize="off">
+<div id="sbNickFb"></div>
+<button class="primary modalbtn" id="sbNickBtn">시작하기</button>
 </div>
 </div>
 
@@ -211,14 +266,16 @@ summary{font-weight:800;cursor:pointer}
 </div>
 
 <div id="tab-together" hidden>
-<div id="view-together"><p class="lead">불러오는 중…</p></div>
+<h2 class="viewtitle">Ensemble</h2>
+<p class="lead">서로의 진도를 보며 같이 공부해요.</p>
+<div id="view-together"><div class="card loadcard">불러오는 중…</div></div>
 </div>
 
 <div id="tab-about" hidden>
 <details open><summary>어떻게 쓰나요 — 3단계</summary>
 <p>1 · 읽어보기: 문장과 뜻 덩어리를 보고, 듣기 버튼으로 소리를 확인합니다.<br>2 · 따라 쓰기: 문장을 보면서 그대로 타이핑합니다. 손이 철자를 기억합니다.<br>3 · 가리고 쓰기: 한국어 뜻만 보고 프랑스어 문장 전체를 씁니다. 이 단계가 진짜 암기입니다.</p>
 <p>기본 흐름은 <b>한 문장만</b>입니다. 한 문장을 끝내면 완료 화면이 나오고, 원하면 “한 문장 더”를 누르세요.</p>
-<p>화면 이동은 위쪽의 “☰ 메뉴”로만 합니다. 공부하기·주제별·단어·함께 공부·설명 중 골라 이동하세요. 듣기가 빠르면 "느리게 듣기" 버튼으로 0.7배속으로 한 번 천천히 들을 수 있어요.</p>
+<p>화면 이동은 위쪽의 “☰ 메뉴”로만 합니다. 공부하기·주제별·단어·Ensemble·설명 중 골라 이동하세요. 듣기가 빠르면 "느리게 듣기" 버튼으로 0.7배속으로 한 번 천천히 들을 수 있어요.</p>
 </details>
 <details open><summary>공유하기</summary>
 <p>주변에 프랑스어를 공부하는 사람이 있으면 이 앱을 알려 주세요. 버튼을 누르면 공유 화면이 열리고, 공유가 안 되는 환경에서는 링크가 복사됩니다.</p>
@@ -245,12 +302,12 @@ summary{font-weight:800;cursor:pointer}
 
 <footer>
 <div class="footbrand"><span class="footlogo" aria-hidden="true">U</span><span class="footword">UNE PHRASE</span><span class="footko">한 문장 프랑스어</span></div>
-<div class="footmeta">v1.26.0 · © 2026 sidebatch</div>
+<div class="footmeta">v1.27.0 · © 2026 sidebatch</div>
 </footer>
 </div>
 <script>
 "use strict";
-const APP_VERSION = "1.26.0";
+const APP_VERSION = "1.27.0";
 const STORAGE_KEY = "une-phrase-progress-v1";
 const SUPABASE_URL = "https://cmhitsgoicxvmlwtrdrb.supabase.co";
 const SUPABASE_KEY = "sb_publishable_iZugJ1l1p3DSk_BB2Y3N3Q_qZwSo637";
@@ -618,7 +675,7 @@ function quizPool(items, completed, currentId){
   return items.filter(i=>done.has(i.id) && i.id!==currentId);
 }
 
-/* ---------- 함께 공부 동기화 순수 함수 (테스트 대상) ---------- */
+/* ---------- Ensemble 동기화 순수 함수 (테스트 대상) ---------- */
 function remoteReviewInfo(rc){
   if(Array.isArray(rc)) return { ids: rc.map(Number).filter(n=>!isNaN(n)), count: rc.length };
   if(rc && typeof rc === "object"){
@@ -917,7 +974,7 @@ function checkQuiz(){
 }
 function endQuiz(){ quizItem = null; quizAnswered = false; renderQuizEntry(); }
 
-/* ---------- 함께 공부 (Supabase: 지연 로드, 실패해도 본체는 무영향) ---------- */
+/* ---------- Ensemble (Supabase: 지연 로드, 실패해도 본체는 무영향) ---------- */
 let sb = null;
 let sbLoadPromise = null;
 let sbAuthWired = false;
@@ -1029,12 +1086,48 @@ async function sbLogout(){
   sbUser = null; sbProfile = null; sbSyncDone = false;
   renderTogether();
 }
+/* ---------- 닉네임 모달 (바텀시트) ---------- */
+let nickAutoShown = false;
+function openNickModal(auto){
+  const ov = document.getElementById("nickOverlay"); if(!ov) return;
+  if(auto){ if(nickAutoShown) return; nickAutoShown = true; }
+  const fb = document.getElementById("sbNickFb"); if(fb) fb.innerHTML = "";
+  const inp = document.getElementById("sbNickInput"); if(inp) inp.value = "";
+  ov.hidden = false;
+  if(inp) setTimeout(()=>{ try{ inp.focus(); }catch(e){} }, 80);
+}
+function closeNickModal(){
+  const ov = document.getElementById("nickOverlay"); if(ov) ov.hidden = true;
+}
+/* ---------- 로그인 복귀 감지: OAuth에서 돌아온 실행에서만 즉시 초기화 ---------- */
+function isOAuthReturn(){
+  try{
+    const q = location.search || "";
+    const h = location.hash || "";
+    return /[?&]code=/.test(q) || h.indexOf("access_token=") !== -1;
+  }catch(e){ return false; }
+}
+async function sbAuthReturnInit(){
+  try{
+    const client = await loadSupabase();
+    if(!client) return;
+    wireSbAuth();
+    for(let i = 0; i < 10 && !sbUser; i++){
+      await sbCurrentUser();
+      if(!sbUser) await new Promise(r=>setTimeout(r, 300));
+    }
+    if(!sbUser) return;
+    await loadSbProfile();
+    if(sbProfile){ if(!sbSyncDone) await syncSbOnLogin(); }
+    else openNickModal(true);
+  }catch(e){}
+}
 async function sbSetNickname(){
   const inp = document.getElementById("sbNickInput");
   const fb = document.getElementById("sbNickFb");
   const nick = inp ? inp.value.trim() : "";
   if(nick.length < 1 || nick.length > 20){
-    if(fb) fb.innerHTML = '<div class="feedback bad">닉네임은 1~20자로 정해 주세요.</div>';
+    if(fb) fb.innerHTML = '<div class="feedback bad">닉네임은 1~20자로 입력해 주세요.</div>';
     return;
   }
   try{
@@ -1042,11 +1135,21 @@ async function sbSetNickname(){
     if(error) throw error;
     sbProfile = { id: sbUser.id, nickname: nick };
     await mergeSbAndPush();
-    renderTogether();
+    closeNickModal();
+    if(currentTab === "together") renderTogether();
   }catch(e){
-    if(e && e.code === "23505"){ if(fb) fb.innerHTML = '<div class="feedback bad">이미 쓰는 닉네임이에요. 다른 닉네임을 골라 주세요.</div>'; }
+    if(e && e.code === "23505"){ if(fb) fb.innerHTML = '<div class="feedback bad">이미 쓰이는 닉네임이에요.</div>'; }
     else if(fb) fb.innerHTML = '<div class="feedback bad">닉네임을 저장하지 못했어요. 네트워크를 확인해 보세요.</div>';
   }
+}
+const AVATAR_PASTELS = ["#fbe7ee", "#e1ebfd", "#e2f3e2", "#ece5fb", "#fdf3e0", "#e0f2f1"];
+function avatarBg(nickname){
+  let s = 0; const n = nickname || "?";
+  for(let i = 0; i < n.length; i++) s += n.charCodeAt(i);
+  return AVATAR_PASTELS[s % AVATAR_PASTELS.length];
+}
+function avatarHtml(nickname){
+  return '<span class="avatar" style="background:'+avatarBg(nickname)+'" aria-hidden="true">'+esc((nickname || "?").charAt(0))+'</span>';
 }
 async function renderTogether(){
   const el = document.getElementById("view-together");
@@ -1054,21 +1157,21 @@ async function renderTogether(){
   let client = null;
   try{ client = await loadSupabase(); }catch(e){ client = null; }
   if(!client || !sb){
-    el.innerHTML = '<div class="card"><p class="ko" style="margin:0">함께 공부는 네트워크가 필요해요. 연결을 확인하고 다시 열어 보세요.</p></div>';
+    el.innerHTML = '<div class="card"><p class="ko" style="margin:0">Ensemble은 네트워크가 필요해요. 연결을 확인하고 다시 열어 보세요.</p></div>';
     return;
   }
   wireSbAuth();
   await sbCurrentUser();
   if(!sbUser){
-    el.innerHTML = '<div class="card"><p class="ko" style="margin-top:0">같이 공부하는 사람들과 서로의 레벨과 완료 문장을 볼 수 있어요. 보이는 건 닉네임뿐입니다.</p><button class="primary" id="sbLoginBtn">구글로 시작하기</button></div>';
+    el.innerHTML = '<div class="card herocard"><div class="heroicon" aria-hidden="true">👥</div><div class="herotitle">Ensemble</div><p class="ko">같이 공부하는 사람들과 서로의 레벨과 완료 문장을 볼 수 있어요. 보이는 건 닉네임뿐입니다.</p><button class="primary" id="sbLoginBtn">구글로 시작하기</button></div>';
     const lb = document.getElementById("sbLoginBtn"); if(lb) lb.onclick = sbLogin;
     return;
   }
   if(!sbSyncDone) await syncSbOnLogin();
   if(!sbProfile) await loadSbProfile();
   if(!sbProfile){
-    el.innerHTML = '<div class="card"><p class="ko" style="margin-top:0">함께 공부에서 쓸 닉네임을 정해 주세요. 다른 사람에게는 닉네임만 보입니다.</p><input type="text" id="sbNickInput" maxlength="20" placeholder="닉네임 (1~20자)" autocomplete="off" autocapitalize="off"><div id="sbNickFb"></div><div class="btnrow" style="margin-top:12px"><button class="primary" id="sbNickBtn">정하기</button></div></div>';
-    const nb = document.getElementById("sbNickBtn"); if(nb) nb.onclick = sbSetNickname;
+    el.innerHTML = '<div class="card nickbanner"><span class="banneremoji" aria-hidden="true">✏️</span><span class="bannertext"><b>닉네임이 필요해요</b><span>닉네임을 정하면 참여자 목록에 나타나요.</span></span><button class="primary" id="sbOpenNickBtn">닉네임 정하기</button></div>';
+    const ob = document.getElementById("sbOpenNickBtn"); if(ob) ob.onclick = ()=>openNickModal(false);
     return;
   }
   await renderTogetherMembers();
@@ -1095,15 +1198,27 @@ async function renderTogetherMembers(){
     return { id: p.id, nickname: p.nickname, doneCount: cnt, xp: remoteXpOf(g), me: !!(sbUser && p.id === sbUser.id) };
   }).sort((a,b)=> (b.xp - a.xp) || a.nickname.localeCompare(b.nickname));
   const mine = rows.find(r=>r.me);
+  const pctOf = cnt => ITEMS.length ? Math.round(cnt / ITEMS.length * 100) : 0;
   let h = "";
   if(mine){
     const mlv = levelOf(mine.xp);
-    h += '<div class="card"><div class="meta">내 기록</div><div class="fr" style="font-size:20px">'+esc(mine.nickname)+'</div><p class="ko">Lv.'+mlv.lv+' '+esc(mlv.title)+' · '+mine.xp+' XP · 완료 '+mine.doneCount+' / '+ITEMS.length+'문장</p><div class="btnrow"><button class="ghost" id="sbRefreshBtn">새로고침</button><button class="ghost" id="sbLogoutBtn">로그아웃</button></div></div>';
+    const mpct = pctOf(mine.doneCount);
+    h += '<div class="card mycard"><div class="memhead">'+avatarHtml(mine.nickname)+'<span class="memname">'+esc(mine.nickname)+'</span><span class="lvbadge">Lv.'+mlv.lv+' '+esc(mlv.title)+'</span></div>'
+      + '<div class="pbar"><div class="pfill" style="width:'+mpct+'%"></div></div>'
+      + '<div class="memprog"><span>완료 '+mine.doneCount+' / '+ITEMS.length+'</span><span class="progress-pct">'+mpct+'%</span></div>'
+      + '<div class="btnrow" style="margin-top:12px"><button class="ghost" id="sbRefreshBtn">새로고침</button><button class="ghost" id="sbLogoutBtn">로그아웃</button></div></div>';
   }
-  h += '<div class="meta" style="margin:6px 2px 2px">함께 공부 중 '+rows.length+'명</div>';
+  h += '<div class="meta" style="margin:6px 2px 2px">Ensemble 참여자 '+rows.length+'명</div>';
+  if(!rows.length){
+    h += '<div class="card"><p class="ko" style="margin:0">아직 참여자가 없어요.</p></div>';
+  }
   h += rows.map(r=>{
     const lv = levelOf(r.xp);
-    return '<div class="card" style="margin:10px 0;padding:14px 16px'+(r.me?';background:var(--done-bg);border-color:var(--done-line)':'')+'"><b>'+esc(r.nickname)+'</b>'+(r.me?' (나)':'')+' <span class="meta">Lv.'+lv.lv+' '+esc(lv.title)+' · '+r.xp+' XP · 완료 '+r.doneCount+' / '+ITEMS.length+'</span><div style="margin-top:10px"><button class="ghost" data-sbdone="'+esc(r.id)+'">완료 문장 보기</button></div><div id="sbdone-'+esc(r.id)+'"></div></div>';
+    const pct = pctOf(r.doneCount);
+    return '<div class="card membercard'+(r.me?" me":"")+'"><div class="memhead">'+avatarHtml(r.nickname)+'<span class="memname">'+esc(r.nickname)+(r.me?' (나)':'')+'</span><span class="lvbadge">Lv.'+lv.lv+' '+esc(lv.title)+'</span></div>'
+      + '<div class="pbar"><div class="pfill" style="width:'+pct+'%"></div></div>'
+      + '<div class="memprog"><span>완료 '+r.doneCount+' / '+ITEMS.length+'</span><span>'+r.xp+' XP</span></div>'
+      + '<div style="margin-top:10px"><button class="ghost" data-sbdone="'+esc(r.id)+'">완료 문장 보기</button></div><div id="sbdone-'+esc(r.id)+'"></div></div>';
   }).join("");
   el.innerHTML = h;
   const rb = document.getElementById("sbRefreshBtn"); if(rb) rb.onclick = ()=>renderTogether();
@@ -1125,7 +1240,7 @@ async function toggleMemberDone(userId, btn){
   ITEMS.forEach(i=>{ byIdMap[i.id] = i; });
   const list = ids.map(id=>byIdMap[id]).filter(Boolean);
   box.innerHTML = list.length
-    ? '<div style="margin-top:6px">'+list.map(i=>'<div style="padding:7px 0;border-top:1px solid var(--line-soft)"><b>'+i.id+'.</b> '+esc(i.fr)+'<br><span class="meta">'+esc(i.topic)+' · '+esc(i.level)+'</span></div>').join("")+'</div>'
+    ? '<div class="donelist">'+list.map(i=>'<div class="doneitem"><b>'+i.id+'.</b> '+esc(i.fr)+'<br><span class="meta">'+esc(i.topic)+' · '+esc(i.level)+'</span></div>').join("")+'</div>'
     : '<p class="meta" style="margin:8px 0 0">아직 완료한 문장이 없어요.</p>';
   btn.textContent = "완료 문장 닫기";
 }
@@ -1163,8 +1278,12 @@ function openMenu(){
   menuOpen = true;
   const ov = document.getElementById("menuOverlay"); if(ov) ov.hidden = false;
   const mb = document.getElementById("menuBtn"); if(mb) mb.setAttribute("aria-expanded", "true");
-  const chips = document.querySelectorAll(".menuchip");
-  ["study","browse","words","together","about"].forEach((t,i)=>{ if(chips[i]) chips[i].hidden = t !== currentTab; });
+  document.querySelectorAll(".menurow[data-menu]").forEach(row=>{
+    const active = row.getAttribute("data-menu") === currentTab;
+    row.classList.toggle("on", active);
+    const dot = row.querySelector(".menudot");
+    if(dot) dot.hidden = !active;
+  });
 }
 function closeMenu(){
   menuOpen = false;
@@ -1220,6 +1339,10 @@ document.getElementById("menuBtn").onclick = ()=>openMenu();
 document.getElementById("menuCloseBtn").onclick = ()=>closeMenu();
 document.getElementById("menuBackdrop").onclick = ()=>closeMenu();
 document.querySelectorAll("[data-menu]").forEach(b=>b.onclick=()=>goMenu(b.getAttribute("data-menu")));
+document.getElementById("nickCloseBtn").onclick = ()=>closeNickModal();
+document.getElementById("nickBackdrop").onclick = ()=>closeNickModal();
+document.getElementById("sbNickBtn").onclick = ()=>sbSetNickname();
+document.getElementById("sbNickInput").addEventListener("keydown", (e)=>{ if(e.key === "Enter"){ e.preventDefault(); sbSetNickname(); } });
 function renderSoundBtn(){ const b = document.getElementById("soundBtn"); if(b) b.textContent = soundEnabled() ? "효과음 끄기" : "효과음 켜기"; }
 document.getElementById("soundBtn").onclick = ()=>{ progress.sound = !soundEnabled(); saveProgress(); renderSoundBtn(); if(soundEnabled()) playSound(true); };
 renderSoundBtn();
@@ -1252,6 +1375,7 @@ document.getElementById("shareBtn").onclick = ()=>{ shareApp(); };
 renderResetZone();
 if("serviceWorker" in navigator){ navigator.serviceWorker.register("./sw.js").catch(()=>{}); }
 initStorage().then(()=>{ renderSoundBtn(); renderStudy(); });
+if(isOAuthReturn()){ sbAuthReturnInit(); }
 </script>
 <script data-goatcounter="https://une-phrase.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
