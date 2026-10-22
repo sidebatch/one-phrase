@@ -377,7 +377,7 @@ console.log("\n[메뉴 전용 이동 (v1.25.0)·느리게 듣기·하단 버튼 
 ok(!html.includes('id="tabBar"') && !html.includes("tabBtn") && html.includes('id="menuBtn"') && html.includes("☰ 메뉴"), "탭 바 제거: #tabBar·탭 버튼이 없고 헤더 메뉴 버튼만 남음");
 ok(!html.includes("✕ 나가기") && !html.includes("exitFocus") && !html.includes("focusOff") && !html.includes("exitbtn"), "메뉴: 기존 나가기 버튼과 포커스 해제 상태(exitFocus·focusOff)가 완전히 제거됨");
 ok(html.includes('id="menuOverlay" hidden') && html.includes('id="menuBackdrop"') && html.includes('id="menuCloseBtn"') && html.includes("닫기"), "메뉴: 배경·닫기를 갖춘 메뉴 패널이 처음에는 숨겨져 있음");
-ok(html.includes('data-menu="study"') && html.includes('data-menu="browse"') && html.includes('data-menu="words"') && html.includes('data-menu="about"') && html.includes("지금 여기"), "메뉴: 목적지 4곳 행 (공부하기에는 '지금 여기' 표시)");
+ok(html.includes('data-menu="study"') && html.includes('data-menu="browse"') && html.includes('data-menu="words"') && html.includes('data-menu="together"') && html.includes('data-menu="about"') && html.includes("지금 여기"), "메뉴: 목적지 5곳 행 (공부하기에는 '지금 여기' 표시)");
 ok(html.includes('role="dialog"') && html.includes('aria-haspopup="dialog"'), "메뉴: 패널에 dialog 역할, 버튼에 aria-haspopup 표시");
 ok(!/\.tabs\{/.test(html) && !html.includes('class="tabs"'), "탭 바 제거: .tabs CSS도 함께 제거됨");
 ok(/\.menubtn\[hidden\]\{display:none\}/.test(html) && /\.menuoverlay\[hidden\]\{display:none\}/.test(html), "메뉴: 메뉴 버튼·패널도 hidden이면 확실히 숨겨짐");
@@ -572,11 +572,11 @@ ok(html.includes('class="wtext"'), "단어 행: 텍스트가 .wtext로 감싸져
 ok(!html.includes("focusbar") && !html.includes("Focusbar"), "메뉴 전역화: 공부 전용 포커스 바(focusbar) 마크업·CSS 제거됨");
 ok(html.indexOf('id="menuBtn"') > html.indexOf('class="brandrow"') && html.indexOf('id="menuBtn"') < html.indexOf("</header>"), "메뉴 전역화: 메뉴 버튼이 헤더(brandrow) 안에 있음 — 모든 화면에서 보임");
 ok(html.indexOf('id="menuOverlay"') < html.indexOf('id="tab-study"'), "메뉴 전역화: 메뉴 패널이 공부 탭 밖(전역)에 있어 어느 탭에서도 열림");
-ok((html.match(/class="menuchip"/g) || []).length === 4, "메뉴: 네 행 모두 '지금 여기' 칩을 갖고 있고, 여는 위치에 따라 표시가 바뀜");
+ok((html.match(/class="menuchip"/g) || []).length === 5, "메뉴: 다섯 행 모두 '지금 여기' 칩을 갖고 있고, 여는 위치에 따라 표시가 바뀜");
 const omSrc = html.match(/function openMenu\(\)\{[\s\S]*?\n\}/)[0];
 ok(omSrc.includes('querySelectorAll(".menuchip")') && omSrc.includes("currentTab"), "메뉴: 열 때 현재 탭에 맞춰 '지금 여기' 칩을 다시 맞춤");
 // '지금 여기' 칩 스모크: 현재 탭이 단어일 때 열면 단어 행에만 칩이 보임
-const OM_CHIPS = [{ hidden: false }, { hidden: true }, { hidden: true }, { hidden: true }];
+const OM_CHIPS = [{ hidden: false }, { hidden: true }, { hidden: true }, { hidden: true }, { hidden: true }];
 const omDoc = {
   getElementById(){ return { hidden: true, setAttribute(){} }; },
   querySelectorAll(sel){ return sel === ".menuchip" ? OM_CHIPS : []; }
@@ -588,9 +588,11 @@ const omPrelude = [
 ].join("\n");
 eval(omPrelude + "\n" + omSrc + "\n" + [
   'openMenu();',
-  'ok(OM_CHIPS[0].hidden === true && OM_CHIPS[1].hidden === true && OM_CHIPS[2].hidden === false && OM_CHIPS[3].hidden === true, "메뉴 스모크: 단어 탭에서 열면 \'지금 여기\'는 단어 행에만 표시");',
+  'ok(OM_CHIPS[0].hidden === true && OM_CHIPS[1].hidden === true && OM_CHIPS[2].hidden === false && OM_CHIPS[3].hidden === true && OM_CHIPS[4].hidden === true, "메뉴 스모크: 단어 탭에서 열면 \'지금 여기\'는 단어 행에만 표시");',
+  'currentTab = "together"; openMenu();',
+  'ok(OM_CHIPS[3].hidden === false && OM_CHIPS[2].hidden === true && OM_CHIPS[4].hidden === true, "메뉴 스모크: 함께 공부 탭에서 열면 \'지금 여기\'가 함께 공부 행으로 이동");',
   'currentTab = "about"; openMenu();',
-  'ok(OM_CHIPS[3].hidden === false && OM_CHIPS[2].hidden === true, "메뉴 스모크: 설명 탭에서 열면 \'지금 여기\'가 설명 행으로 이동");'
+  'ok(OM_CHIPS[4].hidden === false && OM_CHIPS[3].hidden === true, "메뉴 스모크: 설명 탭에서 열면 \'지금 여기\'가 설명 행으로 이동");'
 ].join("\n"));
 
 console.log("\n[목록 행 구조 통일 (v1.25.0)]");
@@ -644,6 +646,53 @@ const bwDriver = [
   'ok(wl.includes(\'</span><span class="wlearned">✓ 학습</span>\'), "단어 행 스모크: ✓ 학습 칩은 뜻 텍스트 밖, 행의 고정 위치(오른쪽)에 따로 붙음");'
 ].join("\n");
 eval(bwPrelude + "\n" + bwFns + "\n" + bwDriver);
+
+console.log("\n[함께 공부: Supabase 연동 (v1.26.0)]");
+ok(html.includes('const SUPABASE_URL = "https://cmhitsgoicxvmlwtrdrb.supabase.co";') && html.includes('const SUPABASE_KEY = "sb_publishable_'), "Supabase 상수: 프로젝트 URL + publishable 키가 코드에 있음");
+ok(html.includes('id="view-together"') && html.includes('id="tab-together" hidden'), "함께 공부: 전용 화면(#view-together)이 탭으로 있고 처음에는 숨겨져 있음");
+ok(html.includes('data-menu="together"') && html.includes("👥 함께 공부"), "함께 공부: 메뉴 행이 단어와 설명 사이에 있음");
+ok(html.indexOf('data-menu="words"') < html.indexOf('data-menu="together"') && html.indexOf('data-menu="together"') < html.indexOf('data-menu="about"'), "함께 공부: 메뉴 순서가 단어 → 함께 공부 → 설명");
+ok(html.includes("cdn.jsdelivr.net/npm/@supabase/supabase-js@2") && html.includes('document.createElement("script")') && html.includes("function loadSupabase()"), "함께 공부: supabase-js는 처음부터 넣지 않고 동적 스크립트로 지연 로드");
+ok(html.includes("구글로 시작하기"), "함께 공부: 비로그인 상태에서 '구글로 시작하기' 버튼을 제시함");
+ok(html.includes("signInWithOAuth") && html.includes('provider: "google"') && html.includes("redirectTo: location.origin + location.pathname"), "함께 공부: 구글 OAuth 로그인 호출 (앱 주소로 복귀)");
+ok(html.includes('"23505"') && html.includes("이미 쓰는 닉네임이에요"), "함께 공부: 닉네임 중복(23505) 안내 있음");
+ok(html.includes("네트워크가 필요해요"), "함께 공부: 오프라인·로드 실패 시 안내 문구 있음");
+const spSrc = html.match(/function saveProgress\(\)\{[\s\S]*?\n\}/)[0];
+ok(spSrc.includes("scheduleSbUpload()"), "동기화: saveProgress가 서버 업로드를 예약함 (디바운스)");
+ok(html.includes("setTimeout(()=>{ pushSbProgress(); }, 1500)"), "동기화: 업로드 디바운스 1.5초");
+ok(html.includes("reviewIds:[]"), "동기화 재료: 진행 기록 기본값에 reviewIds 배열 있음");
+const cqSrc2 = html.match(/function checkQuiz\(\)[\s\S]*?\n\}/)[0];
+ok(cqSrc2.includes("progress.reviewIds") && cqSrc2.includes("progress.reviewIds.push(quizItem.id)"), "동기화 재료: 퀴즈 정답 시 맞힌 문장 id를 reviewIds에 기록 (중복 없이)");
+ok(html.includes("function syncSbOnLogin()") && html.includes("onAuthStateChange"), "동기화: 로그인·세션 복원 시 1회 병합 동기화 경로 있음");
+// mergeProgressData 순수 함수 의미 테스트
+const rriSrc = html.match(/function remoteReviewInfo[\s\S]*?\n\}/)[0];
+const mpdSrc = html.match(/function mergeProgressData[\s\S]*?\n\}/)[0];
+const ptrSrc = html.match(/function progressToRemote[\s\S]*?\n\}/)[0];
+const rxpSrc = html.match(/function remoteXpOf[\s\S]*?\n\}/)[0];
+eval(rriSrc); eval(mpdSrc); eval(ptrSrc); eval(xpSrc2); eval(rxpSrc);
+{ const m = mergeProgressData(
+    { completed:[1,2], completedAt:{1:"2026-10-20",2:"2026-10-19"}, reviewCorrect:3, reviewIds:[7] },
+    { completed:{2:"2026-10-21",3:null}, review_correct:{ ids:[8], count:2 } });
+  ok(m.completed.join(",") === "1,2,3", "병합: 완료는 합집합 (로컬 1·2 + 서버 3)");
+  ok(m.completedAt[1] === "2026-10-20" && m.completedAt[2] === "2026-10-19", "병합: 날짜는 더 이른 쪽 유지 (서버의 늦은 날짜로 덮지 않음)");
+  ok(!("3" in m.completedAt), "병합: 서버 날짜가 null이면 completedAt에 날짜를 만들지 않음");
+  ok(m.reviewIds.join(",") === "7,8", "병합: reviewIds 합집합");
+  ok(m.reviewCorrect === 3, "병합: reviewCorrect는 max(로컬 3, 서버 count 2, 합집합 길이 2) = 3"); }
+{ const m = mergeProgressData(
+    { completed:[5], completedAt:{}, reviewCorrect:0, reviewIds:[] },
+    { completed:{5:"2026-10-18"}, review_correct:{ ids:[], count:0 } });
+  ok(m.completedAt[5] === "2026-10-18", "병합: 로컬 날짜가 없으면 서버 날짜를 채택");
+  const m2 = mergeProgressData({ completed:[1], completedAt:{1:"2026-10-20"}, reviewCorrect:1, reviewIds:[2] }, null);
+  ok(m2.completed.join(",") === "1" && m2.reviewCorrect === 1 && m2.reviewIds.join(",") === "2", "병합: 서버 기록이 없으면(null) 로컬 그대로");
+  const m3 = mergeProgressData({ completed:[], completedAt:{}, reviewCorrect:0, reviewIds:[] },
+    { completed:{}, review_correct:[4,9] });
+  ok(m3.reviewIds.join(",") === "4,9" && m3.reviewCorrect === 2, "병합: 레거시 배열형 review_correct는 id 목록이자 개수로 간주");
+  const rt = progressToRemote({ completed:[1,2], completedAt:{1:"2026-10-20"}, reviewCorrect:4, reviewIds:[3] });
+  ok(Object.keys(rt.completed).join(",") === "1,2" && rt.completed[1] === "2026-10-20" && rt.completed[2] === null, "업로드 모양: completed는 {id: 날짜|null} 객체");
+  ok(rt.review_correct.count === 4 && rt.review_correct.ids.join(",") === "3", "업로드 모양: review_correct는 {ids, count} 객체");
+  ok(remoteXpOf({ completed:{1:null,2:null,3:null}, review_correct:{ ids:[], count:2 } }) === 40, "참여자 XP: 완료 3개×10 + 복습 count 2×5 = 40");
+  ok(remoteXpOf({ completed:{1:null}, review_correct:[5,6] }) === 20, "참여자 XP: 레거시 배열은 길이로 계산 (10 + 2×5)");
+  ok(remoteXpOf(null) === 0 && remoteXpOf({}) === 0, "참여자 XP: 기록이 없으면 0"); }
 
 console.log("\n[버전·파일]");
 const ver = html.match(/const APP_VERSION = "([^"]+)"/)[1];
