@@ -1036,6 +1036,14 @@ ok(LEVEL_ICON_ART_EVAL[0].includes("#f2c14e") && LEVEL_ICON_ART_EVAL[1].includes
 ok(LEVEL_ICON_ART_EVAL[5].includes("#23262b") && LEVEL_ICON_ART_EVAL[5].includes("#cfd6de") && LEVEL_ICON_ART_EVAL[6].includes("#eec25e") && LEVEL_ICON_ART_EVAL[7].includes("#1e4fa3") && LEVEL_ICON_ART_EVAL[7].includes("#7db4ff") && LEVEL_ICON_ART_EVAL[8].includes("#f4fbff") && LEVEL_ICON_ART_EVAL[8].includes("#6db3f2") && LEVEL_ICON_ART_EVAL[9].includes('stroke="#eec25e"') && LEVEL_ICON_ART_EVAL[9].includes("#232d38"), "펜 아이콘: 6~10단계가 실버·골드·사파이어·다이아 만년필과 깃털펜 순서");
 ok(levelIcon(1).includes("<svg") && levelIcon(1).includes('data-lv="1"') && levelIcon(10, 64).includes('width="64"') && levelIcon(10, 64).includes('data-lv="10"'), "펜 아이콘: levelIcon이 단계·크기에 맞는 인라인 SVG를 돌려줌");
 ok(!levelIcon(1).includes("#fdf6e9") && !levelIcon(5).includes('r="48"') && !levelIcon(9).includes("#e7d9b8") && levelIcon(1).includes("scale(1.34)") && levelIcon(9).includes("scale(1)") && levelIcon(10).includes("scale(1.08)"), "펜 아이콘: 크림 원판 제거 + 단계별 확대로 프레임을 채워 표시");
+const fxCount = (lv, cls) => (levelIcon(lv).match(new RegExp(cls, "g")) || []).length;
+ok(!levelIcon(1).includes("lvfx") && !levelIcon(2).includes("lvfx") && !levelIcon(3).includes("lvfx"), "빛 효과: Lv.1~3은 효과 없이 깨끗한 시작");
+ok(fxCount(4, "lvfx-spk") === 1 && !levelIcon(4).includes("lvfx-glow") && fxCount(5, "lvfx-spk") === 1 && !levelIcon(5).includes("lvfx-glow"), "빛 효과: Lv.4~5는 금색 반짝이 1개만");
+ok(levelIcon(6).includes("lvfx-glow") && fxCount(6, "lvfx-spk") === 1 && levelIcon(7).includes("lvfx-glow") && fxCount(7, "lvfx-spk") === 1 && !levelIcon(7).includes("lvfx-ring"), "빛 효과: Lv.6~7은 후광 + 반짝이 1개 (링 없음)");
+ok(levelIcon(8).includes("lvfx-glow") && fxCount(8, "lvfx-spk") === 2 && !levelIcon(8).includes("lvfx-ring"), "빛 효과: Lv.8은 후광 + 반짝이 2개 (링 없음)");
+ok(levelIcon(9).includes("lvfx-glow") && levelIcon(9).includes("lvfx-ring") && fxCount(9, "lvfx-spk") === 3 && !levelIcon(9).includes("lvfx-ray"), "빛 효과: Lv.9는 후광 + 빛 링 + 반짝이 3개 (빛줄기 없음)");
+ok(levelIcon(10).includes("lvfx-glow") && levelIcon(10).includes("lvfx-ring") && fxCount(10, "lvfx-ray") === 8 && fxCount(10, "lvfx-spk") === 3, "빛 효과: Lv.10은 후광 + 빛 링 + 빛줄기 8방향 + 반짝이 3개로 가장 화려함");
+ok([3,5,7,8,9].every(lv => fxCount(lv, "lvfx") < fxCount(lv+1, "lvfx")) && [1,2,3,4,5,6,7,8,9].every(lv => fxCount(lv, "lvfx") <= fxCount(lv+1, "lvfx")), "빛 효과: 효과 요소 수가 줄지 않고 구간마다 늘어남 (농도·크기 증가 포함 단조 증가)");
 ok(!html.includes("LEVEL_MEDALS") && !html.includes("medalOf"), "펜 아이콘: 기존 이모지 메달 체계(LEVEL_MEDALS·medalOf)가 제거됨");
 ok(lvArrSrc.includes('title:"몽당연필"') && lvArrSrc.includes('title:"실버 만년필"') && lvArrSrc.includes('title:"골드 만년필"') && lvArrSrc.includes('title:"다이아 만년필"') && lvArrSrc.includes('title:"깃털펜"'), "펜 아이콘: 레벨 이름이 펜 사다리(몽당연필→깃털펜)로 교체됨");
 ok(rtmSrc.includes("levelIcon(lv.lv") && rtmSrc.includes("pl.icon"), "펜 아이콘: Ensemble 참여자 카드의 Lv 배지와 언어별 칩에 펜 아이콘 표시");
