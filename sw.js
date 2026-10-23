@@ -1,5 +1,5 @@
 /* One Phrase - 오프라인용 서비스 워커 (네트워크 우선) */
-const CACHE = 'une-phrase-v1.33.1';
+const CACHE = 'une-phrase-v1.34.0';
 const ASSETS = [
   './',
   './index.html',

@@ -20,9 +20,9 @@ ok(ITEMS.every(i => i.pattern && i.pattern.length >= 10), "패턴 한 줄 있음
 ok(ITEMS.every(i => Array.isArray(i.words) && i.words.length >= 1 && i.words.every(w => w[0] && w[1])), "핵심 단어 1개 이상");
 ok(ITEMS.every(i => i.topic && i.level && i.tef), "주제·레벨·TEF 연결 있음");
 ok(ITEMS.every(i => ["A1", "A2", "B1", "B2"].includes(i.level)), "레벨은 A1/A2/B1/B2 (A1 도입, v1.33.0)");
-ok(ITEMS.length === 306, "프랑스어 문장 총 306개 (실제 " + ITEMS.length + ")");
+ok(ITEMS.length === 346, "프랑스어 문장 총 346개 (실제 " + ITEMS.length + ")");
 { const dist = lv => ITEMS.filter(i => i.level === lv).length;
-  ok(dist("A1") === 10 && dist("A2") === 98 && dist("B1") === 96 && dist("B2") === 102, "프랑스어 레벨 분포: A1 10 · A2 98 · B1 96 · B2 102 (신규 A1~A2 20개 반영)"); }
+  ok(dist("A1") === 50 && dist("A2") === 98 && dist("B1") === 96 && dist("B2") === 102, "프랑스어 레벨 분포: A1 50 · A2 98 · B1 96 · B2 102 (A1 40개 추가 반영)"); }
 ok(ITEMS.every(i => /(EO 말하기|EE 쓰기|CE 읽기|CO 듣기)/.test(i.tef)), "TEF 표기에 한국어 영역명 병기");
 const topics = [...new Set(ITEMS.map(i => i.topic))];
 ok(topics.length >= 8, "주제 8종 이상 (실제 " + topics.length + ": " + topics.join(",") + ")");
@@ -1292,10 +1292,10 @@ async function runEqEnsembleSmoke() {
   const h = E2_ELS["view-together"].innerHTML;
   ok(!eqConds.some(c => c.indexOf("progress:lang=") === 0), "동등성 Ensemble: progress는 언어로 걸러지 않고 전 언어 행을 가져옴");
   ok(h.includes("완료 2 / 30"), "동등성 Ensemble: 메인 진행 바는 활성 언어(es) 기준 2/30 (fr 기록 3개가 섞이지 않음)");
-  ok(h.includes("프랑스어 🌿 Lv.2 · 3/306문장"), "동등성 Ensemble: 내 카드 칩에 프랑스어 (Lv.2 · 3/306문장 — 완료 3개=30 XP로 따로 계산)");
+  ok(h.includes("프랑스어 🌿 Lv.2 · 3/346문장"), "동등성 Ensemble: 내 카드 칩에 프랑스어 (Lv.2 · 3/306문장 — 완료 3개=30 XP로 따로 계산)");
   ok(h.includes("스페인어 🌱 Lv.1 · 2/30문장"), "동등성 Ensemble: 내 카드 칩에 스페인어 (Lv.1 · 2/30문장 — 언어가 합산되지 않음)");
   ok(h.includes("영어 🌱 Lv.1 · 0/30문장"), "동등성 Ensemble: 진도가 없는 언어도 Lv.1 · 0문장으로 표시되어 3개 언어가 전부 보임");
-  ok(h.includes("스페인어 🌱 Lv.1 · 1/30문장") && h.includes("프랑스어 🌱 Lv.1 · 1/306문장"), "동등성 Ensemble: 다른 참여자 카드에도 언어별 레벨·완료 수가 표시됨");
+  ok(h.includes("스페인어 🌱 Lv.1 · 1/30문장") && h.includes("프랑스어 🌱 Lv.1 · 1/346문장"), "동등성 Ensemble: 다른 참여자 카드에도 언어별 레벨·완료 수가 표시됨");
   ok((h.match(/\(나\)/g) || []).length === 1 && !h.includes("mycard"), "회귀(F): 본인 카드는 참여자 목록에서 한 번만 렌더됨 (별도 내 카드 중복 제거)");
   ok(!h.includes("sbRefreshBtn") && !h.includes("sbLogoutBtn"), "Ensemble 정리(G): 새로고침·로그아웃 버튼이 목록 화면에 없음 (로그아웃은 내 정보 모달에만)");
   const fakeBtn = { textContent: "" };
@@ -1368,7 +1368,7 @@ eval(eqHelperSrc + "\n" + html.match(/function levelOptions\(\)\{[\s\S]*?\n\}/)[
   'progress.byLang.fr.levelFilter = "A2";',
   'ok(studyItems().length === 98 && studyItems().every(i => i.level === "A2"), "레벨 선택 의미: A2를 고르면 순차 큐가 A2 98개로 제한됨");',
   'progress.byLang.fr.levelFilter = "A1";',
-  'ok(studyItems().length === 10 && currentItem().level === "A1", "레벨 선택 의미: A1 큐에서는 현재 문장도 A1");',
+  'ok(studyItems().length === 50 && currentItem().level === "A1", "레벨 선택 의미: A1 큐에서는 현재 문장도 A1");',
   'progress.lang = "es"; progress.byLang.es.levelFilter = "B2";',
   'ok(levelFilter() === "전체" && studyItems().length === 30, "레벨 선택 의미: 그 언어에 없는 레벨이 저장돼 있으면 전체로 안전하게 동작");',
   'ok(levelOptions().join(",") === "전체,A1,A2,B1", "레벨 선택 의미: 스페인어 칩은 있는 레벨만 표시 (B2 없음)");',
@@ -1449,10 +1449,10 @@ eval(lvPrelude + "\n" + helperSrc + "\n" + lvFns + "\n" + [
   'LV_CHIPS.find(c => c._lv === "A2").onclick();',
   'ok(B.levelFilter === "A2" && currentItem().level === "A2", "레벨 스모크: A2 칩을 누르면 큐가 A2로 제한되고 현재 문장도 A2");',
   'ok(B.index === 1 && currentStep === 1, "레벨 스모크: 범위 안 첫 미완료 문장(두 번째 A2)부터 1단계로 시작");',
-  'ok(LV_ELS["progressLine"].textContent.indexOf("A2에서 1 / 98문장 완료") === 0 && LV_ELS["progressLine"].textContent.includes("전체 1 / 306문장"), "레벨 스모크: 상단 진행 표기가 범위 기준 + 전체 병행 (실제: " + LV_ELS["progressLine"].textContent + ")");',
+  'ok(LV_ELS["progressLine"].textContent.indexOf("A2에서 1 / 98문장 완료") === 0 && LV_ELS["progressLine"].textContent.includes("전체 1 / 346문장"), "레벨 스모크: 상단 진행 표기가 범위 기준 + 전체 병행 (실제: " + LV_ELS["progressLine"].textContent + ")");',
   'ok(LV_ELS["progressPct"].textContent.indexOf("A2 ") === 0, "레벨 스모크: 진행률 표기도 범위 기준");',
   'LV_CHIPS.find(c => c._lv === "전체").onclick();',
-  'ok(B.levelFilter === "전체" && LV_ELS["progressLine"].textContent.indexOf("지금까지 1 / 306문장 완료") === 0, "레벨 스모크: 전체 칩으로 돌아오면 기존 전체 표기로 복귀");'
+  'ok(B.levelFilter === "전체" && LV_ELS["progressLine"].textContent.indexOf("지금까지 1 / 346문장 완료") === 0, "레벨 스모크: 전체 칩으로 돌아오면 기존 전체 표기로 복귀");'
 ].join("\n"));
 
 console.log("\n[Ensemble 개편: 전 언어 표시·중복 제거·버튼 정리 (v1.33.0)]");
@@ -1567,7 +1567,7 @@ async function runBootRestoreSmoke() {
   ok(storeA.progress.some(r => r.user_id === "user-1" && r.lang === "fr"), "부팅 복원 스모크: 복원 시 현재 언어 진도 동기화(병합 후 업로드)가 실행됨");
   await openProfile();
   ok(worldA.els["profileBody"].innerHTML.includes("테스터") && worldA.els["profileBody"].innerHTML.includes('id="profileLogoutBtn"'), "부팅 복원 스모크: 내 정보를 열면 게스트가 아니라 닉네임·로그아웃이 있는 로그인 상태로 표시됨");
-  ok(worldA.els["profileBody"].innerHTML.includes("완료 2 / 306문장") && worldA.els["profileBody"].innerHTML.includes("복습 맞힘 1개"), "부팅 복원 스모크: 서버 진도(완료 2·복습 1)가 병합되어 내 정보 통계에 반영됨");
+  ok(worldA.els["profileBody"].innerHTML.includes("완료 2 / 346문장") && worldA.els["profileBody"].innerHTML.includes("복습 맞힘 1개"), "부팅 복원 스모크: 서버 진도(완료 2·복습 1)가 병합되어 내 정보 통계에 반영됨");
 
   // 시나리오 B: 세션 없이 부팅 → 게스트 그대로
   const worldB = makeBrWorld(); BR_DOC = worldB.doc;
