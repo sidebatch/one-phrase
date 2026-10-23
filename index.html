@@ -238,6 +238,9 @@ textarea:focus,input[type=text]:focus{border-color:var(--blue-text);box-shadow:v
 .diff-line .wdiff{background:var(--diffmark);border-radius:4px;padding:0 3px;box-shadow:inset 0 -2px 0 var(--diff-under)}
 .diff-line .adiff{font-weight:800;border-bottom:2px solid var(--blue-text);padding:0 1px}
 .diff-empty{color:var(--sub)}
+.mydiff{display:flex;gap:8px;margin:8px 0 2px;line-height:1.65}
+.mydiff .wdiff{background:var(--diffmark);border-radius:4px;padding:0 3px;box-shadow:inset 0 -2px 0 var(--diff-under)}
+.quiztip{color:var(--sub);font-size:13.5px;margin:8px 0 0;line-height:1.55}
 .donebox{text-align:center;padding:28px 16px;animation:fadeUp .3s var(--ease)}
 .donecircle{width:64px;height:64px;margin:2px auto 10px;border-radius:50%;background:var(--blue);color:#fff;font-size:32px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:var(--accent-shadow);animation:pop .45s var(--ease)}
 .donebox .big{font-size:24px;font-weight:900;margin:var(--sp2) 0}
@@ -364,6 +367,15 @@ summary{font-weight:800;cursor:pointer}
 </div>
 </div>
 
+<div class="modaloverlay" id="mapOverlay" hidden>
+<div class="modalbackdrop" id="mapBackdrop"></div>
+<div class="modalpanel" role="dialog" aria-modal="true" aria-label="정복 지도">
+<div class="modalhead"><span class="modaltitle">정복 지도</span><button class="modalclose" id="mapCloseBtn" aria-label="닫기">✕</button></div>
+<p class="modaldesc">주제를 누르면 그 주제로 공부하러 가요. 그냥 닫으면 지금 보던 문장으로 돌아옵니다.</p>
+<div id="mapSheetGrid"></div>
+</div>
+</div>
+
 <div id="tab-study">
 <div id="mapStrip"></div>
 <div id="quizArea"></div>
@@ -373,6 +385,7 @@ summary{font-weight:800;cursor:pointer}
 </div>
 
 <div id="tab-browse" hidden>
+<button class="ghost" id="browseBackBtn" style="margin-bottom:10px">← 공부로 돌아가기</button>
 <p class="lead">주제를 눌러 문장을 골라 볼 수 있어요.</p>
 <div id="topicMap"></div>
 <div id="topicFilter" style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0"></div>
@@ -404,7 +417,7 @@ summary{font-weight:800;cursor:pointer}
 <p>문장 완료 +10 XP, 복습 퀴즈 정답 +5 XP. 레벨이 오르면 메달이 바뀌어요 (🌱 → 👑).</p>
 </details>
 <details><summary>망각곡선 복습</summary>
-<p>완료한 문장은 잊을 때쯤 (1일 · 3일 · 7일 · 16일 · 35일 간격) "오늘의 복습"으로 돌아와요. 맞히면 간격이 늘고, 틀리면 내일 다시 와요. 하루를 빠져도 밀린 복습이 빚처럼 쌓이지 않고, 돌아온 날부터 다시 시작돼요. 곡선을 지킨 날은 "망각곡선 기록"에 누적됩니다.</p>
+<p>완료한 문장은 잊을 때쯤 (1일 · 3일 · 7일 · 16일 · 35일 간격) "오늘의 복습"으로 돌아와요. 맞히면 간격이 늘고, 틀리면 내일 다시 와요. 하루를 빠져도 밀린 복습이 빚처럼 쌓이지 않고, 돌아온 날부터 다시 시작돼요. 곡선을 지킨 날은 "망각곡선 기록"에 누적됩니다. 복습 순서는 오래 기다린 문장부터, 단계가 낮은 문장부터예요. 틀린 문장은 그날 다시 풀어 맞히면 해결돼요.</p>
 </details>
 <details><summary>효과음</summary>
 <p>정답·오답 소리와 문장을 끝냈을 때의 완료 소리를 냅니다. 완료 소리는 공부하는 언어마다 조금씩 달라요.</p>
@@ -433,12 +446,12 @@ summary{font-weight:800;cursor:pointer}
 
 <footer>
 <div class="footbrand"><span class="footlogo" id="footTile" aria-hidden="true">O</span><span class="footword" id="footWord">ONE PHRASE</span><span class="footko" id="footKo">한 문장 외국어</span></div>
-<div class="footmeta">v1.35.0 · © 2026 sidebatch</div>
+<div class="footmeta">v1.35.1 · © 2026 sidebatch</div>
 </footer>
 </div>
 <script>
 "use strict";
-const APP_VERSION = "1.35.0";
+const APP_VERSION = "1.35.1";
 const STORAGE_KEY = "une-phrase-progress-v1";
 const SUPABASE_URL = "https://cmhitsgoicxvmlwtrdrb.supabase.co";
 const SUPABASE_KEY = "sb_publishable_iZugJ1l1p3DSk_BB2Y3N3Q_qZwSo637";
@@ -891,6 +904,16 @@ function wrongHtml(mine, answer){
     + '<div class="diff-row"><span class="diff-label">내가 쓴 문장</span><span class="diff-line">'+segMine+'</span></div>'
     + '<div class="diff-row"><span class="diff-label">정답</span><span class="diff-line">'+segAns+'</span></div></div>';
 }
+function quizWrongHtml(mine, answer){
+  const ansBox = '<div class="answerbox"><span class="answer-label">정답</span><div class="answer-fr">'+esc(answer)+'</div></div>';
+  if(!normalizeForCompare(mine)){
+    return '<div class="feedback bad">아직 쓰지 않았어요</div>' + ansBox + '<p class="quiztip">정답을 한 번 소리 내어 읽어 보고, 틀린 문장 다시 풀기에서 한 번 더 써 보세요.</p>';
+  }
+  const d = diffWords(mine, answer);
+  const segMine = d.mine.map((w,i)=> d.mineDiff[i] ? '<span class="wdiff">'+esc(w)+'</span>' : esc(w)).join(" ");
+  return '<div class="feedback bad">여기가 달라요</div>' + ansBox
+    + '<div class="mydiff"><span class="diff-label">내가 쓴 문장</span><span class="diff-line">'+segMine+'</span></div>';
+}
 function activityOf(p){
   if(!p) return -1;
   if(p.byLang && typeof p.byLang === "object"){
@@ -978,13 +1001,13 @@ function cloneReviewState(state){
   const out = {};
   if(state && typeof state === "object") Object.keys(state).forEach(k=>{
     const e = state[k] || {};
-    out[k] = { step: (typeof e.step === "number" ? e.step : 0), due: (typeof e.due === "string" ? e.due : null), last: (typeof e.last === "string" ? e.last : null) };
+    out[k] = { step: (typeof e.step === "number" ? e.step : 0), due: (typeof e.due === "string" ? e.due : null), last: (typeof e.last === "string" ? e.last : null), lastOk: (typeof e.lastOk === "string" ? e.lastOk : null) };
   });
   return out;
 }
 function scheduleOnComplete(state, id, today){
   const out = cloneReviewState(state);
-  if(!out[id]) out[id] = { step: 0, due: addDaysKey(today, REVIEW_LADDER[0]), last: today };
+  if(!out[id]) out[id] = { step: 0, due: addDaysKey(today, REVIEW_LADDER[0]), last: today, lastOk: null };
   return out;
 }
 function nextSchedule(state, id, correct, today){
@@ -992,9 +1015,9 @@ function nextSchedule(state, id, correct, today){
   const cur = out[id] || { step: 0, due: today, last: today };
   if(correct){
     const step = Math.min((cur.step || 0) + 1, REVIEW_LADDER.length - 1);
-    out[id] = { step: step, due: addDaysKey(today, REVIEW_LADDER[step]), last: today };
+    out[id] = { step: step, due: addDaysKey(today, REVIEW_LADDER[step]), last: today, lastOk: today };
   } else {
-    out[id] = { step: 0, due: addDaysKey(today, 1), last: today };
+    out[id] = { step: 0, due: addDaysKey(today, 1), last: today, lastOk: (cur.lastOk || null) };
   }
   return out;
 }
@@ -1021,18 +1044,64 @@ function ensureReviewState(bucket, today){
   });
   return applyDailyCap(out, today);
 }
+function captureDueSnapshot(bucket, today){
+  const snap = bucket && bucket.dueSnapshot;
+  if(snap && snap.date === today && Array.isArray(snap.ids)) return { date: today, ids: snap.ids.slice() };
+  return { date: today, ids: dueReviewIds(bucket ? bucket.reviewState : {}, today) };
+}
+function unresolvedDueIds(bucket, today){
+  bucket = bucket || {};
+  const st = (bucket.reviewState && typeof bucket.reviewState === "object") ? bucket.reviewState : {};
+  const ids = new Set();
+  const snap = bucket.dueSnapshot;
+  if(snap && snap.date === today && Array.isArray(snap.ids)) snap.ids.forEach(id=>{ const n = normId(id); if(n !== null) ids.add(n); });
+  dueReviewIds(st, today, 100000).forEach(id=>ids.add(id));
+  wrongTodayIds(bucket, today).forEach(id=>ids.add(id));
+  return [...ids].filter(id=>{ const e = st[id]; return !(e && e.lastOk === today); }).sort(cmpIds);
+}
+function sortReviewIds(state, ids){
+  const st = (state && typeof state === "object") ? state : {};
+  return (ids || []).slice().sort((a, b)=>{
+    const ea = st[a] || {}, eb = st[b] || {};
+    const da = ea.due || "9999-12-31", db = eb.due || "9999-12-31";
+    if(da !== db) return da < db ? -1 : 1;
+    const sa = (typeof ea.step === "number" ? ea.step : 0), sb2 = (typeof eb.step === "number" ? eb.step : 0);
+    if(sa !== sb2) return sa - sb2;
+    return cmpIds(a, b);
+  });
+}
+function wrongTodayIds(bucket, today){
+  const w = bucket && bucket.wrongToday;
+  if(!w || w.date !== today || !Array.isArray(w.ids)) return [];
+  return w.ids.map(normId).filter(n=>n !== null).sort(cmpIds);
+}
+function updateWrongToday(wrongToday, id, correct, today){
+  const cur = (wrongToday && wrongToday.date === today && Array.isArray(wrongToday.ids)) ? wrongToday.ids.map(normId).filter(n=>n !== null) : [];
+  const n = normId(id);
+  if(n === null) return { date: today, ids: cur };
+  let ids = correct ? cur.filter(x=>String(x) !== String(n)) : cur.slice();
+  if(!correct && !ids.some(x=>String(x) === String(n))) ids.push(n);
+  return { date: today, ids: ids.sort(cmpIds) };
+}
+function dueUniverseNow(bucket, today){
+  bucket = bucket || {};
+  const ids = new Set(unresolvedDueIds(bucket, today));
+  const snap = bucket.dueSnapshot;
+  if(snap && snap.date === today && Array.isArray(snap.ids)) snap.ids.forEach(id=>{ const n = normId(id); if(n !== null) ids.add(n); });
+  wrongTodayIds(bucket, today).forEach(id=>ids.add(id));
+  return [...ids].sort(cmpIds);
+}
 function countReviewsToday(bucket, today){
   const dates = (bucket && Array.isArray(bucket.reviewDates)) ? bucket.reviewDates : [];
   return dates.filter(d=>d === today).length;
 }
 function curveLitToday(bucket, today){
   bucket = bucket || {};
+  if(unresolvedDueIds(bucket, today).length) return false;
+  if(Array.isArray(bucket.curveDays) && bucket.curveDays.includes(today)) return true;
   const st = (bucket.reviewState && typeof bucket.reviewState === "object") ? bucket.reviewState : {};
-  const dueLeft = Object.keys(st).some(k=>{ const e = st[k]; return e && e.due && e.due <= today; });
-  if(dueLeft) return false;
   const learned = (Array.isArray(bucket.doneDates) && bucket.doneDates.includes(today))
-    || Object.keys(st).some(k=>st[k] && st[k].last === today)
-    || (Array.isArray(bucket.curveDays) && bucket.curveDays.includes(today));
+    || Object.keys(st).some(k=>st[k] && st[k].lastOk === today);
   return !!learned;
 }
 function syncCurveDays(bucket, today){
@@ -1042,12 +1111,16 @@ function syncCurveDays(bucket, today){
 }
 function remoteReviewFull(rc){
   const base = remoteReviewInfo(rc);
-  let schedule = {}, curveDays = [];
+  let schedule = {}, curveDays = [], dueSnapshot = null, wrongToday = null;
   if(rc && typeof rc === "object" && !Array.isArray(rc)){
     if(rc.schedule && typeof rc.schedule === "object") schedule = cloneReviewState(rc.schedule);
     if(Array.isArray(rc.curveDays)) curveDays = rc.curveDays.filter(d=>typeof d === "string");
+    const ds = rc.dueSnapshot;
+    if(ds && typeof ds === "object" && typeof ds.date === "string" && Array.isArray(ds.ids)) dueSnapshot = { date: ds.date, ids: ds.ids.map(normId).filter(n=>n !== null) };
+    const wt = rc.wrongToday;
+    if(wt && typeof wt === "object" && typeof wt.date === "string" && Array.isArray(wt.ids)) wrongToday = { date: wt.date, ids: wt.ids.map(normId).filter(n=>n !== null) };
   }
-  return { ids: base.ids, count: base.count, schedule: schedule, curveDays: curveDays };
+  return { ids: base.ids, count: base.count, schedule: schedule, curveDays: curveDays, dueSnapshot: dueSnapshot, wrongToday: wrongToday };
 }
 function mergeReviewSchedule(localState, remoteState){
   const out = cloneReviewState(localState);
@@ -1109,13 +1182,27 @@ function mergeProgressData(local, remote){
   const reviewState = mergeReviewSchedule(local.reviewState, rf.schedule);
   const curveSet = new Set([...(Array.isArray(local.curveDays) ? local.curveDays : []), ...rf.curveDays]);
   const curveDays = [...curveSet].sort();
-  return { completed: completedIds, completedAt: completedAt, reviewIds: reviewIds, reviewCorrect: reviewCorrect, reviewState: reviewState, curveDays: curveDays };
+  const snapOf = v => (v && typeof v.date === "string" && Array.isArray(v.ids)) ? { date: v.date, ids: v.ids.map(normId).filter(n=>n !== null) } : null;
+  const lsnap = snapOf(local.dueSnapshot), rsnap = snapOf(rf.dueSnapshot);
+  let dueSnapshot = null;
+  if(lsnap && rsnap && lsnap.date === rsnap.date) dueSnapshot = { date: lsnap.date, ids: [...new Set([...lsnap.ids, ...rsnap.ids])].sort(cmpIds) };
+  else if(lsnap && rsnap) dueSnapshot = lsnap.date >= rsnap.date ? lsnap : rsnap;
+  else dueSnapshot = lsnap || rsnap;
+  const lwt = snapOf(local.wrongToday), rwt = snapOf(rf.wrongToday);
+  let wrongToday = null;
+  if(lwt && rwt && lwt.date === rwt.date){
+    const mergedIds = [...new Set([...lwt.ids, ...rwt.ids])].filter(id=>{ const e = reviewState[id]; return !(e && e.lastOk === lwt.date); }).sort(cmpIds);
+    wrongToday = { date: lwt.date, ids: mergedIds };
+  }
+  else if(lwt && rwt) wrongToday = lwt.date >= rwt.date ? lwt : rwt;
+  else wrongToday = lwt || rwt;
+  return { completed: completedIds, completedAt: completedAt, reviewIds: reviewIds, reviewCorrect: reviewCorrect, reviewState: reviewState, curveDays: curveDays, dueSnapshot: dueSnapshot, wrongToday: wrongToday };
 }
 function progressToRemote(p){
   p = p || {};
   const comp = {};
   (Array.isArray(p.completed) ? p.completed : []).forEach(id=>{ comp[id] = (p.completedAt && p.completedAt[id]) || null; });
-  return { completed: comp, review_correct: { ids: (Array.isArray(p.reviewIds) ? p.reviewIds.slice() : []), count: p.reviewCorrect||0, schedule: (p.reviewState && typeof p.reviewState === "object") ? p.reviewState : {}, curveDays: (Array.isArray(p.curveDays) ? p.curveDays.slice() : []) } };
+  return { completed: comp, review_correct: { ids: (Array.isArray(p.reviewIds) ? p.reviewIds.slice() : []), count: p.reviewCorrect||0, schedule: (p.reviewState && typeof p.reviewState === "object") ? p.reviewState : {}, curveDays: (Array.isArray(p.curveDays) ? p.curveDays.slice() : []), dueSnapshot: (p.dueSnapshot && typeof p.dueSnapshot === "object") ? p.dueSnapshot : null, wrongToday: (p.wrongToday && typeof p.wrongToday === "object") ? p.wrongToday : null } };
 }
 function remoteXpOf(row){
   if(!row) return 0;
@@ -1133,7 +1220,7 @@ async function vaultSet(key,val){ if(!vaultReady) return; try{ const db=await id
 async function vaultDelete(key){ try{ const db=await idbOpen(); await new Promise((res,rej)=>{ const tx=db.transaction("kv","readwrite").objectStore("kv").delete(key); tx.onsuccess=()=>res(); tx.onerror=()=>rej(tx.error); }); }catch(e){} }
 
 /* ---------- 상태 ---------- */
-function defaultLangProgress(){ return { index:0, completed:[], doneDates:[], step:1, reviewCorrect:0, completedAt:{}, reviewIds:[], levelFilter:"전체", reviewState:{}, curveDays:[], reviewDates:[] }; }
+function defaultLangProgress(){ return { index:0, completed:[], doneDates:[], step:1, reviewCorrect:0, completedAt:{}, reviewIds:[], levelFilter:"전체", reviewState:{}, curveDays:[], reviewDates:[], dueSnapshot:null, wrongToday:null }; }
 function defaultProgress(){ return { lang:"fr", byLang:{ fr:defaultLangProgress(), en:defaultLangProgress(), es:defaultLangProgress() }, sound:true, theme:"light" }; }
 function migrateProgress(raw){
   const out = defaultProgress();
@@ -1145,7 +1232,7 @@ function migrateProgress(raw){
     LANG_CODES.forEach(code=>{ if(raw.byLang[code] && typeof raw.byLang[code] === "object") out.byLang[code] = Object.assign(defaultLangProgress(), raw.byLang[code]); });
   } else {
     const bucket = defaultLangProgress();
-    ["index","completed","doneDates","step","reviewCorrect","completedAt","reviewIds","reviewState","curveDays","reviewDates"].forEach(k=>{ if(raw[k] !== undefined) bucket[k] = raw[k]; });
+    ["index","completed","doneDates","step","reviewCorrect","completedAt","reviewIds","reviewState","curveDays","reviewDates","dueSnapshot","wrongToday"].forEach(k=>{ if(raw[k] !== undefined) bucket[k] = raw[k]; });
     out.byLang.fr = bucket;
   }
   return out;
@@ -1331,6 +1418,10 @@ function playCompleteSound(){
 /* ---------- 학습 흐름 ---------- */
 let currentStep = 1;
 let quizItem = null;
+let quizSeen = new Set();
+let quizMode = "free";
+let quizChallengeTotal = 0;
+let quizDueUniverse = [];
 let completionInFlight = false;
 let quizAnswered = false;
 let currentTab = "study";
@@ -1416,7 +1507,29 @@ function renderMapStrip(){
   el.innerHTML = '<button class="mapstrip" id="mapStripBtn" aria-label="정복 지도 보기"><span class="mapstrip-head"><span>정복 지도</span><span class="mapstrip-total">'+P().completed.length+' / '+items().length+'문장 · 눌러서 보기</span></span><span class="mapstrip-cells">'
     + stats.map(t=>'<span class="mapcell"><span class="mapcell-bar"><span class="mapcell-fill" style="width:'+t.pct+'%"></span></span><span class="mapcell-name">'+esc(t.topic)+'</span></span>').join("")
     + '</span></button>';
-  const b = document.getElementById("mapStripBtn"); if(b) b.onclick = ()=>{ showTab("browse"); renderBrowse(); window.scrollTo({top:0,behavior:"smooth"}); };
+  const b = document.getElementById("mapStripBtn"); if(b) b.onclick = ()=>{ openMapSheet(); };
+}
+function renderMapSheet(){
+  const el = document.getElementById("mapSheetGrid");
+  if(!el) return;
+  const stats = topicStats(items(), P().completed);
+  el.innerHTML = '<div class="mapgrid">'+stats.map(t=>'<button class="mapcard'+(t.conquered?" conquered":"")+'" data-mapsheet="'+esc(t.topic)+'"><span class="map-top"><b>'+esc(t.topic)+'</b>'+(t.conquered?'<span class="conqbadge">정복</span>':'')+'</span><span class="map-count">'+t.done+' / '+t.total+'문장</span><span class="pbar mapbar"><span class="pfill" style="width:'+t.pct+'%"></span></span></button>').join("")+'</div>';
+  document.querySelectorAll("[data-mapsheet]").forEach(b=>b.onclick=()=>{ const tp = b.getAttribute("data-mapsheet"); closeMapSheet(); goToTopicStudy(tp); });
+}
+function openMapSheet(){
+  renderMapSheet();
+  const ov = document.getElementById("mapOverlay"); if(ov) ov.hidden = false;
+}
+function closeMapSheet(){
+  const ov = document.getElementById("mapOverlay"); if(ov) ov.hidden = true;
+}
+function goToTopicStudy(topic){
+  const list = items();
+  const doneSet = new Set(P().completed);
+  let idx = list.findIndex(i=>i.topic === topic && !doneSet.has(i.id));
+  if(idx < 0) idx = list.findIndex(i=>i.topic === topic);
+  if(idx < 0) return;
+  goToItem(idx, 1);
 }
 function renderStudy(){
   completionInFlight = false;
@@ -1507,7 +1620,7 @@ function completeSentence(){
   if(gained) extra += '<div class="xpgain">+'+gained+' XP</div>';
   if(lvAfter.lv > lvBefore.lv) extra += '<div class="levelup">레벨 업! Lv.'+lvAfter.lv+' '+esc(lvAfter.title)+'</div>';
   const tk = todayKey();
-  const dueLeft = dueReviewIds(P().reviewState, tk).length;
+  const dueLeft = unresolvedDueIds(P(), tk).length;
   const revToday = countReviewsToday(P(), tk);
   const curveN = (P().curveDays || []).length;
   const litNow = curveLitToday(P(), tk);
@@ -1525,10 +1638,11 @@ function goToItem(idx, step){ P().levelFilter = "전체"; P().index = idx; setSt
 /* ---------- 복습 (망각곡선 큐) ---------- */
 function prepareReviewQueue(){
   const today = todayKey();
-  const before = JSON.stringify({ st: P().reviewState || {}, cd: P().curveDays || [] });
+  const before = JSON.stringify({ st: P().reviewState || {}, cd: P().curveDays || [], ds: P().dueSnapshot || null });
   P().reviewState = ensureReviewState(P(), today);
+  P().dueSnapshot = captureDueSnapshot(P(), today);
   P().curveDays = syncCurveDays(P(), today);
-  if(before !== JSON.stringify({ st: P().reviewState, cd: P().curveDays })) saveProgress();
+  if(before !== JSON.stringify({ st: P().reviewState, cd: P().curveDays, ds: P().dueSnapshot || null })) saveProgress();
   return today;
 }
 function curveLineHtml(lit, dueN, curveN){
@@ -1539,52 +1653,127 @@ function renderQuizEntry(){
   const area = document.getElementById("quizArea");
   if(!area || quizItem) return;
   const today = prepareReviewQueue();
-  const dueIds = dueReviewIds(P().reviewState, today);
+  const remainIds = unresolvedDueIds(P(), today);
+  const wrongIds = wrongTodayIds(P(), today);
   const curveN = (P().curveDays || []).length;
   const lit = curveLitToday(P(), today);
-  if(dueIds.length){
-    area.innerHTML = '<div class="card quizcard"><div class="meta">오늘의 복습 · 망각곡선</div><p class="ko" style="margin:6px 0 4px">오늘 복습할 문장 <b>'+dueIds.length+'개</b>가 있어요. 잊기 전에 뜻만 보고 다시 써 보세요. 맞히면 +5 XP, 다음 복습은 더 늦게 와요.</p>'+curveLineHtml(lit, dueIds.length, curveN)+'<button class="primary" id="quizStartBtn">오늘의 복습 시작 ('+dueIds.length+'개)</button></div>';
+  if(remainIds.length){
+    let h = '<div class="card quizcard"><div class="meta">오늘의 복습 · 망각곡선</div><p class="ko" style="margin:6px 0 4px">오늘 복습할 문장 <b>'+remainIds.length+'개</b>가 있어요. 잊기 전에 뜻만 보고 다시 써 보세요. 맞히면 +5 XP, 다음 복습은 더 늦게 와요.</p>'+curveLineHtml(lit, remainIds.length, curveN)+'<button class="primary" id="quizStartBtn">망각곡선 도전하기</button>';
+    if(wrongIds.length) h += '<p class="ko" style="margin:10px 0 4px">틀린 문장 <b>'+wrongIds.length+'개</b>가 남았어요.</p><button class="ghost" id="quizRetryBtn">틀린 문장 다시 풀기</button>';
+    area.innerHTML = h + '</div>';
+  } else if(wrongIds.length){
+    let h = '<div class="card quizcard"><div class="meta">오늘의 복습 · 망각곡선</div><p class="ko" style="margin:6px 0 4px">틀린 문장 <b>'+wrongIds.length+'개</b>가 남았어요. 다시 풀어 맞히면 오늘 복습이 끝나요.</p>'+curveLineHtml(lit, 0, curveN)+'<button class="primary" id="quizRetryBtn">틀린 문장 다시 풀기</button>';
+    if(P().completed.length >= 3) h += '<button class="ghost" id="quizFreeBtn" style="margin-left:8px">자유 복습</button>';
+    area.innerHTML = h + '</div>';
   } else if(P().completed.length){
     let h = '<div class="card quizcard"><div class="meta">오늘의 복습 · 망각곡선</div><p class="ko" style="margin:6px 0 4px">오늘 복습 없음 · 곡선 위에 있어요 📈</p>'+curveLineHtml(lit, 0, curveN);
-    if(P().completed.length >= 3) h += '<button class="ghost" id="quizStartBtn">자유 복습 — 끝낸 문장에서 다시 쓰기</button>';
+    if(P().completed.length >= 3) h += '<button class="ghost" id="quizFreeBtn">자유 복습 — 끝낸 문장에서 다시 쓰기</button>';
     area.innerHTML = h + '</div>';
   } else {
     area.innerHTML = '<div class="card quizcard"><div class="meta">오늘의 복습 · 망각곡선</div><p class="ko" style="margin:6px 0 4px">오늘 복습 없음 · 곡선 위에 있어요 📈</p><p class="ko" style="margin:0 0 4px;color:var(--sub)">첫 문장을 완료하면 내일부터 망각곡선 복습이 시작돼요.</p>'+curveLineHtml(lit, 0, curveN)+'</div>';
   }
-  const sb2 = document.getElementById("quizStartBtn"); if(sb2) sb2.onclick = ()=>startQuiz();
+  const sb2 = document.getElementById("quizStartBtn"); if(sb2) sb2.onclick = ()=>startChallenge();
+  const fb2 = document.getElementById("quizFreeBtn"); if(fb2) fb2.onclick = ()=>{ quizMode = "free"; startQuiz(null, true); };
+  const rb2 = document.getElementById("quizRetryBtn"); if(rb2) rb2.onclick = ()=>startRetryQuiz();
 }
-function startQuiz(excludeId){
-  quizAnswered = false;
-  const today = prepareReviewQueue();
+function quizCandidates(){
+  const today = todayKey();
   const curId = currentItem() ? currentItem().id : null;
   const byId = {}; items().forEach(i=>{ byId[i.id] = i; });
-  let due = dueReviewIds(P().reviewState, today).map(id=>byId[id]).filter(Boolean).filter(i=>i.id !== curId);
-  if(excludeId && due.length > 1) due = due.filter(i=>i.id !== excludeId);
-  let pool = due;
-  if(!pool.length){
-    pool = quizPool(items(), P().completed, curId);
-    if(excludeId && pool.length > 1) pool = pool.filter(i=>i.id !== excludeId);
-    if(!pool.length) pool = items().filter(i=>P().completed.includes(i.id) && i.id !== excludeId && i.id !== curId);
+  const st = P().reviewState;
+  const avail = ids => sortReviewIds(st, ids).map(id=>byId[id]).filter(i=>i && i.id !== curId && !quizSeen.has(i.id));
+  if(quizMode === "retry"){
+    let list = avail(wrongTodayIds(P(), today));
+    if(!list.length && wrongTodayIds(P(), today).length){ quizSeen = new Set(); list = avail(wrongTodayIds(P(), today)); }
+    return { list: list, fromDue: true };
   }
-  if(!pool.length){ quizItem = null; renderQuizEntry(); return; }
-  quizItem = pool[Math.floor(Math.random()*pool.length)];
-  const fromDue = due.indexOf(quizItem) !== -1;
-  document.getElementById("quizArea").innerHTML = '<div class="card quizcard"><div class="meta">'+(fromDue ? "오늘의 복습 · 망각곡선" : "자유 복습")+' · 맞히면 +5 XP</div><p class="ko" style="font-size:19px;font-weight:700;margin-top:8px">'+esc(quizItem.ko)+'</p><textarea id="quizInput" rows="3" placeholder="프랑스어 문장을 써 보세요" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><div class="wordprog" id="quizWordProg" aria-live="polite"></div><div id="quizFb"></div><div class="btnrow"><button class="primary" id="quizCheckBtn">확인하기</button><button class="ghost" id="quizQuitBtn">그만하기</button></div></div>';
+  if(quizMode === "free"){
+    return { list: avail(quizPool(items(), P().completed, curId).map(i=>i.id)), fromDue: false };
+  }
+  const dueIds = dueReviewIds(st, today);
+  const due = avail(dueIds);
+  if(due.length) return { list: due, fromDue: true };
+  const dueKey = new Set(dueIds.map(String));
+  const pending = avail(unresolvedDueIds(P(), today).filter(id=>!dueKey.has(String(id))));
+  if(pending.length) return { list: pending, fromDue: true };
+  return { list: [], fromDue: true };
+}
+function startQuiz(excludeId, fresh){
+  if(fresh) quizSeen = new Set();
+  quizAnswered = false;
+  prepareReviewQueue();
+  if(excludeId !== null && excludeId !== undefined) quizSeen.add(excludeId);
+  const cand = quizCandidates();
+  if(!cand.list.length){
+    quizItem = null;
+    if(quizSeen.size || quizMode === "retry" || wrongTodayIds(P(), todayKey()).length) renderQuizEndState();
+    else renderQuizEntry();
+    return;
+  }
+  quizItem = cand.list[0];
+  quizSeen.add(quizItem.id);
+  const solvedN = Math.max(0, quizChallengeTotal - unresolvedDueIds(P(), todayKey()).length);
+  const meta = quizMode === "retry" ? "틀린 문장 다시 풀기 · 해결 "+solvedN+"/"+quizChallengeTotal
+    : (quizMode === "challenge" ? "망각곡선 도전 · 해결 "+solvedN+"/"+quizChallengeTotal : "자유 복습");
+  document.getElementById("quizArea").innerHTML = '<div class="card quizcard"><div class="meta">'+meta+' · 맞히면 +5 XP</div><p class="ko" style="font-size:19px;font-weight:700;margin-top:8px">'+esc(quizItem.ko)+'</p><textarea id="quizInput" rows="3" placeholder="'+esc(LANGS[curLang()].name)+' 문장을 써 보세요" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><div class="wordprog" id="quizWordProg" aria-live="polite"></div><div id="quizFb"></div><div class="btnrow"><button class="primary" id="quizCheckBtn">확인하기</button><button class="ghost" id="quizQuitBtn">그만하기</button></div></div>';
   document.getElementById("quizCheckBtn").onclick = checkQuiz;
   document.getElementById("quizQuitBtn").onclick = endQuiz;
   bindWordProg("quizInput", "quizWordProg", itemText(quizItem));
   const qi = document.getElementById("quizInput"); if(qi) qi.focus();
 }
+function startChallenge(){
+  quizMode = "challenge";
+  quizChallengeTotal = unresolvedDueIds(P(), todayKey()).length;
+  quizDueUniverse = dueUniverseNow(P(), todayKey());
+  startQuiz(null, true);
+}
+function startRetryQuiz(){
+  if(!quizItem){
+    quizChallengeTotal = unresolvedDueIds(P(), todayKey()).length;
+    quizDueUniverse = dueUniverseNow(P(), todayKey());
+  }
+  quizMode = "retry";
+  startQuiz(null, true);
+}
+function renderQuizResult(){
+  const today = todayKey();
+  const curveN = (P().curveDays || []).length;
+  const st = P().reviewState || {};
+  const solved = quizDueUniverse.filter(id=>{ const e = st[id]; return e && e.lastOk === today; }).length;
+  document.getElementById("quizArea").innerHTML = '<div class="card quizcard"><div class="meta">망각곡선 도전 · 결과</div><div class="curveline on" style="margin-top:8px"><span class="curveicon" aria-hidden="true">🔥</span><span>오늘의 곡선 켜짐 · 망각곡선 기록 +'+curveN+'일</span></div><p class="ko" style="margin:6px 0 4px">오늘 해결한 문장 <b>'+solved+'개</b> · 오늘 복습을 전부 끝냈어요 🎉</p><div class="btnrow"><button class="primary" id="quizToStudyBtn">공부로 돌아가기</button></div></div>';
+  const b = document.getElementById("quizToStudyBtn"); if(b) b.onclick = ()=>{ endQuiz(); window.scrollTo({top:0,behavior:"smooth"}); };
+}
+function renderQuizEndState(){
+  const today = todayKey();
+  const wrongs = wrongTodayIds(P(), today);
+  const curveN = (P().curveDays || []).length;
+  const lit = curveLitToday(P(), today);
+  let h = '<div class="card quizcard"><div class="meta">오늘의 복습 · 망각곡선</div>';
+  if(wrongs.length){
+    h += '<p class="ko" style="margin:6px 0 4px">틀린 문장 <b>'+wrongs.length+'개</b>가 남았어요. 다시 풀어 맞히면 오늘 복습이 끝나요.</p>'+curveLineHtml(lit, unresolvedDueIds(P(), today).length, curveN)+'<div class="btnrow"><button class="primary" id="quizRetryBtn">틀린 문장 다시 풀기</button><button class="ghost" id="quizEndBtn">끝내기</button></div></div>';
+  } else if(quizMode === "free"){
+    h += '<p class="ko" style="margin:6px 0 4px">자유 복습 완료 🎉 준비된 문장을 다 돌았어요.</p><div class="btnrow"><button class="ghost" id="quizEndBtn">끝내기</button></div></div>';
+  } else {
+    h += '<p class="ko" style="margin:6px 0 4px">오늘 복습 완료 🎉 준비된 문장을 다 복습했어요.</p>'+curveLineHtml(lit, 0, curveN)+'<div class="btnrow"><button class="ghost" id="quizEndBtn">끝내기</button></div></div>';
+  }
+  document.getElementById("quizArea").innerHTML = h;
+  const rb = document.getElementById("quizRetryBtn"); if(rb) rb.onclick = ()=>startRetryQuiz();
+  const eb = document.getElementById("quizEndBtn"); if(eb) eb.onclick = endQuiz;
+}
 function checkQuiz(){
   if(!quizItem || quizAnswered) return;
   quizAnswered = true;
+  prepareReviewQueue();
   const input = document.getElementById("quizInput").value;
   const okAns = isCorrect(input, itemText(quizItem));
   const tk2 = todayKey();
   if(!Array.isArray(P().reviewDates)) P().reviewDates = [];
   P().reviewDates.push(tk2);
-  P().reviewState = nextSchedule(P().reviewState, quizItem.id, okAns, tk2);
-  P().curveDays = syncCurveDays(P(), tk2);
+  if(quizMode !== "free"){
+    P().reviewState = nextSchedule(P().reviewState, quizItem.id, okAns, tk2);
+    P().wrongToday = updateWrongToday(P().wrongToday, quizItem.id, okAns, tk2);
+    P().curveDays = syncCurveDays(P(), tk2);
+  }
   let h = "";
   if(okAns){
     playSound(true);
@@ -1594,32 +1783,40 @@ function checkQuiz(){
     h = correctHtml(itemText(quizItem), " +5 XP");
   } else {
     playSound(false);
-    h = wrongHtml(input, itemText(quizItem));
+    h = quizWrongHtml(input, itemText(quizItem));
   }
   saveProgress(); renderVaultState(); renderProgress();
-  h += '<div class="btnrow" style="margin-top:12px"><button class="primary" id="quizMoreBtn">한 문제 더</button><button class="ghost" id="quizDoneBtn">끝내기</button></div>';
+  const wrongsNow = wrongTodayIds(P(), tk2);
+  const lastId = quizItem.id;
+  if(quizMode === "free"){
+    if(!quizCandidates().list.length){
+      h += '<p class="ko" style="margin:10px 0 4px">자유 복습 완료 🎉</p><div class="btnrow" style="margin-top:12px"><button class="ghost" id="quizDoneBtn">끝내기</button></div>';
+    } else {
+      h += '<div class="btnrow" style="margin-top:12px"><button class="primary" id="quizMoreBtn">한 문제 더</button><button class="ghost" id="quizDoneBtn">끝내기</button></div>';
+    }
+  } else if(!unresolvedDueIds(P(), tk2).length){
+    h += '<div class="btnrow" style="margin-top:12px"><button class="primary" id="quizResultBtn">결과 보기 →</button></div>';
+  } else if(quizMode === "retry" && !wrongsNow.length){
+    h += '<p class="ko" style="margin:10px 0 4px">틀린 문장은 다 맞혔어요. 오늘 복습 '+unresolvedDueIds(P(), tk2).length+'개가 더 남았어요.</p><div class="btnrow" style="margin-top:12px"><button class="primary" id="quizChallengeBtn">망각곡선 도전 계속하기</button><button class="ghost" id="quizDoneBtn">끝내기</button></div>';
+  } else if(!quizCandidates().list.length){
+    if(wrongsNow.length){
+      h += '<p class="ko" style="margin:10px 0 4px">틀린 문장 <b>'+wrongsNow.length+'개</b>가 남았어요.</p><div class="btnrow" style="margin-top:12px"><button class="primary" id="quizRetryBtn">틀린 문장 다시 풀기</button><button class="ghost" id="quizDoneBtn">끝내기</button></div>';
+    } else {
+      h += '<p class="ko" style="margin:10px 0 4px">오늘 복습 완료 🎉</p><div class="btnrow" style="margin-top:12px"><button class="ghost" id="quizDoneBtn">끝내기</button></div>';
+    }
+  } else {
+    h += '<div class="btnrow" style="margin-top:12px"><button class="primary" id="quizMoreBtn">한 문제 더</button><button class="ghost" id="quizDoneBtn">끝내기</button></div>';
+  }
   document.getElementById("quizFb").innerHTML = h;
   const cb = document.getElementById("quizCheckBtn"); if(cb) cb.style.display = "none";
   const qb = document.getElementById("quizQuitBtn"); if(qb) qb.style.display = "none";
-  const lastId = quizItem.id;
-  document.getElementById("quizMoreBtn").onclick = ()=>startQuiz(lastId);
-  document.getElementById("quizDoneBtn").onclick = endQuiz;
+  const mb = document.getElementById("quizMoreBtn"); if(mb) mb.onclick = ()=>startQuiz(lastId);
+  const rb3 = document.getElementById("quizRetryBtn"); if(rb3) rb3.onclick = ()=>startRetryQuiz();
+  const rsb = document.getElementById("quizResultBtn"); if(rsb) rsb.onclick = ()=>renderQuizResult();
+  const chb = document.getElementById("quizChallengeBtn"); if(chb) chb.onclick = ()=>{ quizMode = "challenge"; startQuiz(lastId); };
+  const db = document.getElementById("quizDoneBtn"); if(db) db.onclick = endQuiz;
 }
-function endQuiz(){ quizItem = null; quizAnswered = false; renderQuizEntry(); }
-
-/* ---------- Ensemble (Supabase: 지연 로드, 실패해도 본체는 무영향) ---------- */
-let sb = null;
-let sbLoadPromise = null;
-let sbAuthWired = false;
-let sbUser = null;
-let sbProfile = null;
-let sbSyncedLangs = {};
-let sbMemberCache = {};
-let sbMerging = false;
-let sbUploadTimer = null;
-let sbRestoreDone = false;
-let sbRestorePromise = null;
-let sbAuthInitPromise = null;
+function endQuiz(){ quizItem = null; quizAnswered = false; quizMode = "free"; quizSeen = new Set(); quizChallengeTotal = 0; quizDueUniverse = []; renderQuizEntry(); }
 function loadSupabase(){
   if(sb) return Promise.resolve(sb);
   if(sbLoadPromise) return sbLoadPromise;
@@ -1697,6 +1894,8 @@ async function mergeSbAndPush(){
     P().reviewCorrect = merged.reviewCorrect;
     P().reviewState = merged.reviewState;
     P().curveDays = merged.curveDays;
+    P().dueSnapshot = merged.dueSnapshot;
+    P().wrongToday = merged.wrongToday;
     saveProgress();
     sbMerging = false;
     renderVaultState(); renderProgress();
@@ -2129,6 +2328,9 @@ document.querySelectorAll("[data-menu]").forEach(b=>b.onclick=()=>goMenu(b.getAt
 document.querySelectorAll("[data-lang]").forEach(b=>b.onclick=()=>setLang(b.getAttribute("data-lang")));
 document.getElementById("nickCloseBtn").onclick = ()=>closeNickModal();
 document.getElementById("nickBackdrop").onclick = ()=>closeNickModal();
+document.getElementById("mapCloseBtn").onclick = ()=>closeMapSheet();
+document.getElementById("mapBackdrop").onclick = ()=>closeMapSheet();
+document.getElementById("browseBackBtn").onclick = ()=>{ showTab("study"); window.scrollTo({top:0,behavior:"smooth"}); };
 document.getElementById("profileBtn").onclick = ()=>openProfile();
 document.getElementById("profileCloseBtn").onclick = ()=>closeProfile();
 document.getElementById("profileBackdrop").onclick = ()=>closeProfile();

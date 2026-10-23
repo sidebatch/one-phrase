@@ -42,6 +42,12 @@ const SCHED_SRCS = [
   html.match(/function ensureReviewState[\s\S]*?\n\}/)[0],
   html.match(/function countReviewsToday[\s\S]*?\n\}/)[0],
   html.match(/function curveLitToday[\s\S]*?\n\}/)[0],
+  html.match(/function captureDueSnapshot[\s\S]*?\n\}/)[0],
+  html.match(/function unresolvedDueIds[\s\S]*?\n\}/)[0],
+  html.match(/function sortReviewIds[\s\S]*?\n\}/)[0],
+  html.match(/function wrongTodayIds[\s\S]*?\n\}/)[0],
+  html.match(/function updateWrongToday[\s\S]*?\n\}/)[0],
+  html.match(/function dueUniverseNow[\s\S]*?\n\}/)[0],
   html.match(/function syncCurveDays[\s\S]*?\n\}/)[0],
   html.match(/function prepareReviewQueue\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function curveLineHtml[\s\S]*?\n\}/)[0],
@@ -139,7 +145,7 @@ ok(levelOf(99999).nextAt===null && levelOf(99999).toNext===0 && levelOf(99999).p
 ok(html.includes("reviewCorrect:0") && html.includes("completedAt:{}"), "덧붙임 저장: 새 필드 기본값 있음");
 ok(html.includes("progress = migrateProgress(chosen)"), "덧붙임 저장: 로드 시 마이그레이션으로 정규화해 열림 (구버전 저장본 그대로 이어짐)");
 ok(html.includes('id="topicMap"') && html.includes("function renderTopicMap"), "정복 지도 UI 있음");
-ok(html.includes('id="quizArea"') && html.includes("오늘의 복습 시작") && html.includes("자유 복습 — 끝낸 문장에서 다시 쓰기") && html.includes("P().reviewCorrect"), "복습 진입(오늘의 복습 카드·자유 복습)·XP 적립 코드 있음");
+ok(html.includes('id="quizArea"') && html.includes("망각곡선 도전하기") && html.includes("자유 복습 — 끝낸 문장에서 다시 쓰기") && html.includes("P().reviewCorrect"), "복습 진입(오늘의 복습 카드·망각곡선 도전·자유 복습)·XP 적립 코드 있음");
 ok(html.includes('id="lvLabel"') && html.includes("다음 레벨까지"), "레벨 행 UI 있음");
 ok(html.includes("completedAt[it.id]"), "완료 시 문장별 완료 날짜 기록");
 
@@ -158,7 +164,22 @@ const swSrc = html.match(/function splitWords[\s\S]*?\n\}/)[0];
 const dwSrc = html.match(/function diffWords[\s\S]*?\n\}/)[0];
 const escSrc = html.match(/function esc\(s\)\{[^}]*\}/)[0];
 const whSrc = html.match(/function wrongHtml[\s\S]*?\n\}/)[0];
-eval(swSrc); eval(dwSrc); eval(escSrc); eval(whSrc);
+const qwhSrc = html.match(/function quizWrongHtml[\s\S]*?\n\}/)[0];
+const qcandSrc = html.match(/function quizCandidates\(\)\{[\s\S]*?\n\}/)[0];
+const challengeSrcs = [
+  html.match(/function startChallenge\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function startRetryQuiz\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function renderQuizEndState\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function renderQuizResult\(\)\{[\s\S]*?\n\}/)[0]
+].join("\n");
+const mapSheetSrcs = [
+  html.match(/function renderMapSheet\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function openMapSheet\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function closeMapSheet\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function goToTopicStudy\(topic\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function goToItem\(idx, step\)[^\n]*/)[0]
+].join("\n");
+eval(swSrc); eval(dwSrc); eval(escSrc); eval(whSrc); eval(qwhSrc);
 { const d = diffWords("je cherche un appartement", "je cherche un appartement");
   ok(d.mineDiff.every(x=>!x) && d.ansDiff.every(x=>!x), "diff: 완전히 같으면 양쪽 다 차이 없음"); }
 { const d = diffWords("je cherche un appartement", "je cherche un logement");
@@ -172,6 +193,13 @@ eval(swSrc); eval(dwSrc); eval(escSrc); eval(whSrc);
 { const h = wrongHtml("je cherche un logement", "je cherche un appartement");
   ok(h.includes("여기가 달라요") && h.includes("내가 쓴 문장") && h.includes("정답"), "오답 피드백: 제목 + 내가 쓴 문장/정답 두 줄 구성");
   ok(h.includes('class="wdiff"') && h.includes('class="adiff"'), "오답 피드백: 내 문장과 정답에서 다른 단어를 각각 강조"); }
+{ const h = quizWrongHtml("je cherche un logement", "je cherche un appartement");
+  ok(h.indexOf('class="answerbox"') > -1 && h.indexOf('class="answerbox"') < h.indexOf('class="mydiff"'), "복습 오답 피드백(v1.35.1): 정답 블록이 위에 분리되고 내 답 차이는 아래 한 줄");
+  ok(h.includes('class="wdiff"') && !h.includes('class="feedback diff"'), "복습 오답 피드백(v1.35.1): 학습 화면과 같은 문법(answerbox)으로 정돈됨");
+  const he = quizWrongHtml("", "je cherche un appartement");
+  ok(he.includes("아직 쓰지 않았어요") && he.includes('class="answerbox"') && !he.includes("mydiff") && !he.includes("wdiff"), "복습 오답 피드백(v1.35.1): 빈 답 제출 시 diff 없이 정답 블록 + 안내만");
+  const hw = quizWrongHtml("   ", "je cherche un appartement");
+  ok(hw.includes("아직 쓰지 않았어요"), "복습 오답 피드백(v1.35.1): 공백만 입력해도 빈 답으로 처리"); }
 ok(html.includes('placeholder="문장을 보면서 써 보세요"') && html.includes('placeholder="프랑스어 문장을 써 보세요"'), "타이핑 박스: 단계별 안내 placeholder 있음");
 ok(html.includes('id="wordProg"') && html.includes('id="quizWordProg"') && html.includes("function bindWordProg"), "타이핑 박스: 단어 수 진행 표시 (학습·퀴즈)");
 
@@ -221,6 +249,10 @@ const smokePrelude = [
   'let progress = null;',
   'let currentStep = 3;',
   'let quizItem = null;',
+  'let quizSeen = new Set();',
+  'let quizMode = "free";',
+  'let quizChallengeTotal = 0;',
+  'let quizDueUniverse = [];',
   'let completionInFlight = false;',
   'let quizAnswered = false;',
   'let currentTab = "study";',
@@ -265,6 +297,7 @@ const smokeFns = [
   html.match(/function renderStudy\(\)[\s\S]*?\n\}/)[0],
   ctSrc, csSrc,
   html.match(/function startQuiz[\s\S]*?\n\}/)[0],
+  qwhSrc, qcandSrc, challengeSrcs,
   cqSrc,
   html.match(/function endQuiz\(\)\{[^}]*\}/)[0]
 ].join("\n");
@@ -1117,6 +1150,10 @@ const eqPrelude = [
   'let progress = null;',
   'let currentStep = 1;',
   'let quizItem = null;',
+  'let quizSeen = new Set();',
+  'let quizMode = "free";',
+  'let quizChallengeTotal = 0;',
+  'let quizDueUniverse = [];',
   'let completionInFlight = false;',
   'let quizAnswered = false;',
   'let currentTab = "study";',
@@ -1159,6 +1196,7 @@ const eqFns = [
   rsSrc2, ctSrc, csSrc,
   html.match(/function renderQuizEntry\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function startQuiz[\s\S]*?\n\}/)[0],
+  qwhSrc, qcandSrc, challengeSrcs,
   cqSrc,
   html.match(/function endQuiz\(\)\{[^}]*\}/)[0],
   html.match(/function renderTopicMap\(\)\{[\s\S]*?\n\}/)[0],
@@ -1658,6 +1696,12 @@ ok(html.includes("function renderMapStrip()") && html.match(/function renderProg
 ok(csSrc.includes("scheduleOnComplete") && csSrc.includes("countReviewsToday") && csSrc.includes("curveLitToday") && csSrc.includes('id="doneForTodayBtn"') && csSrc.includes("오늘은 여기까지"), "세션 완료 화면: 완료 시 스케줄 편입 + 오늘 복습 수·곡선 상태·'오늘은 여기까지' 버튼 포함");
 ok(cqSrc.includes("nextSchedule") && cqSrc.includes("syncCurveDays"), "복습 채점: 정답·오답 모두 스케줄 전이 + 곡선 기록 갱신");
 ok(html.includes("망각곡선 복습") && html.includes("1일 · 3일 · 7일 · 16일 · 35일"), "더보기: 망각곡선 복습 안내(사다리·빚 없음 원칙) 있음");
+ok(html.includes("복습 순서는 오래 기다린 문장부터, 단계가 낮은 문장부터"), "더보기: 복습 큐 순서(due 이른 순 → step 낮은 순) 안내 한 줄 있음");
+ok(html.includes('id="mapOverlay"') && html.includes('id="mapSheetGrid"') && html.includes('id="mapCloseBtn"') && html.includes('id="mapBackdrop"'), "지도 시트(v1.35.1): 바텀시트 오버레이·그리드·닫기·배경이 전역에 있음");
+ok(html.includes('id="browseBackBtn"') && html.includes("← 공부로 돌아가기"), "주제별(v1.35.1): 상단에 공부로 돌아가기 버튼 있음");
+ok(MAPSTRIP_SRC.includes("openMapSheet") && !MAPSTRIP_SRC.includes('showTab("browse")'), "지도 스트립(v1.35.1): 탭하면 탭 이동이 아니라 지도 시트를 염");
+ok(html.match(/function startQuiz[\s\S]*?\n\}/)[0].includes("quizCandidates") && !html.includes("Math.floor(Math.random()*pool.length)"), "복습 출제(v1.35.1): 무작위 선택 없이 결정적 큐 순서로 출제");
+ok(html.includes("function renderQuizResult()") && html.includes("공부로 돌아가기") && html.includes("오늘 해결한 문장"), "도전 결과 화면(v1.35.1): 곡선 점등·기록·오늘 해결 수·공부로 돌아가기 포함");
 { const it43 = ITEMS.find(i => i.id === 43);
   ok(it43 && it43.ko === "모바일 앱은 일상생활을 더 편리하게 만든다. 예를 들면 결제하거나 이동할 때처럼.", "콘텐츠 수정: 프랑스어 43번 한국어 뜻이 다듬어짐 (fr·청크는 그대로)"); }
 // 순수 함수 의미 테스트
@@ -1705,7 +1749,7 @@ eval(SCHED_SRCS + "\n" + tkSrc + "\n" + `const T = "2026-10-22";
   ok(countReviewsToday({ reviewDates: [T, T, "2026-10-21"] }, T) === 2 && countReviewsToday({}, T) === 0, "오늘 처리한 복습 수: reviewDates에서 오늘 처리 건수 집계");
   ok(curveLitToday({ reviewState: {}, doneDates: [T] }, T) === true, "곡선 판정: due 없고 오늘 신규 학습 → 켜짐");
   ok(curveLitToday({ reviewState: { 1: { step: 0, due: T, last: "2026-10-20" } }, doneDates: [T] }, T) === false, "곡선 판정: 오늘 due가 남아 있으면 학습해도 꺼짐");
-  ok(curveLitToday({ reviewState: { 1: { step: 1, due: "2026-10-25", last: T } }, doneDates: [] }, T) === true, "곡선 판정: 오늘 due를 다 처리하면 켜짐");
+  ok(curveLitToday({ reviewState: { 1: { step: 1, due: "2026-10-25", last: T, lastOk: T } }, doneDates: [] }, T) === true, "곡선 판정: 오늘 due를 정답으로 해결하면 켜짐 (lastOk 기준)");
   ok(curveLitToday({ reviewState: {}, doneDates: [] }, T) === false, "곡선 판정: 아무 학습이 없으면 꺼짐");
   ok(curveLitToday({ reviewState: { 1: { step: 0, due: "2026-10-01", last: "2026-09-30" } }, doneDates: [] }, T) === false, "곡선 판정: 연체 due가 남아 있어도 꺼짐");
   const cd1 = syncCurveDays({ reviewState: {}, doneDates: [T], curveDays: ["2026-10-20"] }, T);
@@ -1713,7 +1757,36 @@ eval(SCHED_SRCS + "\n" + tkSrc + "\n" + `const T = "2026-10-22";
   const cd2 = syncCurveDays({ reviewState: { 1: { step: 0, due: T, last: "2026-10-20" } }, doneDates: [], curveDays: ["2026-10-20"] }, T);
   ok(cd2.join(",") === "2026-10-20", "곡선 기록: 하루를 빠져도 누적은 줄지 않음 (리셋 없음)");
   const cl = cloneReviewState({ 1: { step: "x", due: 5, last: null } });
-  ok(cl[1].step === 0 && cl[1].due === null && cl[1].last === null, "정규화: 깨진 스케줄 항목은 안전한 기본값으로");`);
+  ok(cl[1].step === 0 && cl[1].due === null && cl[1].last === null, "정규화: 깨진 스케줄 항목은 안전한 기본값으로");
+  ok(cl[1].lastOk === null, "정규화: lastOk도 안전한 기본값으로");
+  const lok = nextSchedule({ 7: { step: 0, due: T, last: "2026-10-21", lastOk: "2026-10-21" } }, 7, false, T);
+  ok(lok[7].lastOk === "2026-10-21", "전이: 오답이어도 이전 lastOk는 보존됨 (해결 이력 유지)");
+  const snapB = ids => ({ reviewState: {}, dueSnapshot: { date: T, ids: ids }, doneDates: [], curveDays: [] });
+  const wrongB = snapB([1]); wrongB.reviewState = { 1: { step: 0, due: "2026-10-23", last: T, lastOk: null } };
+  ok(curveLitToday(wrongB, T) === false, "곡선 판정(v1.35.1): due를 틀려 due가 내일로 가도 스냅샷 기준 미해결이라 꺼짐");
+  const partB = snapB([1, 2]); partB.reviewState = { 1: { step: 1, due: "2026-10-25", last: T, lastOk: T }, 2: { step: 0, due: "2026-10-23", last: T, lastOk: null } };
+  ok(curveLitToday(partB, T) === false, "곡선 판정(v1.35.1): 일부만 정답이면 꺼짐");
+  const allB = snapB([1, 2]); allB.reviewState = { 1: { step: 1, due: "2026-10-25", last: T, lastOk: T }, 2: { step: 2, due: "2026-10-29", last: T, lastOk: T } };
+  ok(curveLitToday(allB, T) === true, "곡선 판정(v1.35.1): 전부 정답으로 해결하면 켜짐");
+  let wst = { 1: { step: 0, due: T, last: "2026-10-21", lastOk: null } };
+  const wB = { reviewState: wst, dueSnapshot: { date: T, ids: [1] }, doneDates: [], curveDays: [] };
+  wst = nextSchedule(wst, 1, false, T); wB.reviewState = wst;
+  ok(curveLitToday(wB, T) === false, "곡선 판정(v1.35.1): 오답 직후에는 꺼짐");
+  wst = nextSchedule(wst, 1, true, T); wB.reviewState = wst;
+  ok(curveLitToday(wB, T) === true && wst[1].lastOk === T, "곡선 판정(v1.35.1): 그날 다시 풀어 맞히면 해결로 전환되어 켜짐");
+  const attemptB = { reviewState: { 1: { step: 0, due: "2026-10-25", last: T, lastOk: null } }, doneDates: [], curveDays: [] };
+  ok(curveLitToday(attemptB, T) === false, "곡선 판정(v1.35.1): due 없는 날 오답 시도만으로는 켜지지 않음 (시도≠해결)");
+  ok(syncCurveDays(wrongB, T).length === 0, "곡선 기록(v1.35.1): 전부 오답인 날은 기록에 더해지지 않음");
+  let wtx = updateWrongToday(null, 5, false, T);
+  ok(wtx.date === T && wtx.ids.join(",") === "5", "틀린 문장: 오답이면 오늘 목록에 저장됨");
+  wtx = updateWrongToday(wtx, 5, true, T);
+  ok(wtx.ids.length === 0, "틀린 문장: 다시 맞히면 목록에서 빠짐");
+  ok(wrongTodayIds({ wrongToday: { date: "2026-10-21", ids: [5] } }, T).length === 0, "틀린 문장: 날짜가 바뀌면 어제 목록은 무효 (일반 due로 흡수)");
+  const qs = { 1: { step: 2, due: "2026-10-20" }, 2: { step: 3, due: "2026-10-19" }, 3: { step: 1, due: "2026-10-19" }, 4: { step: 1, due: "2026-10-19" } };
+  ok(JSON.stringify(sortReviewIds(qs, [1, 2, 3, 4])) === JSON.stringify([3, 4, 2, 1]), "큐 순서: due 이른 순 → step 낮은 순 → id 순");
+  ok(JSON.stringify(sortReviewIds(qs, [4, 3])) === JSON.stringify([3, 4]), "큐 순서: 같은 due·step이면 id 순");
+  ok(JSON.stringify(unresolvedDueIds(wrongB, T)) === JSON.stringify([1]), "미해결: 스냅샷에 있고 오늘 정답이 없으면 미해결");
+  ok(JSON.stringify(dueUniverseNow(allB, T)) === JSON.stringify([1, 2]), "도전 범위: 오늘 due 전체(스냅샷 포함)가 잡힘");`);
 // 병합 확장 (schedule·curveDays) — mpdSrc·ptrSrc는 Ensemble 섹션에서 이미 eval됨
 { const m = mergeProgressData(
     { completed: [1], completedAt: {}, reviewCorrect: 0, reviewIds: [], reviewState: { 1: { step: 1, due: "2026-10-23", last: "2026-10-20" } }, curveDays: ["2026-10-19"] },
@@ -1737,6 +1810,14 @@ eval(SCHED_SRCS + "\n" + tkSrc + "\n" + `const T = "2026-10-22";
   const rf2 = remoteReviewFull({ ids: [], count: 0, schedule: { 3: { step: 1, due: "2026-10-25", last: "2026-10-22" } }, curveDays: ["2026-10-22"] });
   ok(rf2.schedule[3].step === 1 && rf2.curveDays[0] === "2026-10-22", "원격 해석: 확장 필드가 있으면 schedule·curveDays를 읽음");
 }
+{ const m5 = mergeProgressData(
+    { completed: [], completedAt: {}, reviewCorrect: 0, reviewIds: [], reviewState: { 1: { step: 1, due: "2026-10-25", last: "2026-10-22", lastOk: "2026-10-22" } }, curveDays: [], dueSnapshot: { date: "2026-10-22", ids: [1, 2] }, wrongToday: { date: "2026-10-22", ids: [2] } },
+    { completed: {}, review_correct: { ids: [], count: 0, schedule: {}, curveDays: [], dueSnapshot: { date: "2026-10-22", ids: [2, 3] }, wrongToday: { date: "2026-10-22", ids: [3] } } });
+  ok(m5.dueSnapshot && m5.dueSnapshot.ids.join(",") === "1,2,3", "병합 확장(v1.35.1): 같은 날짜 due 스냅샷은 합집합");
+  ok(m5.wrongToday && m5.wrongToday.ids.join(",") === "2,3", "병합 확장(v1.35.1): 틀린 문장은 합집합 (해결된 것은 스케줄 lastOk로 제외)");
+  const rt3 = progressToRemote({ completed: [], completedAt: {}, reviewCorrect: 0, reviewIds: [], reviewState: {}, curveDays: [], dueSnapshot: { date: "2026-10-22", ids: [1] }, wrongToday: { date: "2026-10-22", ids: [1] } });
+  ok(rt3.review_correct.dueSnapshot.ids.join(",") === "1" && rt3.review_correct.wrongToday.ids.join(",") === "1", "업로드 확장(v1.35.1): dueSnapshot·wrongToday도 review_correct에 함께 나감");
+}
 // UI 스모크: 지도 스트립·오늘의 복습 카드 3상태·큐 우선 출제·세션 요약
 const RV_ELS = {};
 function makeRvEl(id) {
@@ -1759,6 +1840,10 @@ const rvPrelude = [
   'let progress = null;',
   'let currentStep = 1;',
   'let quizItem = null;',
+  'let quizSeen = new Set();',
+  'let quizMode = "free";',
+  'let quizChallengeTotal = 0;',
+  'let quizDueUniverse = [];',
   'let completionInFlight = false;',
   'let quizAnswered = false;',
   'let currentTab = "study";',
@@ -1796,6 +1881,7 @@ const rvFns = [
   rsSrc2, ctSrc, csSrc,
   html.match(/function renderQuizEntry\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function startQuiz[\s\S]*?\n\}/)[0],
+  qwhSrc, qcandSrc, challengeSrcs,
   cqSrc,
   html.match(/function endQuiz\(\)\{[^}]*\}/)[0]
 ].join("\n");
@@ -1808,7 +1894,7 @@ eval(rvPrelude + "\n" + helperSrc + "\n" + rvFns + "\n" + [
   'renderMapStrip();',
   'ok((RV_ELS["mapStrip"].innerHTML.match(/class="mapcell"/g) || []).length === 10, "지도 스트립 스모크: 주제 10개 셀이 한 줄로 렌더됨");',
   'ok(RV_ELS["mapStrip"].innerHTML.includes("정복 지도") && RV_ELS["mapStrip"].innerHTML.includes(ITEMS[0].topic), "지도 스트립 스모크: 제목·주제 이름이 표시됨");',
-  'ok(!!RV_ELS["mapStripBtn"], "지도 스트립 스모크: 누르면 주제별 화면으로 가는 버튼이 있음");',
+  'ok(!!RV_ELS["mapStripBtn"], "지도 스트립 스모크: 누르면 지도 시트를 여는 버튼이 있음");',
   // 카드 상태 3: 완료 없음 → 안내 상태 (숨기지 않음)
   'B.completed = []; B.reviewState = {}; B.curveDays = []; B.doneDates = [];',
   'renderQuizEntry();',
@@ -1829,10 +1915,11 @@ eval(rvPrelude + "\n" + helperSrc + "\n" + rvFns + "\n" + [
   'B.reviewState = {}; B.reviewState[ITEMS[0].id] = { step: 0, due: TK, last: "2026-10-20" }; B.reviewState[ITEMS[1].id] = { step: 1, due: addDaysKey(TK, 3), last: TK }; B.reviewState[ITEMS[2].id] = { step: 0, due: addDaysKey(TK, 1), last: TK };',
   'B.index = 1; currentStep = 1;',
   'renderQuizEntry();',
-  'ok(RV_ELS["quizArea"].innerHTML.includes("오늘 복습할 문장 <b>1개</b>") && RV_ELS["quizArea"].innerHTML.includes("오늘의 복습 시작 (1개)"), "복습 카드 스모크: due가 있으면 개수와 시작 버튼이 표시됨");',
+  'ok(RV_ELS["quizArea"].innerHTML.includes("오늘 복습할 문장 <b>1개</b>") && RV_ELS["quizArea"].innerHTML.includes("망각곡선 도전하기"), "복습 카드 스모크: due가 있으면 개수와 망각곡선 도전 버튼이 표시됨");',
+  'ok(quizItem === null, "복습 카드 스모크: 도전하기 전에는 due가 자동으로 출제되지 않음");',
   'RV_ELS["quizStartBtn"].onclick();',
   'ok(!!quizItem && quizItem.id === ITEMS[0].id, "복습 출제 스모크: due 문장이 자유 복습보다 먼저 출제됨");',
-  'ok(RV_ELS["quizArea"].innerHTML.includes("오늘의 복습 · 망각곡선"), "복습 출제 스모크: due 출제는 오늘의 복습으로 표시됨");',
+  'ok(RV_ELS["quizArea"].innerHTML.includes("망각곡선 도전 · 해결 0/1"), "복습 출제 스모크: due 출제는 망각곡선 도전 + 진행(해결 0/1)으로 표시됨");',
   'RV_ELS["quizInput"].value = itemText(quizItem); checkQuiz();',
   'ok(B.reviewState[ITEMS[0].id].step === 1 && B.reviewState[ITEMS[0].id].due === addDaysKey(TK, 3), "복습 채점 스모크: 정답이면 step 1, due +3일로 전이");',
   'ok(B.reviewCorrect === 1 && B.reviewIds.join(",") === String(ITEMS[0].id), "복습 채점 스모크: 정답 XP 재료(reviewCorrect·reviewIds)도 기존처럼 기록됨");',
@@ -1845,6 +1932,82 @@ eval(rvPrelude + "\n" + helperSrc + "\n" + rvFns + "\n" + [
   'RV_ELS["quizInput"].value = "전혀 다른 문장"; checkQuiz();',
   'ok(B.reviewState[ITEMS[0].id].step === 0 && B.reviewState[ITEMS[0].id].due === addDaysKey(TK, 1), "복습 채점 스모크: 오답이면 step 0, due는 내일");',
   'ok(countReviewsToday(B, TK) >= 1, "복습 채점 스모크: 오늘 처리한 복습 수가 집계됨");',
+  'ok(wrongTodayIds(B, TK).join(",") === String(ITEMS[0].id) && B.dueSnapshot && B.dueSnapshot.date === TK, "복습 채점 스모크: 틀린 문장과 오늘 due 스냅샷이 진도에 저장됨 (껐다 켜도 유지)");',
+  'ok(curveLitToday(B, TK) === false, "복습 채점 스모크: due를 틀린 채로 두면 곡선이 켜지지 않음");',
+  'endQuiz();',
+  'ok(RV_ELS["quizArea"].innerHTML.includes("틀린 문장") && !!RV_ELS["quizRetryBtn"], "복습 카드 스모크: 미해결 오답이 있으면 카드에 틀린 문장 상태와 다시 풀기 버튼이 남음");'
+].join("\n"));
+
+console.log("\n[지도 시트·망각곡선 도전 (v1.35.1)]");
+eval(rvPrelude + "\n" + helperSrc + "\n" + rvFns + "\n" + mapSheetSrcs + "\n" + [
+  'progress = migrateProgress(null);',
+  'const B = progress.byLang.fr;',
+  'const TK = todayKey();',
+  'const i0 = ITEMS[0], i1 = ITEMS[1], i2 = ITEMS[2], i3 = ITEMS[3];',
+  // --- 지도 시트: 열면 공부 위치 그대로, 주제를 누르면 그 주제로 이동 ---
+  'B.completed = ITEMS.slice(0, 5).map(i => i.id); B.index = 2; currentStep = 1;',
+  'renderMapStrip();',
+  'RV_ELS["mapStripBtn"].onclick();',
+  'ok(RV_ELS["mapOverlay"].hidden === false, "지도 시트 스모크: 스트립을 누르면 탭 이동 없이 시트가 열림");',
+  'ok(RV_ELS["mapSheetGrid"].innerHTML.includes(i0.topic) && (RV_ELS["mapSheetGrid"].innerHTML.match(/class="mapcard"/g) || []).length === 10, "지도 시트 스모크: 주제 10개 진행 카드가 시트에 렌더됨");',
+  'ok(B.index === 2 && currentStep === 1, "지도 시트 스모크: 시트를 열어도 공부 위치는 그대로");',
+  'closeMapSheet();',
+  'ok(RV_ELS["mapOverlay"].hidden === true && B.index === 2, "지도 시트 스모크: 그냥 닫으면 보던 문장 위치로 복귀");',
+  'const expIdx = ITEMS.findIndex(x => x.topic === i0.topic && !B.completed.includes(x.id));',
+  'goToTopicStudy(i0.topic);',
+  'ok(B.index === expIdx && currentStep === 1, "지도 시트 스모크: 주제를 누르면 그 주제의 첫 미완료 문장으로 공부 이동");',
+  // --- 망각곡선 도전: 자동 출제 없음 → 도전 → 오답 → 재풀기 → 결과 화면 ---
+  'B.completed = [i0.id, i1.id, i2.id];',
+  'B.reviewState = {}; B.reviewState[i0.id] = { step: 0, due: TK, last: "2026-10-20", lastOk: null }; B.reviewState[i1.id] = { step: 1, due: TK, last: "2026-10-20", lastOk: null }; B.reviewState[i2.id] = { step: 0, due: addDaysKey(TK, 7), last: TK, lastOk: null };',
+  'B.doneDates = []; B.curveDays = []; B.wrongToday = null; B.dueSnapshot = null; B.reviewDates = []; B.reviewCorrect = 0; B.reviewIds = []; B.index = 2;',
+  'endQuiz(); renderQuizEntry();',
+  'ok(quizItem === null && RV_ELS["quizArea"].innerHTML.includes("망각곡선 도전하기") && RV_ELS["quizArea"].innerHTML.includes("오늘 복습할 문장 <b>2개</b>"), "도전 스모크: 도전하기 전에는 due가 자동 출제되지 않고 진입 카드만 보임");',
+  'RV_ELS["quizStartBtn"].onclick();',
+  'ok(!!quizItem && quizItem.id === i0.id, "도전 스모크: 도전하면 due 큐 첫 문장(step 낮은 순)부터 출제됨");',
+  'ok(RV_ELS["quizArea"].innerHTML.includes("망각곡선 도전 · 해결 0/2"), "도전 스모크: 상단에 진행 표시(해결 0/2)");',
+  'RV_ELS["quizInput"].value = "전혀 다른 문장"; checkQuiz();',
+  'ok(wrongTodayIds(B, TK).join(",") === String(i0.id) && curveLitToday(B, TK) === false, "도전 스모크: 틀리면 미해결로 쌓이고 곡선은 켜지지 않음");',
+  'ok(!!RV_ELS["quizMoreBtn"], "도전 스모크: 남은 due가 있으면 한 문제 더로 이어짐");',
+  'RV_ELS["quizMoreBtn"].onclick();',
+  'ok(!!quizItem && quizItem.id === i1.id && RV_ELS["quizArea"].innerHTML.includes("해결 0/2"), "도전 스모크: 다음 due 출제, 진행은 아직 0/2");',
+  'RV_ELS["quizInput"].value = itemText(quizItem); checkQuiz();',
+  'ok(RV_ELS["quizFb"].innerHTML.includes("틀린 문장 <b>1개</b>가 남았어요") && !!RV_ELS["quizRetryBtn"], "도전 스모크: due를 다 돌면 종료가 아니라 틀린 문장 재풀기 안내가 뜸");',
+  'RV_ELS["quizRetryBtn"].onclick();',
+  'ok(!!quizItem && quizItem.id === i0.id && RV_ELS["quizArea"].innerHTML.includes("틀린 문장 다시 풀기 · 해결 1/2"), "도전 스모크: 재풀기는 틀린 문장만, 진행 1/2 표시");',
+  'RV_ELS["quizInput"].value = itemText(quizItem); checkQuiz();',
+  'ok(!!RV_ELS["quizResultBtn"] && B.curveDays.includes(TK), "도전 스모크: 전부 해결하면 결과 보기 버튼 + 곡선 기록에 오늘 누적");',
+  'RV_ELS["quizResultBtn"].onclick();',
+  'ok(RV_ELS["quizArea"].innerHTML.includes("오늘의 곡선 켜짐") && RV_ELS["quizArea"].innerHTML.includes("망각곡선 기록 +1일") && RV_ELS["quizArea"].innerHTML.includes("오늘 해결한 문장 <b>2개</b>") && !!RV_ELS["quizToStudyBtn"], "도전 결과 스모크: 점등·기록 +1일·오늘 해결 2개·공부로 돌아가기 표시");',
+  'RV_ELS["quizToStudyBtn"].onclick();',
+  'ok(quizItem === null && RV_ELS["quizArea"].innerHTML.includes("오늘 복습 없음"), "도전 결과 스모크: 공부로 돌아가면 진입 카드 상태로 복귀");',
+  // --- 자유 복습 격리: 스케줄·곡선 무영향 ---
+  'B.completed = [i0.id, i1.id, i2.id];',
+  'B.reviewState = {}; B.reviewState[i0.id] = { step: 2, due: addDaysKey(TK, 7), last: "2026-10-20", lastOk: null }; B.reviewState[i1.id] = { step: 1, due: addDaysKey(TK, 3), last: "2026-10-20", lastOk: null }; B.reviewState[i2.id] = { step: 0, due: addDaysKey(TK, 1), last: TK, lastOk: null };',
+  'B.dueSnapshot = { date: TK, ids: [] }; B.wrongToday = null; B.curveDays = []; B.reviewCorrect = 0; B.reviewIds = []; B.index = 0;',
+  'endQuiz(); renderQuizEntry();',
+  'ok(!!RV_ELS["quizFreeBtn"], "자유 복습 스모크: due가 없으면 카드에 자유 복습 버튼이 있음");',
+  'const stBefore = JSON.stringify(B.reviewState);',
+  'RV_ELS["quizFreeBtn"].onclick();',
+  'ok(!!quizItem && quizItem.id !== i0.id, "자유 복습 스모크: 끝낸 문장에서 출제됨 (현재 문장 제외)");',
+  'RV_ELS["quizInput"].value = "전혀 다른 문장"; checkQuiz();',
+  'ok(JSON.stringify(B.reviewState) === stBefore && wrongTodayIds(B, TK).length === 0 && B.curveDays.length === 0, "자유 복습 스모크: 틀려도 스케줄·틀린 목록·곡선 기록이 변하지 않음");',
+  'RV_ELS["quizMoreBtn"].onclick();',
+  'RV_ELS["quizInput"].value = itemText(quizItem); checkQuiz();',
+  'ok(B.reviewCorrect === 1 && JSON.stringify(B.reviewState) === stBefore, "자유 복습 스모크: 맞히면 XP 재료만 기록되고 스케줄은 그대로");',
+  'endQuiz();',
+  // --- 결정적 순서: due 이른 순 → step 낮은 순 → id 순 ---
+  'B.completed = [i0.id, i1.id, i2.id, i3.id];',
+  'B.reviewState = {}; B.reviewState[i0.id] = { step: 3, due: addDaysKey(TK, -2), last: "2026-10-19", lastOk: null }; B.reviewState[i1.id] = { step: 0, due: TK, last: "2026-10-19", lastOk: null }; B.reviewState[i2.id] = { step: 0, due: TK, last: "2026-10-19", lastOk: null }; B.reviewState[i3.id] = { step: 1, due: TK, last: "2026-10-19", lastOk: null };',
+  'B.dueSnapshot = null; B.wrongToday = null; B.curveDays = []; B.index = 4;',
+  'endQuiz(); renderQuizEntry();',
+  'const order = [];',
+  'RV_ELS["quizStartBtn"].onclick(); order.push(quizItem.id);',
+  'RV_ELS["quizInput"].value = itemText(quizItem); checkQuiz(); RV_ELS["quizMoreBtn"].onclick(); order.push(quizItem.id);',
+  'RV_ELS["quizInput"].value = itemText(quizItem); checkQuiz(); RV_ELS["quizMoreBtn"].onclick(); order.push(quizItem.id);',
+  'RV_ELS["quizInput"].value = itemText(quizItem); checkQuiz(); RV_ELS["quizMoreBtn"].onclick(); order.push(quizItem.id);',
+  'RV_ELS["quizInput"].value = itemText(quizItem); checkQuiz();',
+  'ok(order.join(",") === [i0.id, i1.id, i2.id, i3.id].join(","), "도전 순서 스모크: due 이른 순 → step 낮은 순 → id 순으로 결정적 출제 (실제 " + order.join(",") + ")");',
+  'ok(!!RV_ELS["quizResultBtn"], "도전 순서 스모크: 전부 해결하면 결과 보기 버튼이 뜸");',
   'endQuiz();'
 ].join("\n"));
 
