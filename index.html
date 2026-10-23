@@ -273,6 +273,20 @@ textarea:focus,input[type=text]:focus{border-color:var(--blue-text);box-shadow:v
 .mapbar{display:block;height:8px;background:var(--track);border-radius:var(--r-pill);overflow:hidden;margin-top:8px}
 .mapbar .pfill{display:block}
 .mapcard.conquered{background:var(--done-bg);border-color:var(--done-line)}
+.mapstrip{display:block;width:100%;background:var(--card);border:1px solid var(--line-soft);border-radius:var(--r-md);padding:10px 12px;margin:0 0 var(--sp3);font:inherit;color:var(--ink);text-align:left;cursor:pointer;box-shadow:var(--shadow)}
+.mapstrip:active{transform:scale(.99)}
+.mapstrip-head{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:900;color:var(--blue-text);margin-bottom:8px}
+.mapstrip-total{color:var(--sub);font-weight:700;font-size:12.5px}
+.mapstrip-cells{display:flex;gap:5px}
+.mapcell{flex:1;min-width:0}
+.mapcell-bar{display:block;height:7px;background:var(--track);border-radius:var(--r-pill);overflow:hidden}
+.mapcell-fill{display:block;height:100%;background:var(--blue);border-radius:var(--r-pill)}
+.mapcell-name{display:block;font-size:10.5px;font-weight:700;color:var(--sub);text-align:center;margin-top:3px;white-space:nowrap;overflow:hidden}
+.mapstrip:empty{display:none}
+.curveline{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:800;color:var(--sub);background:var(--track);border-radius:var(--r-pill);padding:5px 12px;margin:8px 0 12px}
+.curveline.on{color:var(--gold);background:var(--xp-bg)}
+.curveicon{font-size:14px}
+.donesub{font-size:13.5px}
 footer{margin-top:var(--sp6);border-top:1px solid var(--line-soft);padding:20px 16px 0;text-align:center}
 .footbrand{display:flex;align-items:center;justify-content:center;gap:8px}
 .footlogo{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:7px;background:var(--blue);color:#fff;font-size:13px;font-weight:900;line-height:1}
@@ -351,10 +365,11 @@ summary{font-weight:800;cursor:pointer}
 </div>
 
 <div id="tab-study">
+<div id="mapStrip"></div>
+<div id="quizArea"></div>
 <div class="levelchips" id="levelChips" role="radiogroup" aria-label="레벨 선택"></div>
 <div class="card" id="studyCard"></div>
 <div id="doneBox"></div>
-<div id="quizArea"></div>
 </div>
 
 <div id="tab-browse" hidden>
@@ -388,6 +403,9 @@ summary{font-weight:800;cursor:pointer}
 <details><summary>레벨과 XP</summary>
 <p>문장 완료 +10 XP, 복습 퀴즈 정답 +5 XP. 레벨이 오르면 메달이 바뀌어요 (🌱 → 👑).</p>
 </details>
+<details><summary>망각곡선 복습</summary>
+<p>완료한 문장은 잊을 때쯤 (1일 · 3일 · 7일 · 16일 · 35일 간격) "오늘의 복습"으로 돌아와요. 맞히면 간격이 늘고, 틀리면 내일 다시 와요. 하루를 빠져도 밀린 복습이 빚처럼 쌓이지 않고, 돌아온 날부터 다시 시작돼요. 곡선을 지킨 날은 "망각곡선 기록"에 누적됩니다.</p>
+</details>
 <details><summary>효과음</summary>
 <p>정답·오답 소리와 문장을 끝냈을 때의 완료 소리를 냅니다. 완료 소리는 공부하는 언어마다 조금씩 달라요.</p>
 <button class="ghost" id="soundBtn">효과음 끄기</button>
@@ -415,12 +433,12 @@ summary{font-weight:800;cursor:pointer}
 
 <footer>
 <div class="footbrand"><span class="footlogo" id="footTile" aria-hidden="true">O</span><span class="footword" id="footWord">ONE PHRASE</span><span class="footko" id="footKo">한 문장 외국어</span></div>
-<div class="footmeta">v1.34.1 · © 2026 sidebatch</div>
+<div class="footmeta">v1.35.0 · © 2026 sidebatch</div>
 </footer>
 </div>
 <script>
 "use strict";
-const APP_VERSION = "1.34.1";
+const APP_VERSION = "1.35.0";
 const STORAGE_KEY = "une-phrase-progress-v1";
 const SUPABASE_URL = "https://cmhitsgoicxvmlwtrdrb.supabase.co";
 const SUPABASE_KEY = "sb_publishable_iZugJ1l1p3DSk_BB2Y3N3Q_qZwSo637";
@@ -468,7 +486,7 @@ const ITEMS = [
 {id:40,fr:"Grâce à Internet, on peut rester en contact avec sa famille même à l'étranger.",ko:"인터넷 덕분에 해외에 있어도 가족과 연락을 유지할 수 있다.",chunks:[["Grâce à Internet","인터넷 덕분에"],["on peut rester en contact","연락을 유지할 수 있다"],["avec sa famille même à l'étranger","해외에 있어도 가족과"]],pattern:"연락 유지는 rester en contact를 통째로 → 표현 rester en contact (연락을 유지하다)",words:[["étranger (à l')","해외, 외국"],["contact","연락, 접촉"]],topic:"기술",level:"B1",tef:"EO 말하기 · CE 읽기"},
 {id:41,fr:"Il faut faire attention aux informations qu'on partage sur les réseaux sociaux.",ko:"소셜 미디어에 공유하는 정보는 조심해야 한다.",chunks:[["Il faut faire attention","조심해야 한다"],["aux informations qu'on partage","우리가 공유하는 정보에"],["sur les réseaux sociaux","소셜 미디어에서"]],pattern:"사물을 받는 관계절은 que: les informations qu'on partage → 관계대명사 que",words:[["information","정보"],["réseaux sociaux","소셜 미디어"]],topic:"기술",level:"B1",tef:"CE 읽기 · EE 쓰기"},
 {id:42,fr:"Mon ordinateur est tombé en panne hier, alors je n'ai pas pu finir mon travail.",ko:"어제 컴퓨터가 고장 나서 일을 끝내지 못했다.",chunks:[["Mon ordinateur est tombé en panne","컴퓨터가 고장 났다"],["hier","어제"],["je n'ai pas pu finir mon travail","일을 끝내지 못했다"]],pattern:"고장은 tomber en panne을 통째로 → 표현 tomber en panne (고장 나다)",words:[["ordinateur","컴퓨터"],["panne","고장"]],topic:"기술",level:"B1",tef:"EO 말하기"},
-{id:43,fr:"Les applications mobiles rendent la vie quotidienne plus pratique, par exemple pour payer ou se déplacer.",ko:"모바일 앱은 결제나 이동 같은 일상생활을 더 편리하게 만든다.",chunks:[["Les applications mobiles rendent","모바일 앱은 만든다"],["la vie quotidienne plus pratique","일상생활을 더 편리하게"],["par exemple pour payer ou se déplacer","예를 들면 결제하거나 이동하기"]],pattern:"…하게 만들다: rendre + 명사 + 형용사 → 동사 rendre (…하게 만들다)",words:[["application","앱, 애플리케이션"],["quotidien","일상의"]],topic:"기술",level:"B1",tef:"EE 쓰기 · CE 읽기"},
+{id:43,fr:"Les applications mobiles rendent la vie quotidienne plus pratique, par exemple pour payer ou se déplacer.",ko:"모바일 앱은 일상생활을 더 편리하게 만든다. 예를 들면 결제하거나 이동할 때처럼.",chunks:[["Les applications mobiles rendent","모바일 앱은 만든다"],["la vie quotidienne plus pratique","일상생활을 더 편리하게"],["par exemple pour payer ou se déplacer","예를 들면 결제하거나 이동하기"]],pattern:"…하게 만들다: rendre + 명사 + 형용사 → 동사 rendre (…하게 만들다)",words:[["application","앱, 애플리케이션"],["quotidien","일상의"]],topic:"기술",level:"B1",tef:"EE 쓰기 · CE 읽기"},
 {id:44,fr:"De nos jours, de plus en plus de gens travaillent à distance depuis leur maison.",ko:"요즘 점점 더 많은 사람들이 집에서 원격으로 일한다.",chunks:[["De nos jours","요즘에는"],["de plus en plus de gens","점점 더 많은 사람들이"],["travaillent à distance","원격으로 일한다"]],pattern:"글의 시작은 De nos jours로 연다 (요즘에는) → 도입 표현 de nos jours",words:[["à distance","원격으로"],["gens","사람들"]],topic:"기술",level:"B1",tef:"EE 쓰기 · EO 말하기"},
 {id:45,fr:"Je me suis installé dans un nouveau pays il y a plusieurs années pour commencer une nouvelle vie.",ko:"나는 몇 년 전 새로운 삶을 시작하기 위해 새로운 나라에 정착했다.",chunks:[["Je me suis installé dans un nouveau pays","새로운 나라에 정착했다"],["il y a plusieurs années","몇 년 전에"],["pour commencer une nouvelle vie","새로운 삶을 시작하기 위해"]],pattern:"…년 전에: il y a + 기간 (과거 방향) → 표현 il y a (… 전에)",words:[["s'installer","정착하다"],["vie","삶, 인생"]],topic:"이민",level:"B1",tef:"EO 말하기"},
 {id:46,fr:"Au début, s'adapter à un nouveau pays n'était pas facile, surtout à cause de la langue.",ko:"처음에는 새 나라에 적응하는 것이 쉽지 않았고, 특히 언어 때문이었다.",chunks:[["Au début","처음에는"],["s'adapter à un nouveau pays","새 나라에 적응하는 것이"],["n'était pas facile","쉽지 않았다"]],pattern:"적응은 s'adapter à + 대상 → 동사 s'adapter à (…에 적응하다)",words:[["s'adapter","적응하다"],["pays","나라"]],topic:"이민",level:"B1",tef:"EO 말하기 · EE 쓰기"},
@@ -947,6 +965,99 @@ function quizPool(items, completed, currentId){
   return items.filter(i=>done.has(i.id) && i.id!==currentId);
 }
 
+/* ---------- 망각곡선 복습 순수 함수 (테스트 대상) ---------- */
+const REVIEW_LADDER = [1, 3, 7, 16, 35];
+const REVIEW_DAILY_CAP = 20;
+function addDaysKey(key, n){
+  const d = new Date(String(key || todayKey()) + "T12:00:00");
+  if(isNaN(d.getTime())) return key;
+  d.setDate(d.getDate() + (n || 0));
+  return d.toLocaleDateString("en-CA");
+}
+function cloneReviewState(state){
+  const out = {};
+  if(state && typeof state === "object") Object.keys(state).forEach(k=>{
+    const e = state[k] || {};
+    out[k] = { step: (typeof e.step === "number" ? e.step : 0), due: (typeof e.due === "string" ? e.due : null), last: (typeof e.last === "string" ? e.last : null) };
+  });
+  return out;
+}
+function scheduleOnComplete(state, id, today){
+  const out = cloneReviewState(state);
+  if(!out[id]) out[id] = { step: 0, due: addDaysKey(today, REVIEW_LADDER[0]), last: today };
+  return out;
+}
+function nextSchedule(state, id, correct, today){
+  const out = cloneReviewState(state);
+  const cur = out[id] || { step: 0, due: today, last: today };
+  if(correct){
+    const step = Math.min((cur.step || 0) + 1, REVIEW_LADDER.length - 1);
+    out[id] = { step: step, due: addDaysKey(today, REVIEW_LADDER[step]), last: today };
+  } else {
+    out[id] = { step: 0, due: addDaysKey(today, 1), last: today };
+  }
+  return out;
+}
+function dueReviewIds(state, today, cap){
+  const st = (state && typeof state === "object") ? state : {};
+  const ids = Object.keys(st).filter(k=>{ const e = st[k]; return e && e.due && e.due <= today; }).map(normId).filter(n=>n !== null).sort(cmpIds);
+  const lim = (typeof cap === "number" && cap > 0) ? cap : REVIEW_DAILY_CAP;
+  return ids.slice(0, lim);
+}
+function applyDailyCap(state, today, cap){
+  const out = cloneReviewState(state);
+  const lim = (typeof cap === "number" && cap > 0) ? cap : REVIEW_DAILY_CAP;
+  const dueAll = Object.keys(out).filter(k=>{ const e = out[k]; return e && e.due && e.due <= today; }).map(normId).filter(n=>n !== null).sort(cmpIds);
+  dueAll.slice(lim).forEach(id=>{ out[id] = { step: out[id].step, due: addDaysKey(today, 1), last: out[id].last }; });
+  return out;
+}
+function ensureReviewState(bucket, today){
+  bucket = bucket || {};
+  const out = cloneReviewState(bucket.reviewState);
+  const cat = (bucket.completedAt && typeof bucket.completedAt === "object") ? bucket.completedAt : {};
+  (Array.isArray(bucket.completed) ? bucket.completed : []).forEach(id=>{
+    const n = normId(id); if(n === null) return;
+    if(!out[n]) out[n] = { step: 0, due: today, last: cat[id] || today };
+  });
+  return applyDailyCap(out, today);
+}
+function countReviewsToday(bucket, today){
+  const dates = (bucket && Array.isArray(bucket.reviewDates)) ? bucket.reviewDates : [];
+  return dates.filter(d=>d === today).length;
+}
+function curveLitToday(bucket, today){
+  bucket = bucket || {};
+  const st = (bucket.reviewState && typeof bucket.reviewState === "object") ? bucket.reviewState : {};
+  const dueLeft = Object.keys(st).some(k=>{ const e = st[k]; return e && e.due && e.due <= today; });
+  if(dueLeft) return false;
+  const learned = (Array.isArray(bucket.doneDates) && bucket.doneDates.includes(today))
+    || Object.keys(st).some(k=>st[k] && st[k].last === today)
+    || (Array.isArray(bucket.curveDays) && bucket.curveDays.includes(today));
+  return !!learned;
+}
+function syncCurveDays(bucket, today){
+  const days = new Set((bucket && Array.isArray(bucket.curveDays)) ? bucket.curveDays : []);
+  if(curveLitToday(bucket, today)) days.add(today);
+  return [...days].sort();
+}
+function remoteReviewFull(rc){
+  const base = remoteReviewInfo(rc);
+  let schedule = {}, curveDays = [];
+  if(rc && typeof rc === "object" && !Array.isArray(rc)){
+    if(rc.schedule && typeof rc.schedule === "object") schedule = cloneReviewState(rc.schedule);
+    if(Array.isArray(rc.curveDays)) curveDays = rc.curveDays.filter(d=>typeof d === "string");
+  }
+  return { ids: base.ids, count: base.count, schedule: schedule, curveDays: curveDays };
+}
+function mergeReviewSchedule(localState, remoteState){
+  const out = cloneReviewState(localState);
+  const rem = cloneReviewState(remoteState);
+  Object.keys(rem).forEach(k=>{
+    if(!out[k] || ((rem[k].last || "") > (out[k].last || ""))) out[k] = rem[k];
+  });
+  return out;
+}
+
 /* ---------- Ensemble 동기화 순수 함수 (테스트 대상) ---------- */
 function normId(id){
   if(typeof id === "number") return isFinite(id) ? id : null;
@@ -994,13 +1105,17 @@ function mergeProgressData(local, remote){
   const completedIds = Object.keys(dates).map(normId).sort(cmpIds);
   const completedAt = {};
   completedIds.forEach(id=>{ if(dates[id]) completedAt[id] = dates[id]; });
-  return { completed: completedIds, completedAt: completedAt, reviewIds: reviewIds, reviewCorrect: reviewCorrect };
+  const rf = remoteReviewFull(remote.review_correct);
+  const reviewState = mergeReviewSchedule(local.reviewState, rf.schedule);
+  const curveSet = new Set([...(Array.isArray(local.curveDays) ? local.curveDays : []), ...rf.curveDays]);
+  const curveDays = [...curveSet].sort();
+  return { completed: completedIds, completedAt: completedAt, reviewIds: reviewIds, reviewCorrect: reviewCorrect, reviewState: reviewState, curveDays: curveDays };
 }
 function progressToRemote(p){
   p = p || {};
   const comp = {};
   (Array.isArray(p.completed) ? p.completed : []).forEach(id=>{ comp[id] = (p.completedAt && p.completedAt[id]) || null; });
-  return { completed: comp, review_correct: { ids: (Array.isArray(p.reviewIds) ? p.reviewIds.slice() : []), count: p.reviewCorrect||0 } };
+  return { completed: comp, review_correct: { ids: (Array.isArray(p.reviewIds) ? p.reviewIds.slice() : []), count: p.reviewCorrect||0, schedule: (p.reviewState && typeof p.reviewState === "object") ? p.reviewState : {}, curveDays: (Array.isArray(p.curveDays) ? p.curveDays.slice() : []) } };
 }
 function remoteXpOf(row){
   if(!row) return 0;
@@ -1018,7 +1133,7 @@ async function vaultSet(key,val){ if(!vaultReady) return; try{ const db=await id
 async function vaultDelete(key){ try{ const db=await idbOpen(); await new Promise((res,rej)=>{ const tx=db.transaction("kv","readwrite").objectStore("kv").delete(key); tx.onsuccess=()=>res(); tx.onerror=()=>rej(tx.error); }); }catch(e){} }
 
 /* ---------- 상태 ---------- */
-function defaultLangProgress(){ return { index:0, completed:[], doneDates:[], step:1, reviewCorrect:0, completedAt:{}, reviewIds:[], levelFilter:"전체" }; }
+function defaultLangProgress(){ return { index:0, completed:[], doneDates:[], step:1, reviewCorrect:0, completedAt:{}, reviewIds:[], levelFilter:"전체", reviewState:{}, curveDays:[], reviewDates:[] }; }
 function defaultProgress(){ return { lang:"fr", byLang:{ fr:defaultLangProgress(), en:defaultLangProgress(), es:defaultLangProgress() }, sound:true, theme:"light" }; }
 function migrateProgress(raw){
   const out = defaultProgress();
@@ -1030,7 +1145,7 @@ function migrateProgress(raw){
     LANG_CODES.forEach(code=>{ if(raw.byLang[code] && typeof raw.byLang[code] === "object") out.byLang[code] = Object.assign(defaultLangProgress(), raw.byLang[code]); });
   } else {
     const bucket = defaultLangProgress();
-    ["index","completed","doneDates","step","reviewCorrect","completedAt","reviewIds"].forEach(k=>{ if(raw[k] !== undefined) bucket[k] = raw[k]; });
+    ["index","completed","doneDates","step","reviewCorrect","completedAt","reviewIds","reviewState","curveDays","reviewDates"].forEach(k=>{ if(raw[k] !== undefined) bucket[k] = raw[k]; });
     out.byLang.fr = bucket;
   }
   return out;
@@ -1291,8 +1406,18 @@ function renderProgress(){
   document.getElementById("lvNext").textContent = lv.nextAt===null ? "최고 레벨" : "다음 레벨까지 "+lv.toNext+" XP";
   requestAnimationFrame(()=>{ document.getElementById("lvFill").style.width = lv.pct+"%"; });
   document.getElementById("lvBar").setAttribute("aria-valuenow", lv.pct);
+  renderMapStrip();
 }
 function slowListenBtnHtml(){ return '<button class="ghost" id="slowListenBtn">'+SPEAKER_SLOW_SVG+'느리게 듣기</button>'; }
+function renderMapStrip(){
+  const el = document.getElementById("mapStrip");
+  if(!el) return;
+  const stats = topicStats(items(), P().completed);
+  el.innerHTML = '<button class="mapstrip" id="mapStripBtn" aria-label="정복 지도 보기"><span class="mapstrip-head"><span>정복 지도</span><span class="mapstrip-total">'+P().completed.length+' / '+items().length+'문장 · 눌러서 보기</span></span><span class="mapstrip-cells">'
+    + stats.map(t=>'<span class="mapcell"><span class="mapcell-bar"><span class="mapcell-fill" style="width:'+t.pct+'%"></span></span><span class="mapcell-name">'+esc(t.topic)+'</span></span>').join("")
+    + '</span></button>';
+  const b = document.getElementById("mapStripBtn"); if(b) b.onclick = ()=>{ showTab("browse"); renderBrowse(); window.scrollTo({top:0,behavior:"smooth"}); };
+}
 function renderStudy(){
   completionInFlight = false;
   clearSpeakingUI();
@@ -1369,6 +1494,8 @@ function completeSentence(){
     P().completed.push(it.id); P().doneDates.push(todayKey());
     if(!P().completedAt) P().completedAt = {};
     if(!P().completedAt[it.id]) P().completedAt[it.id] = todayKey();
+    P().reviewState = scheduleOnComplete(P().reviewState, it.id, todayKey());
+    P().curveDays = syncCurveDays(P(), todayKey());
     gained = 10;
   }
   if(P().index < studyItems().length-1) P().index++;
@@ -1379,31 +1506,70 @@ function completeSentence(){
   let extra = "";
   if(gained) extra += '<div class="xpgain">+'+gained+' XP</div>';
   if(lvAfter.lv > lvBefore.lv) extra += '<div class="levelup">레벨 업! Lv.'+lvAfter.lv+' '+esc(lvAfter.title)+'</div>';
+  const tk = todayKey();
+  const dueLeft = dueReviewIds(P().reviewState, tk).length;
+  const revToday = countReviewsToday(P(), tk);
+  const curveN = (P().curveDays || []).length;
+  const litNow = curveLitToday(P(), tk);
+  const curveTxt = litNow ? "망각곡선 오늘 켜짐 🔥 · 기록 +"+curveN+"일" : (dueLeft ? "망각곡선 · 오늘 복습 "+dueLeft+"개 남음 · 기록 +"+curveN+"일" : "망각곡선 기록 +"+curveN+"일");
   document.getElementById("studyCard").innerHTML = "";
-  document.getElementById("doneBox").innerHTML = '<div class="card donebox"><div class="donecircle" aria-hidden="true">✓</div><div class="big">한 문장 완료!</div>'+extra+'<p>오늘 '+countToday(P())+'문장째 · 지금까지 '+P().completed.length+' / '+items().length+'문장</p><div class="pbar donebar"><div class="pfill" style="width:'+pctAll+'%"></div></div><div class="donepct">전체 '+pctAll+'%</div><button class="primary" id="oneMoreBtn">한 문장 더 →</button></div>';
+  document.getElementById("doneBox").innerHTML = '<div class="card donebox"><div class="donecircle" aria-hidden="true">✓</div><div class="big">한 문장 완료!</div>'+extra+'<p>오늘 '+countToday(P())+'문장째 · 지금까지 '+P().completed.length+' / '+items().length+'문장</p><p class="donesub">오늘 복습 '+revToday+'개 처리 · '+curveTxt+'</p><div class="pbar donebar"><div class="pfill" style="width:'+pctAll+'%"></div></div><div class="donepct">전체 '+pctAll+'%</div><div class="btnrow" style="justify-content:center"><button class="primary" id="oneMoreBtn">한 문장 더 →</button><button class="ghost" id="doneForTodayBtn">오늘은 여기까지</button></div></div>';
   document.getElementById("oneMoreBtn").onclick = ()=>{ setStep(1); renderStudy(); window.scrollTo({top:0,behavior:"smooth"}); };
+  document.getElementById("doneForTodayBtn").onclick = ()=>{ document.getElementById("doneBox").innerHTML = ""; setStep(1); renderStudy(); window.scrollTo({top:0,behavior:"smooth"}); };
   const doneEl = document.getElementById("doneBox");
   if(doneEl && doneEl.scrollIntoView) doneEl.scrollIntoView({behavior:"smooth", block:"start"});
   renderQuizEntry();
 }
 function goToItem(idx, step){ P().levelFilter = "전체"; P().index = idx; setStep(step||1); showTab("study"); renderStudy(); window.scrollTo({top:0,behavior:"smooth"}); }
 
-/* ---------- 복습 퀴즈 ---------- */
+/* ---------- 복습 (망각곡선 큐) ---------- */
+function prepareReviewQueue(){
+  const today = todayKey();
+  const before = JSON.stringify({ st: P().reviewState || {}, cd: P().curveDays || [] });
+  P().reviewState = ensureReviewState(P(), today);
+  P().curveDays = syncCurveDays(P(), today);
+  if(before !== JSON.stringify({ st: P().reviewState, cd: P().curveDays })) saveProgress();
+  return today;
+}
+function curveLineHtml(lit, dueN, curveN){
+  const tail = lit ? "오늘의 곡선 켜짐" : (dueN ? "오늘 복습 "+dueN+"개를 마치면 오늘의 곡선이 켜져요" : "오늘 학습하면 곡선이 켜져요");
+  return '<div class="curveline'+(lit ? " on" : "")+'"><span class="curveicon" aria-hidden="true">'+(lit ? "🔥" : "📈")+'</span><span>망각곡선 기록 +'+curveN+'일 · '+tail+'</span></div>';
+}
 function renderQuizEntry(){
   const area = document.getElementById("quizArea");
   if(!area || quizItem) return;
-  if(P().completed.length < 3){ area.innerHTML = ""; return; }
-  area.innerHTML = '<div class="card quizcard"><div class="meta">복습 퀴즈</div><p class="ko" style="margin:6px 0 10px">끝낸 문장에서 한 문장, 뜻만 보고 다시 써 보세요. 맞히면 +5 XP</p><button class="primary" id="quizStartBtn">복습 퀴즈 — 끝낸 문장에서 다시 쓰기</button></div>';
-  document.getElementById("quizStartBtn").onclick = ()=>startQuiz();
+  const today = prepareReviewQueue();
+  const dueIds = dueReviewIds(P().reviewState, today);
+  const curveN = (P().curveDays || []).length;
+  const lit = curveLitToday(P(), today);
+  if(dueIds.length){
+    area.innerHTML = '<div class="card quizcard"><div class="meta">오늘의 복습 · 망각곡선</div><p class="ko" style="margin:6px 0 4px">오늘 복습할 문장 <b>'+dueIds.length+'개</b>가 있어요. 잊기 전에 뜻만 보고 다시 써 보세요. 맞히면 +5 XP, 다음 복습은 더 늦게 와요.</p>'+curveLineHtml(lit, dueIds.length, curveN)+'<button class="primary" id="quizStartBtn">오늘의 복습 시작 ('+dueIds.length+'개)</button></div>';
+  } else if(P().completed.length){
+    let h = '<div class="card quizcard"><div class="meta">오늘의 복습 · 망각곡선</div><p class="ko" style="margin:6px 0 4px">오늘 복습 없음 · 곡선 위에 있어요 📈</p>'+curveLineHtml(lit, 0, curveN);
+    if(P().completed.length >= 3) h += '<button class="ghost" id="quizStartBtn">자유 복습 — 끝낸 문장에서 다시 쓰기</button>';
+    area.innerHTML = h + '</div>';
+  } else {
+    area.innerHTML = '<div class="card quizcard"><div class="meta">오늘의 복습 · 망각곡선</div><p class="ko" style="margin:6px 0 4px">오늘 복습 없음 · 곡선 위에 있어요 📈</p><p class="ko" style="margin:0 0 4px;color:var(--sub)">첫 문장을 완료하면 내일부터 망각곡선 복습이 시작돼요.</p>'+curveLineHtml(lit, 0, curveN)+'</div>';
+  }
+  const sb2 = document.getElementById("quizStartBtn"); if(sb2) sb2.onclick = ()=>startQuiz();
 }
 function startQuiz(excludeId){
   quizAnswered = false;
-  let pool = quizPool(items(), P().completed, currentItem().id);
-  if(excludeId && pool.length > 1) pool = pool.filter(i=>i.id!==excludeId);
-  if(!pool.length) pool = items().filter(i=>P().completed.includes(i.id) && i.id!==excludeId);
+  const today = prepareReviewQueue();
+  const curId = currentItem() ? currentItem().id : null;
+  const byId = {}; items().forEach(i=>{ byId[i.id] = i; });
+  let due = dueReviewIds(P().reviewState, today).map(id=>byId[id]).filter(Boolean).filter(i=>i.id !== curId);
+  if(excludeId && due.length > 1) due = due.filter(i=>i.id !== excludeId);
+  let pool = due;
+  if(!pool.length){
+    pool = quizPool(items(), P().completed, curId);
+    if(excludeId && pool.length > 1) pool = pool.filter(i=>i.id !== excludeId);
+    if(!pool.length) pool = items().filter(i=>P().completed.includes(i.id) && i.id !== excludeId && i.id !== curId);
+  }
   if(!pool.length){ quizItem = null; renderQuizEntry(); return; }
   quizItem = pool[Math.floor(Math.random()*pool.length)];
-  document.getElementById("quizArea").innerHTML = '<div class="card quizcard"><div class="meta">복습 퀴즈 · 맞히면 +5 XP</div><p class="ko" style="font-size:19px;font-weight:700;margin-top:8px">'+esc(quizItem.ko)+'</p><textarea id="quizInput" rows="3" placeholder="프랑스어 문장을 써 보세요" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><div class="wordprog" id="quizWordProg" aria-live="polite"></div><div id="quizFb"></div><div class="btnrow"><button class="primary" id="quizCheckBtn">확인하기</button><button class="ghost" id="quizQuitBtn">그만하기</button></div></div>';
+  const fromDue = due.indexOf(quizItem) !== -1;
+  document.getElementById("quizArea").innerHTML = '<div class="card quizcard"><div class="meta">'+(fromDue ? "오늘의 복습 · 망각곡선" : "자유 복습")+' · 맞히면 +5 XP</div><p class="ko" style="font-size:19px;font-weight:700;margin-top:8px">'+esc(quizItem.ko)+'</p><textarea id="quizInput" rows="3" placeholder="프랑스어 문장을 써 보세요" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><div class="wordprog" id="quizWordProg" aria-live="polite"></div><div id="quizFb"></div><div class="btnrow"><button class="primary" id="quizCheckBtn">확인하기</button><button class="ghost" id="quizQuitBtn">그만하기</button></div></div>';
   document.getElementById("quizCheckBtn").onclick = checkQuiz;
   document.getElementById("quizQuitBtn").onclick = endQuiz;
   bindWordProg("quizInput", "quizWordProg", itemText(quizItem));
@@ -1413,18 +1579,24 @@ function checkQuiz(){
   if(!quizItem || quizAnswered) return;
   quizAnswered = true;
   const input = document.getElementById("quizInput").value;
+  const okAns = isCorrect(input, itemText(quizItem));
+  const tk2 = todayKey();
+  if(!Array.isArray(P().reviewDates)) P().reviewDates = [];
+  P().reviewDates.push(tk2);
+  P().reviewState = nextSchedule(P().reviewState, quizItem.id, okAns, tk2);
+  P().curveDays = syncCurveDays(P(), tk2);
   let h = "";
-  if(isCorrect(input, itemText(quizItem))){
+  if(okAns){
     playSound(true);
     P().reviewCorrect = (P().reviewCorrect||0)+1;
     if(!Array.isArray(P().reviewIds)) P().reviewIds = [];
     if(!P().reviewIds.includes(quizItem.id)) P().reviewIds.push(quizItem.id);
-    saveProgress(); renderVaultState(); renderProgress();
     h = correctHtml(itemText(quizItem), " +5 XP");
   } else {
     playSound(false);
     h = wrongHtml(input, itemText(quizItem));
   }
+  saveProgress(); renderVaultState(); renderProgress();
   h += '<div class="btnrow" style="margin-top:12px"><button class="primary" id="quizMoreBtn">한 문제 더</button><button class="ghost" id="quizDoneBtn">끝내기</button></div>';
   document.getElementById("quizFb").innerHTML = h;
   const cb = document.getElementById("quizCheckBtn"); if(cb) cb.style.display = "none";
@@ -1523,6 +1695,8 @@ async function mergeSbAndPush(){
     P().completedAt = merged.completedAt;
     P().reviewIds = merged.reviewIds;
     P().reviewCorrect = merged.reviewCorrect;
+    P().reviewState = merged.reviewState;
+    P().curveDays = merged.curveDays;
     saveProgress();
     sbMerging = false;
     renderVaultState(); renderProgress();
