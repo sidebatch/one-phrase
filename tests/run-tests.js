@@ -1021,19 +1021,26 @@ eval(ptrSrcT);
 }
 
 console.log("\n[레벨 메달·내 정보·더보기 개편 (v1.29.0)]");
-const medalArrSrc = html.match(/const LEVEL_MEDALS = \[[\s\S]*?\];/)[0];
-const medalOfSrc = html.match(/function medalOf\(lv\)[^\n]*/)[0];
-eval(medalArrSrc + "\n" + medalOfSrc);
-const LEVEL_MEDALS_EVAL = eval(medalArrSrc.match(/\[[\s\S]*\]/)[0]);
-ok(LEVEL_MEDALS_EVAL.length === 10, "메달: 레벨 1~10 메달이 10개 있음");
-ok(LEVEL_MEDALS_EVAL.join("") === "🌱🌿🍀🥉🥈🥇💎🔥⭐👑", "메달: 순서가 🌱🌿🍀🥉🥈🥇💎🔥⭐👑");
-ok(medalOf(1) === "🌱" && medalOf(4) === "🥉" && medalOf(6) === "🥇" && medalOf(10) === "👑", "메달: medalOf가 레벨에 맞는 메달을 돌려줌");
-ok(rtmSrc.includes("medalOf(lv.lv)") && rtmSrc.includes("pl.medal"), "메달: Ensemble 참여자 카드의 Lv 배지와 언어별 칩에 메달 표시");
+const pencilArtSrc = html.match(/function penPencilArt\([\s\S]*?\n\}/)[0];
+const fountainArtSrc = html.match(/function penFountainArt\([\s\S]*?\n\}/)[0];
+const iconArtSrc = html.match(/const LEVEL_ICON_ART = \[[\s\S]*?\n\];/)[0];
+const iconFnSrc = html.match(/function levelIcon\(lv, size\)\{[\s\S]*?\n\}/)[0];
+const iconSrc = pencilArtSrc + "\n" + fountainArtSrc + "\n" + iconArtSrc + "\n" + iconFnSrc;
+eval(pencilArtSrc + "\n" + fountainArtSrc);
+const LEVEL_ICON_ART_EVAL = eval(iconArtSrc.match(/\[[\s\S]*\]/)[0]);
+eval(iconSrc);
+ok(LEVEL_ICON_ART_EVAL.length === 10, "펜 아이콘: 레벨 1~10 아이콘이 10개 있음");
+ok(LEVEL_ICON_ART_EVAL[0].includes("#f2c14e") && LEVEL_ICON_ART_EVAL[1].includes("#f5b921") && LEVEL_ICON_ART_EVAL[2].includes("#4a4f57") && LEVEL_ICON_ART_EVAL[3].includes("#2f6bd8") && LEVEL_ICON_ART_EVAL[4].includes("#dde3ea"), "펜 아이콘: 1~5단계가 몽당연필·연필·샤프펜슬·볼펜·메탈 볼펜 순서");
+ok(LEVEL_ICON_ART_EVAL[5].includes("#23262b") && LEVEL_ICON_ART_EVAL[5].includes("#cfd6de") && LEVEL_ICON_ART_EVAL[6].includes("#eec25e") && LEVEL_ICON_ART_EVAL[7].includes("#274b9f") && LEVEL_ICON_ART_EVAL[8].includes("#dcf2fd") && LEVEL_ICON_ART_EVAL[9].includes("M14,78"), "펜 아이콘: 6~10단계가 실버·골드·사파이어·다이아 만년필과 깃털펜 순서");
+ok(levelIcon(1).includes("<svg") && levelIcon(1).includes('data-lv="1"') && levelIcon(10, 64).includes('width="64"') && levelIcon(10, 64).includes('data-lv="10"'), "펜 아이콘: levelIcon이 단계·크기에 맞는 인라인 SVG를 돌려줌");
+ok(!html.includes("LEVEL_MEDALS") && !html.includes("medalOf"), "펜 아이콘: 기존 이모지 메달 체계(LEVEL_MEDALS·medalOf)가 제거됨");
+ok(lvArrSrc.includes('title:"몽당연필"') && lvArrSrc.includes('title:"실버 만년필"') && lvArrSrc.includes('title:"골드 만년필"') && lvArrSrc.includes('title:"다이아 만년필"') && lvArrSrc.includes('title:"깃털펜"'), "펜 아이콘: 레벨 이름이 펜 사다리(몽당연필→깃털펜)로 교체됨");
+ok(rtmSrc.includes("levelIcon(lv.lv") && rtmSrc.includes("pl.icon"), "펜 아이콘: Ensemble 참여자 카드의 Lv 배지와 언어별 칩에 펜 아이콘 표시");
 ok(html.includes('id="profileBtn"') && html.indexOf('id="profileBtn"') > html.indexOf('class="brandrow"') && html.indexOf('id="profileBtn"') < html.indexOf('id="menuBtn"'), "내 정보: 헤더 아바타 버튼이 메뉴 버튼 왼쪽에 있음");
 ok(html.includes('id="profileOverlay" hidden') && html.includes('id="profileBackdrop"') && html.includes('id="profileCloseBtn"') && html.includes('aria-label="내 정보"'), "내 정보: 바텀시트 모달(배경·닫기 ✕)이 전역에 있고 처음에는 숨겨져 있음");
 ok(html.includes('getElementById("profileBtn").onclick') && html.includes("function openProfile()") && html.includes("renderProfile();"), "내 정보: 버튼을 누르면 모달이 열리고 열 때마다 최신 데이터로 렌더");
 const rpSrc = html.match(/function renderProfile\(\)\{[\s\S]*?\n\}/)[0];
-ok(rpSrc.includes("medalOf(lv.lv)") && rpSrc.includes("profilemedal") && rpSrc.includes("다음 레벨까지") && rpSrc.includes("복습 맞힘"), "내 정보: 메달 크게 + 다음 레벨까지 진행 바 + 복습 맞힘 수 표시");
+ok(rpSrc.includes("levelIcon(lv.lv") && rpSrc.includes("profilemedal") && rpSrc.includes("다음 레벨까지") && rpSrc.includes("복습 맞힘"), "내 정보: 펜 아이콘 크게 + 다음 레벨까지 진행 바 + 복습 맞힘 수 표시");
 ok(rpSrc.includes("게스트") && rpSrc.includes('id="profileLoginBtn"') && rpSrc.includes("구글로 시작하기") && rpSrc.includes("sbLogin()"), "내 정보: 비로그인이면 게스트로 로컬 통계를 보여주고, 그 자리에서 구글로 시작하기(지연 로드+OAuth) 실행");
 ok(rpSrc.includes("sbUser.email") && rpSrc.includes("profileemail") && rpSrc.includes('id="profileLogoutBtn"') && rpSrc.includes("로그아웃"), "내 정보: 로그인 상태면 마스킹된 이메일과 로그아웃 버튼 표시");
 ok(html.includes("function renderProfileBtn()") && html.includes("renderProfileBtn();"), "내 정보: 로그인·닉네임 상태가 바뀌면 헤더 아바타(닉네임 첫 글자/👤)도 갱신됨");
@@ -1050,7 +1057,7 @@ ok(maskEmail("going123@gmail.com") === "go***@gmail.com", "이메일 가리기: 
 ok(maskEmail("ab@example.com") === "a***@example.com" && maskEmail("a@example.com") === "a***@example.com", "이메일 가리기: 짧은 아이디는 1글자만 남김");
 ok(maskEmail("") === "" && maskEmail("no-at-sign") === "no-at-sign", "이메일 가리기: 이메일 형식이 아니면 그대로 반환");
 ok(rpSrc.includes("maskEmail(sbUser.email)") && rpSrc.includes('id="profileEmail"') && rpSrc.includes('id="profileEmailTxt"') && rpSrc.includes("탭하면 보이기") && rpSrc.includes("탭하면 가리기"), "내 정보: 이메일은 마스킹이 기본값, 탭하면 전체 표시/다시 가리기 토글 + 힌트 문구");
-ok(html.includes('getElementById("lvLabel").textContent = medalOf(lv.lv)+'), "첫 화면: 공부하기 레벨 표시줄에 현재 레벨 메달 함께 표시");
+ok(html.includes('getElementById("lvLabel").innerHTML = levelIcon(lv.lv, 20)+'), "첫 화면: 공부하기 레벨 표시줄에 현재 레벨 펜 아이콘 함께 표시");
 ok(html.includes("button.ghost.playing") && html.includes(".worditem.playing"), "재생 표시: 재생 중 버튼 스타일(.playing)이 듣기 버튼과 단어 버튼에 정의됨");
 ok(rsSrc2.includes("clearSpeakingUI();") && stSrc2.includes("clearSpeakingUI();"), "재생 표시: 단계·화면이 바뀌면 재생 중 표시 해제");
 ok(["t-study","t-browse","t-words","t-together","t-about"].every(c=>html.includes('menutile '+c+'" aria-hidden="true"><svg')), "아이콘: 메뉴 타일 5종이 모두 인라인 SVG로 교체됨");
@@ -1379,10 +1386,10 @@ async function runEqEnsembleSmoke() {
   const h = E2_ELS["view-together"].innerHTML;
   ok(!eqConds.some(c => c.indexOf("progress:lang=") === 0), "동등성 Ensemble: progress는 언어로 걸러지 않고 전 언어 행을 가져옴");
   ok(h.includes("완료 2 / 30"), "동등성 Ensemble: 메인 진행 바는 활성 언어(es) 기준 2/30 (fr 기록 3개가 섞이지 않음)");
-  ok(h.includes("프랑스어 🌿 Lv.2 · 3/346문장"), "동등성 Ensemble: 내 카드 칩에 프랑스어 (Lv.2 · 3/306문장 — 완료 3개=30 XP로 따로 계산)");
-  ok(h.includes("스페인어 🌱 Lv.1 · 2/30문장"), "동등성 Ensemble: 내 카드 칩에 스페인어 (Lv.1 · 2/30문장 — 언어가 합산되지 않음)");
-  ok(h.includes("영어 🌱 Lv.1 · 0/30문장"), "동등성 Ensemble: 진도가 없는 언어도 Lv.1 · 0문장으로 표시되어 3개 언어가 전부 보임");
-  ok(h.includes("스페인어 🌱 Lv.1 · 1/30문장") && h.includes("프랑스어 🌱 Lv.1 · 1/346문장"), "동등성 Ensemble: 다른 참여자 카드에도 언어별 레벨·완료 수가 표시됨");
+  ok(h.includes("프랑스어 <svg") && h.includes('data-lv="2"') && h.includes("Lv.2 · 3/346문장"), "동등성 Ensemble: 내 카드 칩에 프랑스어 펜 아이콘 (Lv.2 · 3/346문장 — 완료 3개=30 XP로 따로 계산)");
+  ok(h.includes("스페인어 <svg") && h.includes("Lv.1 · 2/30문장"), "동등성 Ensemble: 내 카드 칩에 스페인어 (Lv.1 · 2/30문장 — 언어가 합산되지 않음)");
+  ok(h.includes("영어 <svg") && h.includes("Lv.1 · 0/30문장"), "동등성 Ensemble: 진도가 없는 언어도 Lv.1 · 0문장으로 표시되어 3개 언어가 전부 보임");
+  ok(h.includes("스페인어 <svg") && h.includes("Lv.1 · 1/30문장") && h.includes("프랑스어 <svg") && h.includes("Lv.1 · 1/346문장"), "동등성 Ensemble: 다른 참여자 카드에도 언어별 레벨·완료 수가 표시됨");
   ok((h.match(/\(나\)/g) || []).length === 1 && !h.includes("mycard"), "회귀(F): 본인 카드는 참여자 목록에서 한 번만 렌더됨 (별도 내 카드 중복 제거)");
   ok(!h.includes("sbRefreshBtn") && !h.includes("sbLogoutBtn"), "Ensemble 정리(G): 새로고침·로그아웃 버튼이 목록 화면에 없음 (로그아웃은 내 정보 모달에만)");
   const fakeBtn = { _attrs: {}, setAttribute(k, v){ this._attrs[k] = v; }, getAttribute(k){ return this._attrs[k]; } };
@@ -1515,7 +1522,7 @@ const lvPrelude = [
 ].join("\n");
 const lvFns = [
   escSrc, swSrc, dwSrc, normSrc, corrSrc, chSrc, whSrc,
-  lvArrSrc, lvlSrc, xpSrc2, medalArrSrc, medalOfSrc,
+  lvArrSrc, lvlSrc, xpSrc2, iconSrc,
   html.match(/const SPEAKER_SVG = [^\n]*/)[0],
   html.match(/const SPEAKER_SLOW_SVG = [^\n]*/)[0],
   html.match(/function slowListenBtnHtml\(\)[^\n]*/)[0],
@@ -1631,8 +1638,7 @@ async function runBootRestoreSmoke() {
     html.match(/const SUPABASE_KEY = [^\n]*/)[0],
     html.match(/const SUPABASE_JS_URL = [^\n]*/)[0],
     escSrc, lvArrSrc, lvlSrc, xpSrc2,
-    html.match(/const LEVEL_MEDALS = \[[^\n]*/)[0],
-    html.match(/function medalOf\(lv\)\{[^}]*\}/)[0],
+    iconSrc,
     html.match(/function langLineOf\(code, count, reviewCorrect\)\{[\s\S]*?\n\}/)[0],
     html.match(/function langLinesHtml\(lines, activeCode\)\{[\s\S]*?\n\}/)[0],
     html.match(/function maskEmail\(email\)\{[\s\S]*?\n\}/)[0],
@@ -2421,7 +2427,7 @@ const liInfoDocument = {
   body: makeLiEl("body")
 };
 const lvInfoSrcs = [
-  lockSrc, helperSrc, escSrc, lvArrSrc, medalArrSrc, medalOfSrc, lvlSrc, xpSrc2,
+  lockSrc, helperSrc, escSrc, lvArrSrc, iconSrc, lvlSrc, xpSrc2,
   html.match(/function levelRowsHtml\(curLv\)\{[\s\S]*?\n\}/)[0],
   rlInfoSrc, liOpenSrc, liCloseSrc
 ].join("\n");
@@ -2431,8 +2437,8 @@ eval('let progress = null;\nconst document = liInfoDocument;\n' + lvInfoSrcs + "
   'openLevelInfo();',
   'ok(LI_ELS["levelOverlay"].hidden === false && liInfoDocument.body.classList.contains("noscroll"), "레벨 안내 스모크: 열면 창이 뜨고 배경 스크롤이 잠김");',
   'ok((LI_ELS["levelInfoBody"].innerHTML.match(/<div class="lvrow/g) || []).length === LEVELS.length, "레벨 안내 스모크: 전체 레벨 행이 레벨 수만큼 표시됨");',
-  'ok(LI_ELS["levelInfoBody"].innerHTML.includes(\'class="lvrow cur"\') && LI_ELS["levelInfoBody"].innerHTML.includes("Lv.2 문장 걸음마") && LI_ELS["levelInfoBody"].innerHTML.includes("지금 내 레벨"), "레벨 안내 스모크: 완료 3개(30 XP)=Lv.2 행이 강조되고 레벨 이름이 보임");',
-  'ok(LI_ELS["levelInfoBody"].innerHTML.includes("👑") && LI_ELS["levelInfoBody"].innerHTML.includes("2900 XP부터") && LI_ELS["levelInfoBody"].innerHTML.includes("0 XP부터"), "레벨 안내 스모크: 각 행에 메달과 필요 XP가 표시됨");',
+  'ok(LI_ELS["levelInfoBody"].innerHTML.includes(\'class="lvrow cur"\') && LI_ELS["levelInfoBody"].innerHTML.includes("Lv.2 연필") && LI_ELS["levelInfoBody"].innerHTML.includes("지금 내 레벨"), "레벨 안내 스모크: 완료 3개(30 XP)=Lv.2 행이 강조되고 레벨 이름이 보임");',
+  'ok(LI_ELS["levelInfoBody"].innerHTML.includes(\'data-lv="10"\') && LI_ELS["levelInfoBody"].innerHTML.includes("2900 XP부터") && LI_ELS["levelInfoBody"].innerHTML.includes("0 XP부터"), "레벨 안내 스모크: 각 행에 펜 아이콘과 필요 XP가 표시됨");',
   'closeLevelInfo();',
   'ok(LI_ELS["levelOverlay"].hidden === true && !liInfoDocument.body.classList.contains("noscroll"), "레벨 안내 스모크: 닫으면 배경 잠금이 풀림");'
 ].join("\n"));
