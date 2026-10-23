@@ -72,9 +72,9 @@ ok(html.includes('speechSynthesis') && html.includes('.cancel()') && html.includ
 ok(html.includes('fr-FR'), "TTS 언어 fr-FR");
 
 console.log("\n[단계 이어가기]");
-ok(html.includes("function setStep(n){ currentStep = n; progress.step = n; saveProgress(); }"), "단계 이동 시 기록에 단계 저장 (setStep)");
-ok(html.includes("currentStep = [1,2,3].includes(progress.step) ? progress.step : 1;"), "다시 열면 저장된 단계로 복원");
-ok(/progress\.index\+\+;\s*\n\s*progress\.step = 1;/.test(html), "문장 완료 시 다음 문장은 1단계부터 (기록 단계 초기화)");
+ok(html.includes("function setStep(n){ currentStep = n; P().step = n; saveProgress(); }"), "단계 이동 시 기록에 단계 저장 (setStep)");
+ok(html.includes("currentStep = [1,2,3].includes(P().step) ? P().step : 1;"), "다시 열면 저장된 단계로 복원 (활성 언어 버킷)");
+ok(/P\(\)\.index < items\(\)\.length-1\) P\(\)\.index\+\+;\s*\n\s*P\(\)\.step = 1;/.test(html), "문장 완료 시 다음 문장은 1단계부터 (기록 단계 초기화)");
 
 console.log("\n[완료 시각화·폴리시]");
 ok(html.includes('id="pfill"') && html.includes('role="progressbar"'), "헤더 전체 진행률 바 있음");
@@ -113,9 +113,9 @@ ok(levelOf(99999).nextAt===null && levelOf(99999).toNext===0 && levelOf(99999).p
   ok(quizPool(fakeItems, [1], 1).length===0, "복습 퀴즈 풀: 현재 문장만 완료면 풀 비어 있음");
   ok(quizPool(fakeItems, [], null).length===0, "복습 퀴즈 풀: 완료 없으면 비어 있음"); }
 ok(html.includes("reviewCorrect:0") && html.includes("completedAt:{}"), "덧붙임 저장: 새 필드 기본값 있음");
-ok(html.includes("Object.assign(defaultProgress(), chosen)"), "덧붙임 저장: 기존 저장본에 기본값 병합해 로드 (구버전 저장본 그대로 열림)");
+ok(html.includes("progress = migrateProgress(chosen)"), "덧붙임 저장: 로드 시 마이그레이션으로 정규화해 열림 (구버전 저장본 그대로 이어짐)");
 ok(html.includes('id="topicMap"') && html.includes("function renderTopicMap"), "정복 지도 UI 있음");
-ok(html.includes('id="quizArea"') && html.includes("복습 퀴즈 — 끝낸 문장에서 다시 쓰기") && html.includes("progress.reviewCorrect"), "복습 퀴즈 진입·XP 적립 코드 있음");
+ok(html.includes('id="quizArea"') && html.includes("복습 퀴즈 — 끝낸 문장에서 다시 쓰기") && html.includes("P().reviewCorrect"), "복습 퀴즈 진입·XP 적립 코드 있음");
 ok(html.includes('id="lvLabel"') && html.includes("다음 레벨까지"), "레벨 행 UI 있음");
 ok(html.includes("completedAt[it.id]"), "완료 시 문장별 완료 날짜 기록");
 
@@ -176,6 +176,20 @@ const documentStub = {
   getElementById(id){ if(!STUB_ELS[id]) STUB_ELS[id] = makeStubEl(id); return STUB_ELS[id]; },
   querySelectorAll(){ return [makeStubEl("sb1"), makeStubEl("sb2"), makeStubEl("sb3")]; }
 };
+// 언어·진도 헬퍼 실제 소스 (스모크 공용)
+const helperSrc = [
+  html.match(/const LANGS = \{[\s\S]*?\n\};/)[0],
+  html.match(/const LANG_CODES = [^\n]*/)[0],
+  'const ITEMS_EN = []; const ITEMS_ES = [];',
+  html.match(/const ITEMS_BY_LANG = [^\n]*/)[0],
+  html.match(/function defaultLangProgress\(\)[^\n]*/)[0],
+  html.match(/function defaultProgress\(\)[^\n]*/)[0],
+  html.match(/function migrateProgress\(raw\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function curLang\(\)\{[^}]*\}/)[0],
+  html.match(/function P\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function items\(\)\{[^}]*\}/)[0],
+  html.match(/function itemText\(it\)\{[^}]*\}/)[0]
+].join("\n");
 const smokePrelude = [
   'let progress = null;',
   'let currentStep = 3;',
@@ -221,7 +235,8 @@ const smokeFns = [
   html.match(/function endQuiz\(\)\{[^}]*\}/)[0]
 ].join("\n");
 const smokeDriver = [
-  'progress = { index:0, step:3, completed:[], doneDates:[], completedAt:{}, reviewCorrect:0, sound:true };',
+  'progress = migrateProgress({ index:0, step:3, completed:[], doneDates:[], completedAt:{}, reviewCorrect:0, sound:true });',
+  'const BKT = progress.byLang.fr;',
   'currentStep = 3;',
   'renderStudy();',
   'ok(STUB_ELS["studyCard"].innerHTML.includes("typeInput"), "스모크: 앱을 열면 탭 바 없이 공부 화면이 바로 렌더됨");',
@@ -239,26 +254,26 @@ const smokeDriver = [
   'checkTyping();',
   'ok(!!STUB_ELS["advanceBtn"], "스모크: 정답 후 완료하기 버튼 표시");',
   'STUB_ELS["advanceBtn"].onclick();',
-  'const idx1 = progress.index, done1 = progress.completed.length;',
+  'const idx1 = BKT.index, done1 = BKT.completed.length;',
   'STUB_ELS["advanceBtn"].onclick();',
   'STUB_ELS["advanceBtn"].onclick();',
   'completeSentence();',
-  'ok(done1 === 1 && progress.completed.length === 1, "회귀: 완료 버튼 연타·재호출에도 완료는 1회만 (실제 " + progress.completed.length + "회)");',
-  'ok(idx1 === 1 && progress.index === 1, "회귀: 완료 연타해도 안 본 문장으로 건너뛰지 않음 (index " + progress.index + ")");',
-  'ok(xpOf(progress.completed.length, progress.reviewCorrect) === 10, "회귀: XP도 1회분 +10만 적립");',
+  'ok(done1 === 1 && BKT.completed.length === 1, "회귀: 완료 버튼 연타·재호출에도 완료는 1회만 (실제 " + BKT.completed.length + "회)");',
+  'ok(idx1 === 1 && BKT.index === 1, "회귀: 완료 연타해도 안 본 문장으로 건너뛰지 않음 (index " + BKT.index + ")");',
+  'ok(xpOf(BKT.completed.length, BKT.reviewCorrect) === 10, "회귀: XP도 1회분 +10만 적립");',
   'ok(STUB_ELS["studyCard"].innerHTML === "", "회귀: 완료 후 학습 카드가 비어 있음");',
   'ok(STUB_ELS["doneBox"].innerHTML.includes("한 문장 완료") && !!STUB_ELS["oneMoreBtn"], "스모크: 완료 화면이 탭 로직 없이 바로 표시되고 한 문장 더 버튼이 있음");',
   'STUB_ELS["oneMoreBtn"].onclick();',
   'ok(currentStep === 1 && STUB_ELS["studyCard"].innerHTML.includes("goStep2"), "스모크: 한 문장 더를 누르면 다음 문장 1단계로 이어짐");',
-  'progress.completed = [ITEMS[0].id, ITEMS[1].id, ITEMS[2].id];',
-  'progress.index = 0; currentStep = 1;',
+  'BKT.completed = [ITEMS[0].id, ITEMS[1].id, ITEMS[2].id];',
+  'BKT.index = 0; currentStep = 1;',
   'startQuiz();',
   'ok(!!quizItem, "스모크: 복습 퀴즈 출제됨");',
   'ok(!!STUB_ELS["quizInput"], "스모크: 복습 퀴즈 입력 박스 렌더됨");',
-  'STUB_ELS["quizInput"].value = quizItem.fr;',
-  'const rc0 = progress.reviewCorrect;',
+  'STUB_ELS["quizInput"].value = itemText(quizItem);',
+  'const rc0 = BKT.reviewCorrect;',
   'checkQuiz(); checkQuiz();',
-  'ok(progress.reviewCorrect === rc0 + 1, "회귀: 퀴즈 정답을 두 번 제출해도 복습 XP는 1회만 (reviewCorrect " + progress.reviewCorrect + ")");',
+  'ok(BKT.reviewCorrect === rc0 + 1, "회귀: 퀴즈 정답을 두 번 제출해도 복습 XP는 1회만 (reviewCorrect " + BKT.reviewCorrect + ")");',
   'openMenu();',
   'ok(STUB_ELS["menuOverlay"].hidden === false, "메뉴 스모크: 퀴즈 중에도 메뉴를 열 수 있음");',
   'goMenu("words");',
@@ -272,7 +287,7 @@ const smokeDriver = [
   'goMenu("study");',
   'ok(currentTab === "study", "메뉴 스모크: 메뉴의 공부하기를 고르면 공부 화면으로 이동");'
 ].join("\n");
-eval(smokePrelude + "\n" + lvArrSrc + "\n" + lvlSrc + "\n" + xpSrc2 + "\n" + qpSrc + "\n" + normSrc + "\n" + corrSrc + "\n" + smokeFns + "\n" + smokeDriver);
+eval(smokePrelude + "\n" + helperSrc + "\n" + lvArrSrc + "\n" + lvlSrc + "\n" + xpSrc2 + "\n" + qpSrc + "\n" + normSrc + "\n" + corrSrc + "\n" + smokeFns + "\n" + smokeDriver);
 
 console.log("\n[정답 피드백 분리·짧은 라벨·짧은 안내 (v1.19.0)]");
 const chSrc = html.match(/function correctHtml[\s\S]*?\n\}/)[0];
@@ -340,6 +355,7 @@ const rzPrelude = [
   'function renderStudy(){}'
 ].join("\n");
 const rzFns = [
+  helperSrc,
   html.match(/function defaultProgress\(\)[^\n]*/)[0],
   html.match(/function soundEnabled\(\)[^\n]*/)[0],
   html.match(/function renderSoundBtn\(\)[^\n]*/)[0],
@@ -349,25 +365,25 @@ const rzFns = [
   rzSrc, drSrc
 ].join("\n");
 const rzDriver = [
-  'progress = { index:5, step:3, completed:[1,2,3], doneDates:["2026-10-21"], completedAt:{1:"2026-10-21"}, reviewCorrect:4, sound:false };',
+  'progress = migrateProgress({ index:5, step:3, completed:[1,2,3], doneDates:["2026-10-21"], completedAt:{1:"2026-10-21"}, reviewCorrect:4, sound:false });',
   'localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));',
   'rzVaultStore.set(STORAGE_KEY, JSON.stringify(progress));',
   'renderResetZone();',
   'ok(!!RZ_ELS["resetBtn"], "초기화 스모크: 처음에는 기록 초기화 버튼만 보임");',
   'RZ_ELS["resetBtn"].onclick();',
   'ok(RZ_ELS["resetZone"].innerHTML.includes("네, 지울게요"), "초기화 스모크: 한 번 누르면 1단계 경고·확인 표시");',
-  'ok(localStorage.getItem(STORAGE_KEY) !== null && rzVaultStore.has(STORAGE_KEY) && progress.completed.length === 3, "초기화 스모크: 1단계(확인 전)에서는 아직 아무것도 지워지지 않음");',
+  'ok(localStorage.getItem(STORAGE_KEY) !== null && rzVaultStore.has(STORAGE_KEY) && progress.byLang.fr.completed.length === 3, "초기화 스모크: 1단계(확인 전)에서는 아직 아무것도 지워지지 않음");',
   'RZ_ELS["resetCancel1"].onclick();',
-  'ok(progress.completed.length === 3 && localStorage.getItem(STORAGE_KEY) !== null && RZ_ELS["resetZone"].innerHTML.includes("기록 초기화"), "초기화 스모크: 1단계에서 취소하면 기록 그대로, 버튼 상태로 복귀");',
+  'ok(progress.byLang.fr.completed.length === 3 && localStorage.getItem(STORAGE_KEY) !== null && RZ_ELS["resetZone"].innerHTML.includes("기록 초기화"), "초기화 스모크: 1단계에서 취소하면 기록 그대로, 버튼 상태로 복귀");',
   'RZ_ELS["resetBtn"].onclick();',
   'RZ_ELS["resetNext1"].onclick();',
-  'ok(RZ_ELS["resetZone"].innerHTML.includes("정말 초기화") && localStorage.getItem(STORAGE_KEY) !== null && progress.completed.length === 3, "초기화 스모크: 2단계(마지막 확인)에서도 아직 지워지지 않음");',
+  'ok(RZ_ELS["resetZone"].innerHTML.includes("정말 초기화") && localStorage.getItem(STORAGE_KEY) !== null && progress.byLang.fr.completed.length === 3, "초기화 스모크: 2단계(마지막 확인)에서도 아직 지워지지 않음");',
   'showTab("study");',
-  'ok(!RZ_ELS["resetZone"].innerHTML.includes("정말 초기화") && progress.completed.length === 3, "초기화 스모크: 다른 탭으로 가면 확인 상태가 접히고 기록도 그대로");',
+  'ok(!RZ_ELS["resetZone"].innerHTML.includes("정말 초기화") && progress.byLang.fr.completed.length === 3, "초기화 스모크: 다른 탭으로 가면 확인 상태가 접히고 기록도 그대로");',
   'RZ_ELS["resetBtn"].onclick();',
   'RZ_ELS["resetNext1"].onclick();',
   'RZ_ELS["resetDo"].onclick();',
-  'ok(progress.completed.length === 0 && progress.index === 0 && progress.reviewCorrect === 0 && Object.keys(progress.completedAt).length === 0, "초기화 스모크: 두 번 확인 후 완료·복습·날짜 기록이 기본값으로");',
+  'ok(progress.byLang.fr.completed.length === 0 && progress.byLang.fr.index === 0 && progress.byLang.fr.reviewCorrect === 0 && Object.keys(progress.byLang.fr.completedAt).length === 0, "초기화 스모크: 두 번 확인 후 완료·복습·날짜 기록이 기본값으로");',
   'ok(progress.sound === true && currentStep === 1, "초기화 스모크: 효과음 설정 기본값(켜짐), 단계 1로 복귀");',
   'ok(localStorage.getItem(STORAGE_KEY) === null && !rzVaultStore.has(STORAGE_KEY), "초기화 스모크: 로컬과 보관함 복사본이 모두 삭제됨");',
   'const rzLocalAfter = localStorage.getItem(STORAGE_KEY) ? JSON.parse(localStorage.getItem(STORAGE_KEY)) : null;',
@@ -401,13 +417,13 @@ ok(!html.includes('id="listenBtn2"') && !html.includes("다시 듣기"), "공부
 ok(!html.includes("progress.slow") && !html.includes("speakRate") && !html.includes("🐢 느리게 0.8배속") && !html.includes("slowbtn"), "느리게 듣기: 토글 칩·속도 설정 저장·speakRate가 모두 제거됨 (v1.23.0)");
 ok(html.match(/function slowListenBtnHtml\(\)[^\n]*/)[0].includes("SPEAKER_SLOW_SVG") && html.match(/function slowListenBtnHtml\(\)[^\n]*/)[0].includes("느리게 듣기") && html.includes('id="slowListenBtn"'), "느리게 듣기: 누를 때만 0.7배속으로 1회 재생하는 버튼 있음 (스피커 SVG)");
 ok(html.includes('u.rate = (typeof rate === "number") ? rate : 1.0;'), "느리게 듣기: speakFr가 명시 속도 인자를 받고 기본값은 1.0");
-ok(rsSrc2.includes("slowListenBtnHtml()") && rsSrc2.includes("speakFr(it.fr, 0.7, slb)") && rsSrc2.includes("speakFr(it.fr, 1, lb)"), "느리게 듣기: 읽어보기·따라 쓰기에 버튼이 있고 0.7 인자+버튼으로 speakFr를 호출 (듣기는 1배속+버튼)");
+ok(rsSrc2.includes("slowListenBtnHtml()") && rsSrc2.includes("speakFr(itemText(it), 0.7, slb)") && rsSrc2.includes("speakFr(itemText(it), 1, lb)"), "느리게 듣기: 읽어보기·따라 쓰기에 버튼이 있고 0.7 인자+버튼으로 speakFr를 호출 (듣기는 1배속+버튼)");
 // speakFr 스모크: 음성 캐시·로컬 우선·속도·재생 중 표시·대기 경로를 스텁으로 확인
-const pickVoiceSrc = html.match(/function pickFrVoice\(voices\)\{[\s\S]*?\n\}/)[0];
+const pickVoiceSrc = html.match(/function pickVoice\(voices, prefix\)\{[\s\S]*?\n\}/)[0];
 eval(pickVoiceSrc);
-ok(pickFrVoice([]) === null && pickFrVoice([{lang:"en-US",localService:true}]) === null, "음성 선택: fr 음성이 없으면 null");
-ok(pickFrVoice([{lang:"fr-FR",localService:false},{lang:"fr-CA",localService:true}]).lang === "fr-CA", "음성 선택: 로컬 fr 음성을 네트워크 음성보다 우선");
-ok(pickFrVoice([{lang:"fr-FR",localService:false}]).lang === "fr-FR", "음성 선택: 로컬이 없으면 첫 fr 음성");
+ok(pickVoice([], "fr") === null && pickVoice([{lang:"en-US",localService:true}], "fr") === null, "음성 선택: fr 음성이 없으면 null");
+ok(pickVoice([{lang:"fr-FR",localService:false},{lang:"fr-CA",localService:true}], "fr").lang === "fr-CA", "음성 선택: 로컬 fr 음성을 네트워크 음성보다 우선");
+ok(pickVoice([{lang:"fr-FR",localService:false}], "fr").lang === "fr-FR", "음성 선택: 로컬이 없으면 첫 fr 음성");
 const clearUiSrc = html.match(/function clearSpeakingUI\(\)\{[\s\S]*?\n\}/)[0];
 const sfSrc = html.match(/function speakFr\(text, rate, btn\)\{[\s\S]*?\n\}/)[0];
 const sfPrelude = [
@@ -423,7 +439,10 @@ const sfPrelude = [
   'let speakBtn = null;',
   'let speakSafetyTimer = null;',
   'let speakWaitTimer = null;',
-  'let speakSeq = 0;'
+  'let speakSeq = 0;',
+  'const LANGS = { fr:{ name:"프랑스어", speech:"fr-FR", prefix:"fr" }, en:{ name:"영어", speech:"en-US", prefix:"en" }, es:{ name:"스페인어", speech:"es-ES", prefix:"es" } };',
+  'let progress = { lang:"fr" };',
+  'function curLang(){ return progress.lang; }'
 ].join("\n");
 eval(sfPrelude + "\n" + clearUiSrc + "\n" + sfSrc + "\n" + [
   'speakFr("Bonjour.");',
@@ -462,7 +481,7 @@ ok(rsSrc2.includes('id="goStep2">따라 쓰기</button>'), "읽어보기: 진행
 ok(rsSrc2.includes('<button class="primary" id="goStep2">') && rsSrc2.split("} else if(currentStep===2){")[0].includes('<button class="ghost" id="listenBtn">') && !rsSrc2.split("} else if(currentStep===2){")[0].includes('class="primary" id="listenBtn"'), "강조 배분: 읽어보기에서는 '따라 쓰기'가 primary(파란 버튼)이고 듣기는 ghost (v1.23.1)");
 ok((rsSrc2.match(/id="backBtn"/g) || []).length === 2, "뒤로: 따라 쓰기와 가리고 쓰기 두 곳에 '← 뒤로' 버튼이 있음");
 ok(rsSrc2.includes("setStep(currentStep===3 ? 2 : 1)"), "뒤로: 3단계에서는 2단계로, 2단계에서는 1단계로 돌아감");
-ok(rsSrc2.includes("const tefSeg = currentStep===1"), "메타 줄: '도움되는 영역'은 읽어보기(1단계)에서만 붙음");
+ok(!rsSrc2.includes("도움되는 영역") && !html.includes("도움되는 영역"), "메타 줄: 도움 영역 표기는 화면 어디에도 렌더되지 않음 (v1.32.0, 데이터에는 유지)");
 ok(!html.includes("hintBtn") && !html.includes("힌트: 첫 단어 보기"), "가리고 쓰기: 힌트 버튼과 힌트 로직이 앱 전체에서 제거됨");
 { const s2 = rsSrc2.split("} else if(currentStep===2){")[1].split("} else {")[0];
   ok(s2.includes("slowListenBtnHtml()") && s2.includes('id="backBtn"') && s2.includes('id="listenBtn"'), "따라 쓰기: 듣기·느리게 듣기·뒤로가 함께 있음"); }
@@ -515,11 +534,11 @@ const flFns = [
   rsSrc2, ctSrc
 ].join("\n");
 const flDriver = [
-  'progress = { index:0, step:1, completed:[], doneDates:[], completedAt:{}, reviewCorrect:0, sound:true };',
+  'progress = migrateProgress({ index:0, step:1, completed:[], doneDates:[], completedAt:{}, reviewCorrect:0, sound:true });',
   'currentStep = 1;',
   'renderStudy();',
   'const card1 = FL_ELS["studyCard"].innerHTML;',
-  'ok(card1.includes("도움되는 영역"), "흐름 스모크: 1단계 메타 줄에는 도움되는 영역이 보임");',
+  'ok(!card1.includes("도움되는 영역"), "흐름 스모크: 1단계 메타 줄에도 도움 영역 표기가 없음 (v1.32.0 숨김)");',
   'ok(card1.includes(\'id="goStep2"\') && card1.includes(">따라 쓰기<") && card1.includes(\'id="slowListenBtn"\'), "흐름 스모크: 1단계에 따라 쓰기 진행 버튼과 느리게 듣기 버튼");',
   'ok(!card1.includes(\'id="backBtn"\'), "흐름 스모크: 1단계에는 뒤로 버튼 없음");',
   'FL_ELS["goStep2"].onclick();',
@@ -551,7 +570,7 @@ const flDriver = [
   'checkTyping();',
   'ok(FL_ELS["fb"].innerHTML.includes("완료하기"), "흐름 스모크: 3단계 정답 후 버튼은 완료하기");'
 ].join("\n");
-eval(flPrelude + "\n" + flFns + "\n" + flDriver);
+eval(flPrelude + "\n" + helperSrc + "\n" + flFns + "\n" + flDriver);
 
 console.log("\n[공유 버튼 (v1.21.0)]");
 ok(html.includes('id="shareBtn"') && html.includes("🔗 이 앱 공유하기"), "공유: 더보기 탭에 '🔗 이 앱 공유하기' 버튼 있음");
@@ -679,7 +698,7 @@ const bwFns = [
   html.match(/function renderWords\(\)\{[\s\S]*?\n\}/)[0]
 ].join("\n");
 const bwDriver = [
-  'progress = { index:0, step:1, completed:[ITEMS[0].id], doneDates:[], completedAt:{}, reviewCorrect:0, sound:true };',
+  'progress = migrateProgress({ index:0, step:1, completed:[ITEMS[0].id], doneDates:[], completedAt:{}, reviewCorrect:0, sound:true });',
   'renderBrowse();',
   'const bl = BW_ELS["browseList"].innerHTML;',
   'ok(bl.includes(\'<span class="li-ko">\' + ITEMS[0].ko + \'</span>\'), "행 스모크: 뜻이 메타 없이 자기 줄에만 있음");',
@@ -693,14 +712,14 @@ const bwDriver = [
   'ok((wl.match(/class="wlearned"/g) || []).length === ITEMS[0].words.length, "단어 행 스모크: 완료한 문장의 단어에만 ✓ 학습 칩");',
   'ok(wl.includes(\'</span><span class="wlearned">✓ 학습</span>\'), "단어 행 스모크: ✓ 학습 칩은 뜻 텍스트 밖, 행의 고정 위치(오른쪽)에 따로 붙음");'
 ].join("\n");
-eval(bwPrelude + "\n" + bwFns + "\n" + bwDriver);
+eval(bwPrelude + "\n" + helperSrc + "\n" + bwFns + "\n" + bwDriver);
 
 console.log("\n[Ensemble: Supabase 연동 + 완성도 개편 (v1.27.0)]");
 ok(html.includes('const SUPABASE_URL = "https://cmhitsgoicxvmlwtrdrb.supabase.co";') && html.includes('const SUPABASE_KEY = "sb_publishable_'), "Supabase 상수: 프로젝트 URL + publishable 키가 코드에 있음");
 ok(html.includes('id="view-together"') && html.includes('id="tab-together" hidden'), "Ensemble: 전용 화면(#view-together)이 탭으로 있고 처음에는 숨겨져 있음");
 ok(!html.includes("함께 공부"), "이름 교체: 앱 어디에도 '함께 공부' 표기가 남아 있지 않음");
-ok(html.includes('class="viewtitle">Ensemble</h2>') && html.includes("서로의 진도를 보며 같이 공부해요"), "Ensemble: 화면 제목 Ensemble + 상단 한 줄 설명");
-ok(html.includes('data-menu="together"') && html.includes('<span class="menulabel">Ensemble</span>') && html.includes("서로의 진도 보기"), "Ensemble: 메뉴 라벨 Ensemble, 부제는 '서로의 진도 보기'");
+ok(html.includes('class="viewtitle" id="ensembleViewTitle">Ensemble</h2>') && html.includes("서로의 진도를 보며 같이 공부해요"), "Ensemble: 화면 제목 Ensemble + 상단 한 줄 설명");
+ok(html.includes('data-menu="together"') && html.includes('<span class="menulabel" id="ensembleMenuLabel">Ensemble</span>') && html.includes("서로의 진도 보기"), "Ensemble: 메뉴 라벨 Ensemble, 부제는 '서로의 진도 보기'");
 ok(html.indexOf('data-menu="words"') < html.indexOf('data-menu="together"') && html.indexOf('data-menu="together"') < html.indexOf('data-menu="about"'), "Ensemble: 메뉴 순서가 단어 → Ensemble → 설명");
 ok(html.includes("cdn.jsdelivr.net/npm/@supabase/supabase-js@2") && html.includes('document.createElement("script")') && html.includes("function loadSupabase()"), "Ensemble: supabase-js는 처음부터 넣지 않고 동적 스크립트로 지연 로드");
 ok(html.includes("구글로 시작하기") && html.includes('class="card herocard"') && html.includes("heroicon"), "Ensemble: 비로그인 상태는 히어로 카드 + '구글로 시작하기' 버튼");
@@ -725,14 +744,16 @@ ok(spSrc.includes("scheduleSbUpload()"), "동기화: saveProgress가 서버 업�
 ok(html.includes("setTimeout(()=>{ pushSbProgress(); }, 1500)"), "동기화: 업로드 디바운스 1.5초");
 ok(html.includes("reviewIds:[]"), "동기화 재료: 진행 기록 기본값에 reviewIds 배열 있음");
 const cqSrc2 = html.match(/function checkQuiz\(\)[\s\S]*?\n\}/)[0];
-ok(cqSrc2.includes("progress.reviewIds") && cqSrc2.includes("progress.reviewIds.push(quizItem.id)"), "동기화 재료: 퀴즈 정답 시 맞힌 문장 id를 reviewIds에 기록 (중복 없이)");
+ok(cqSrc2.includes("P().reviewIds") && cqSrc2.includes("P().reviewIds.push(quizItem.id)"), "동기화 재료: 퀴즈 정답 시 맞힌 문장 id를 활성 언어 버킷의 reviewIds에 기록 (중복 없이)");
 ok(html.includes("function syncSbOnLogin()") && html.includes("onAuthStateChange"), "동기화: 로그인·세션 복원 시 1회 병합 동기화 경로 있음");
 // mergeProgressData 순수 함수 의미 테스트
 const rriSrc = html.match(/function remoteReviewInfo[\s\S]*?\n\}/)[0];
 const mpdSrc = html.match(/function mergeProgressData[\s\S]*?\n\}/)[0];
 const ptrSrc = html.match(/function progressToRemote[\s\S]*?\n\}/)[0];
 const rxpSrc = html.match(/function remoteXpOf[\s\S]*?\n\}/)[0];
-eval(rriSrc); eval(mpdSrc); eval(ptrSrc); eval(xpSrc2); eval(rxpSrc);
+const nidSrc = html.match(/function normId\(id\)\{[\s\S]*?\n\}/)[0];
+const cmpSrc = html.match(/function cmpIds\(a, b\)\{[\s\S]*?\n\}/)[0];
+eval(nidSrc); eval(cmpSrc); eval(rriSrc); eval(mpdSrc); eval(ptrSrc); eval(xpSrc2); eval(rxpSrc);
 { const m = mergeProgressData(
     { completed:[1,2], completedAt:{1:"2026-10-20",2:"2026-10-19"}, reviewCorrect:3, reviewIds:[7] },
     { completed:{2:"2026-10-21",3:null}, review_correct:{ ids:[8], count:2 } });
@@ -785,15 +806,15 @@ if (fs.existsSync(ogPngPath)) {
 }
 
 console.log("\n[개명 (v1.31.0) · 아이콘 워드마크 복원 (v1.31.1) · 표기 교체 (v1.31.2)]");
-ok(html.includes('<span class="wordmark">ONE PHRASE</span>'), "워드마크: 헤더가 ONE PHRASE");
-ok(!html.includes("UNE PHRASE"), "개명: 옛 워드마크 UNE PHRASE 없음");
-ok(!html.includes("Une Phrase"), "개명: index.html에 옛 이름 Une Phrase 없음");
+ok(html.includes('<span class="wordmark" id="wordmarkEl">ONE PHRASE</span>'), "워드마크: 헤더 기본 표기는 ONE PHRASE (언어별로 동적 교체)");
+ok(html.includes("UNE PHRASE") && html.includes("Une Phrase"), "다언어: 프랑스어 워드마크(UNE PHRASE)·앱 이름(Une Phrase)은 LANGS 표기로 존재");
+ok(!html.includes("<title>Une Phrase"), "개명: <title>의 정적 표기는 One Phrase 유지 (언어별 이름은 화면 표기만 동적 교체)");
 ok(html.includes("<title>One Phrase — 한 문장 외국어 | 켜자마자 한 문장</title>"), "개명: <title>이 새 이름 (TEF Canada 표기 없음)");
 ok(html.includes('property="og:title" content="One Phrase — 한 문장 외국어"'), "개명: og:title이 새 이름");
 ok(html.includes('property="og:url" content="https://sidebatch.github.io/one-phrase/"'), "개명: og:url이 새 주소");
 ok(html.includes('const SHARE_URL = "https://sidebatch.github.io/one-phrase/";'), "개명: 공유 주소가 새 주소");
 ok(man.name === "One Phrase — 한 문장 외국어" && man.short_name === "One Phrase", "manifest: name·short_name이 새 이름");
-ok(html.includes('class="logo" aria-hidden="true">O</span>') && html.includes('class="footlogo" aria-hidden="true">O</span>'), "로고: 헤더·푸터 로고 타일이 글자 O (개명 전 워드마크 방식)");
+ok(html.includes('class="logo" id="logoTile" aria-hidden="true">O</span>') && html.includes('class="footlogo" id="footTile" aria-hidden="true">O</span>'), "로고: 헤더·푸터 로고 타일 기본값은 글자 O (언어별로 동적 교체)");
 const iconSvg = read("icons/icon.svg");
 ok(iconSvg.includes('fill="#1C3A71"') && iconSvg.includes('fill="#FFFFFF"') && iconSvg.includes(">One</text>") && iconSvg.includes('fill="#FFD166"') && iconSvg.includes(">PHRASE</text>"), "아이콘 소스 SVG: 파랑 배경·흰 'One'·금색 'PHRASE' 워드마크");
 function pngPixel(buf, x, y) {
@@ -834,7 +855,7 @@ for (const [f, w, h] of [["icons/icon-192.png",192,192],["icons/icon-512.png",51
 
 console.log("\n[테마 3종 (v1.28.0)]");
 const dpSrc = html.match(/function defaultProgress\(\)[^\n]*/)[0];
-eval(dpSrc);
+eval(html.match(/function defaultLangProgress\(\)[^\n]*/)[0] + "\n" + dpSrc);
 { const dp = defaultProgress(); ok(dp.theme === "light", "테마: 진행 기록 기본값은 라이트"); }
 ok(html.indexOf('localStorage.getItem("une-phrase-progress-v1")') > -1 && html.indexOf('localStorage.getItem("une-phrase-progress-v1")') < html.indexOf("<style>"), "테마: head 이른 스크립트가 저장된 테마를 스타일보다 먼저 읽음 (깜빡임 방지)");
 ok(html.includes("document.documentElement.dataset.theme = t") && html.indexOf("dataset.theme") < html.indexOf("<style>"), "테마: 부팅 스크립트가 첫 페인트 전에 data-theme 세팅");
@@ -906,9 +927,9 @@ ok(rpSrc.includes("게스트") && rpSrc.includes('id="profileLoginBtn"') && rpSr
 ok(rpSrc.includes("sbUser.email") && rpSrc.includes("profileemail") && rpSrc.includes('id="profileLogoutBtn"') && rpSrc.includes("로그아웃"), "내 정보: 로그인 상태면 마스킹된 이메일과 로그아웃 버튼 표시");
 ok(html.includes("function renderProfileBtn()") && html.includes("renderProfileBtn();"), "내 정보: 로그인·닉네임 상태가 바뀌면 헤더 아바타(닉네임 첫 글자/👤)도 갱신됨");
 ok(html.includes('<span class="menulabel">더보기</span>') && !html.includes('<span class="menulabel">설명</span>'), "더보기: 메뉴 라벨이 '설명'에서 '더보기'로 교체됨");
-ok(!html.includes("이 문장들이 TEF Canada와 어떻게 연결되나요") && html.includes("특정 시험 전용이 아니라, 일상에서 바로 쓰는 프랑스어 문장을 익히는 앱이에요"), "더보기: TEF 연결 섹션은 삭제되고 일상 프랑스어 앱이라는 한 줄로 교체");
+ok(!html.includes("이 문장들이 TEF Canada와 어떻게 연결되나요") && html.includes("특정 시험 전용이 아니라, 일상에서 바로 쓰는 외국어 문장을 익히는 앱이에요"), "더보기: TEF 연결 섹션은 삭제되고 일상 프랑스어 앱이라는 한 줄로 교체");
 ok(html.includes("기록은 이 기기에 저장되고, 로그인하면 서버에도 보관돼 기기를 바꿔도 이어서 공부할 수 있어요") && !html.includes("그 경우를 막을 완전한 방법은 아직 없습니다"), "더보기: 기록 보관 설명이 기기 저장 + 로그인 시 서버 보관으로 짧게 현행화");
-ok(html.includes("<summary>Ensemble</summary>") && html.includes("서로의 레벨과 완료 문장을 볼 수 있어요"), "더보기: Ensemble 안내 한 줄이 있음");
+ok(html.includes('<summary id="ensembleAboutTitle">Ensemble</summary>') && html.includes("서로의 레벨과 완료 문장을 볼 수 있어요"), "더보기: Ensemble 안내 한 줄이 있음");
 ok(html.includes("<summary>어떻게 쓰나요</summary>") && html.includes("한 문장을 3단계로 외우는 앱이에요"), "더보기: 사용법이 3단계 한 줄로 단축됨");
 
 console.log("\n[듣기 개선·이메일 가리기·레벨 곡선·SVG 아이콘 (v1.30.0)]");
@@ -927,5 +948,283 @@ ok(html.includes("const SPEAKER_SVG") && html.includes("const SPEAKER_SLOW_SVG")
 ok(html.includes("const PERSON_SVG") && html.includes("const PEOPLE_SVG") && !html.includes("👤"), "아이콘: 게스트 아바타·Ensemble 히어로가 사람 실루엣 SVG로 교체됨");
 ok(html.includes("PERSON_SVG") && html.match(/function renderProfileBtn\(\)\{[\s\S]*?\n\}/)[0].includes("PERSON_SVG"), "아이콘: 헤더 아바타 버튼의 게스트 표시도 PERSON_SVG 사용");
 
-console.log("\n결과: PASS " + pass + " / FAIL " + fail);
-process.exit(fail ? 1 : 0);
+
+console.log("\n[다언어 콘텐츠·표기 (v1.32.0)]");
+const ITEMS_EN_REAL = JSON.parse(html.match(/const ITEMS_EN = (\[[\s\S]*?\n\]);/)[1]);
+const ITEMS_ES_REAL = JSON.parse(html.match(/const ITEMS_ES = (\[[\s\S]*?\n\]);/)[1]);
+const FR_TOPICS = [...new Set(ITEMS.map(i => i.topic))];
+for (const [arr, code, levels] of [[ITEMS_EN_REAL, "en", ["B1", "B2"]], [ITEMS_ES_REAL, "es", ["A2", "B1"]]]) {
+  ok(arr.length === 10, "다언어 콘텐츠: " + code + " 문장 10개 (실제 " + arr.length + ")");
+  ok(new Set(arr.map(i => i.id)).size === arr.length && arr.every(i => i.id.startsWith(code + "-")), "다언어 콘텐츠: " + code + " id가 " + code + "- 접두·중복 없음");
+  ok(arr.every(i => i.lang === code && i.text && i.text.trim() && i.ko && i.ko.trim()), "다언어 콘텐츠: " + code + " lang·문장·한국어 뜻 완비");
+  ok(arr.every(i => Array.isArray(i.chunks) && i.chunks.length >= 2 && i.chunks.length <= 4 && i.chunks.every(c => c[0] && c[1])), "다언어 콘텐츠: " + code + " 덩어리 2~4개, 내용 있음");
+  ok(arr.every(i => i.pattern && i.pattern.length >= 10), "다언어 콘텐츠: " + code + " 패턴 한 줄 있음");
+  ok(arr.every(i => Array.isArray(i.words) && i.words.length === 2 && i.words.every(w => w[0] && w[1])), "다언어 콘텐츠: " + code + " 핵심 단어 정확히 2개씩");
+  ok(arr.every(i => FR_TOPICS.includes(i.topic) && levels.includes(i.level)), "다언어 콘텐츠: " + code + " 주제는 기존 체계, 레벨은 " + levels.join("/") + " 범위");
+}
+{ const enText = ITEMS_EN_REAL.map(i => i.text.toLowerCase()).join(" ");
+  ok(["because of", "even though", "used to", "about to", "ended up", "turns out", "would rather", "as long as", "no choice but to"].every(p => enText.includes(p)), "다언어 콘텐츠: 영어 10문장에 핵심 패턴이 실제로 들어 있음"); }
+{ const esText = ITEMS_ES_REAL.map(i => i.text.toLowerCase()).join(" ");
+  ok(["tengo que", "voy a", "me gustaría", "porque", "aunque", "estoy estudiando", "hace dos años", "quiero", "por la mañana"].every(p => esText.includes(p)), "다언어 콘텐츠: 스페인어 10문장에 핵심 패턴이 실제로 들어 있음"); }
+const langsSrcEq = html.match(/const LANGS = \{[\s\S]*?\n\};/)[0];
+eval(langsSrcEq + "\n" + [
+  'ok(LANGS.fr.appName === "Une Phrase" && LANGS.fr.wordmark === "UNE PHRASE" && LANGS.fr.tile === "U" && LANGS.fr.ensemble === "Ensemble" && LANGS.fr.speech === "fr-FR" && LANGS.fr.prefix === "fr", "LANGS 표기: fr = Une Phrase / UNE PHRASE / Ensemble / fr-FR");',
+  'ok(LANGS.en.appName === "One Phrase" && LANGS.en.wordmark === "ONE PHRASE" && LANGS.en.tile === "O" && LANGS.en.ensemble === "Together" && LANGS.en.speech === "en-US" && LANGS.en.prefix === "en", "LANGS 표기: en = One Phrase / ONE PHRASE / Together / en-US");',
+  'ok(LANGS.es.appName === "Una Frase" && LANGS.es.wordmark === "UNA FRASE" && LANGS.es.tile === "U" && LANGS.es.ensemble === "Juntos" && LANGS.es.speech === "es-ES" && LANGS.es.prefix === "es", "LANGS 표기: es = Una Frase / UNA FRASE / Juntos / es-ES");'
+].join("\n"));
+ok(html.includes('data-lang="fr"') && html.includes('data-lang="en"') && html.includes('data-lang="es"'), "언어 선택: 메뉴 세그먼트에 프랑스어·영어·스페인어 3개");
+ok(html.indexOf('class="langseg"') > html.indexOf('id="menuOverlay"') && html.indexOf('class="langseg"') < html.indexOf('data-menu="study"'), "언어 선택: 세그먼트가 메뉴 목적지 행들보다 위에 있음");
+ok(html.includes("function setLang(code)") && html.includes("function applyLangLabels()"), "언어 전환: setLang·applyLangLabels 함수 있음");
+ok(!html.includes("도움되는 영역") && ITEMS.every(i => i.tef), "도움 영역: 화면 표기는 전부 숨김, 문장 데이터의 tef 필드는 그대로 유지");
+
+console.log("\n[다언어 마이그레이션·진도 분리]");
+const migSrcEq = html.match(/function migrateProgress\(raw\)\{[\s\S]*?\n\}/)[0];
+const dlpSrcEq = html.match(/function defaultLangProgress\(\)[^\n]*/)[0];
+const dpSrcEq = html.match(/function defaultProgress\(\)[^\n]*/)[0];
+eval(dlpSrcEq); eval(dpSrcEq); eval(html.match(/const LANG_CODES = [^\n]*/)[0] + "\n" + migSrcEq);
+{ const m = migrateProgress({ index: 12, completed: [1, 2, 3], doneDates: ["2026-10-20"], step: 2, reviewCorrect: 4, reviewIds: [7], completedAt: { 1: "2026-10-20" }, sound: false, theme: "black" });
+  ok(m.lang === "fr" && m.byLang.fr.index === 12 && m.byLang.fr.completed.join(",") === "1,2,3" && m.byLang.fr.step === 2 && m.byLang.fr.reviewCorrect === 4, "마이그레이션: 구 flat 저장본이 프랑스어 버킷으로 그대로 이전됨");
+  ok(m.byLang.en.completed.length === 0 && m.byLang.es.completed.length === 0, "마이그레이션: 영어·스페인어 버킷은 빈 상태로 시작");
+  ok(m.sound === false && m.theme === "black", "마이그레이션: 기기 설정(효과음·테마)은 최상위에 유지");
+  const m2 = migrateProgress({ lang: "es", byLang: { es: { completed: ["es-1"], index: 3 } }, sound: true, theme: "paper" });
+  ok(m2.lang === "es" && m2.byLang.es.completed.join(",") === "es-1" && m2.byLang.es.index === 3 && m2.byLang.fr.completed.length === 0, "마이그레이션: 신 구조는 언어·버킷을 정규화해 유지");
+  const m3 = migrateProgress(null);
+  ok(m3.lang === "fr" && m3.byLang.fr.completed.length === 0 && m3.sound === true && m3.theme === "light", "마이그레이션: 저장본이 없으면 기본값 (프랑스어·빈 버킷)");
+  const m4 = migrateProgress({ lang: "xx", byLang: {} });
+  ok(m4.lang === "fr", "마이그레이션: 알 수 없는 언어 코드는 프랑스어로 되돌림"); }
+{ const aNew = activityOf({ byLang: { fr: { completed: [1, 2], reviewCorrect: 0, index: 0 }, en: { completed: ["en-1"], reviewCorrect: 0, index: 0 } } });
+  const aOld = activityOf({ completed: [1, 2], reviewCorrect: 0, index: 0 });
+  ok(aNew === 300000 && aOld === 200000 && pickRestore({ completed: [1] }, { byLang: { fr: { completed: [1, 2, 3] } } }).byLang.fr.completed.length === 3, "보관함 판정: 신 구조는 전 언어 활동량 합산, 구·신 구조를 섞어 비교해도 많은 쪽 선택"); }
+{ const m = mergeProgressData({ completed: ["en-1", "en-3"], completedAt: { "en-1": "2026-10-21" }, reviewCorrect: 1, reviewIds: ["en-2"] },
+    { completed: { "en-2": "2026-10-20", "en-3": null }, review_correct: { ids: ["en-2"], count: 1 } });
+  ok(m.completed.join(",") === "en-1,en-2,en-3", "병합: 문자열 id(en-*)도 합집합으로 병합됨");
+  ok(m.reviewIds.join(",") === "en-2" && m.completedAt["en-2"] === "2026-10-20", "병합: 문자열 id의 복습 기록·날짜도 유지");
+  const rt = progressToRemote({ completed: ["es-1", "es-2"], completedAt: { "es-1": "2026-10-21" }, reviewCorrect: 0, reviewIds: [] });
+  ok(Object.keys(rt.completed).join(",") === "es-1,es-2", "업로드 모양: 문자열 id가 키로 그대로 나감"); }
+ok(pickVoice([{ lang: "fr-FR", localService: true }, { lang: "en-US", localService: false }, { lang: "en-GB", localService: true }], "en").lang === "en-GB", "음성 선택: en 접두사로는 로컬 en 음성 우선");
+ok(pickVoice([{ lang: "en-US", localService: true }, { lang: "es-ES", localService: true }], "es").lang === "es-ES", "음성 선택: es 접두사로는 es 음성 선택");
+
+console.log("\n[기능 동등성 스모크: 영어·스페인어로 전 기능 완주]");
+const EQ_ELS = {};
+function makeEqEl(id) {
+  const el = { id: id, value: "", style: {}, textContent: "", onclick: null, _html: "", _listeners: {},
+    classList: { toggle() {}, add() {}, remove() {}, contains() { return false; } },
+    setAttribute() {}, getAttribute() { return null; },
+    addEventListener(t, f) { this._listeners[t] = f; },
+    focus() {}, scrollIntoView() {} };
+  Object.defineProperty(el, "innerHTML", {
+    get() { return this._html; },
+    set(v) { this._html = v; const re = /id="([^"]+)"/g; let m; while ((m = re.exec(v))) { if (!EQ_ELS[m[1]]) EQ_ELS[m[1]] = makeEqEl(m[1]); } }
+  });
+  return el;
+}
+const EQ_LANGBTNS = ["fr", "en", "es"].map(code => ({ _code: code, _on: false,
+  getAttribute(k) { return k === "data-lang" ? this._code : null; },
+  setAttribute() {},
+  classList: { toggle(c, v) { if (c === "on") this._on = !!v; } } }));
+const eqDocument = {
+  getElementById(id) { if (!EQ_ELS[id]) EQ_ELS[id] = makeEqEl(id); return EQ_ELS[id]; },
+  querySelectorAll(sel) { return sel === "[data-lang]" ? EQ_LANGBTNS : []; }
+};
+const eqUtterances = [];
+const EQ_VOICES = [
+  { lang: "fr-FR", localService: true },
+  { lang: "en-US", localService: false },
+  { lang: "en-GB", localService: true },
+  { lang: "es-ES", localService: true }
+];
+const eqHelperSrc = [
+  langsSrcEq,
+  html.match(/const LANG_CODES = [^\n]*/)[0],
+  'const ITEMS_EN = ' + JSON.stringify(ITEMS_EN_REAL) + ';',
+  'const ITEMS_ES = ' + JSON.stringify(ITEMS_ES_REAL) + ';',
+  html.match(/const ITEMS_BY_LANG = [^\n]*/)[0],
+  dlpSrcEq, dpSrcEq, migSrcEq,
+  html.match(/function curLang\(\)\{[^}]*\}/)[0],
+  html.match(/function P\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function items\(\)\{[^}]*\}/)[0],
+  html.match(/function itemText\(it\)\{[^}]*\}/)[0]
+].join("\n");
+const eqPrelude = [
+  'let progress = null;',
+  'let currentStep = 1;',
+  'let quizItem = null;',
+  'let completionInFlight = false;',
+  'let quizAnswered = false;',
+  'let currentTab = "study";',
+  'let menuOpen = false;',
+  'let browseTopic = "전체";',
+  'let voiceCache = EQ_VOICES;',
+  'let speakBtn = null;',
+  'let speakSafetyTimer = null;',
+  'let speakWaitTimer = null;',
+  'let speakSeq = 0;',
+  'const document = eqDocument;',
+  'function SpeechSynthesisUtterance(t){ this.text = t; this.lang = ""; this.rate = 1; this.voice = null; this.volume = 1; }',
+  'const window = { scrollTo(){}, speechSynthesis: { speaking: false, pending: false, cancel(){}, resume(){}, getVoices(){ return EQ_VOICES; }, speak(u){ eqUtterances.push(u); } } };',
+  'const requestAnimationFrame = fn => fn();',
+  'function saveProgress(){}',
+  'function renderVaultState(){}',
+  'function playSound(){}',
+  'function showTab(){}',
+  'function renderTogether(){}'
+].join("\n");
+const eqFns = [
+  escSrc, swSrc, dwSrc, normSrc, corrSrc, chSrc, whSrc,
+  lvArrSrc, lvlSrc, xpSrc2, tsSrc, qpSrc,
+  html.match(/const SPEAKER_SVG = [^\n]*/)[0],
+  html.match(/const SPEAKER_SLOW_SVG = [^\n]*/)[0],
+  html.match(/function slowListenBtnHtml\(\)[^\n]*/)[0],
+  html.match(/function setStep\(n\)\{[^}]*\}/)[0],
+  html.match(/function currentItem\(\)\{[^}]*\}/)[0],
+  html.match(/function todayKey\(\)\{[^}]*\}/)[0],
+  html.match(/function countToday\(p\)\{[^}]*\}/)[0],
+  html.match(/function bindWordProg[\s\S]*?\n\}/)[0],
+  html.match(/function renderProgress\(\)\{[\s\S]*?\n\}/)[0],
+  rsSrc2, ctSrc, csSrc,
+  html.match(/function renderQuizEntry\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function startQuiz[\s\S]*?\n\}/)[0],
+  cqSrc,
+  html.match(/function endQuiz\(\)\{[^}]*\}/)[0],
+  html.match(/function renderTopicMap\(\)\{[\s\S]*?\n\}/)[0],
+  rbSrc,
+  html.match(/function renderWords\(\)\{[\s\S]*?\n\}/)[0],
+  pickVoiceSrc, clearUiSrc, sfSrc,
+  html.match(/function applyLangLabels\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function setLang\(code\)\{[\s\S]*?\n\}/)[0]
+].join("\n");
+function eqDriver(code, speech, voiceLang, wordmark, tagline, ensembleName) {
+  return [
+    'progress = defaultProgress(); progress.lang = "' + code + '"; currentStep = 1; quizItem = null;',
+    'const B = progress.byLang["' + code + '"];',
+    'applyLangLabels();',
+    'ok(EQ_ELS["wordmarkEl"].textContent === "' + wordmark + '" && EQ_ELS["footKo"].textContent === "' + tagline + '" && EQ_ELS["ensembleMenuLabel"].textContent === "' + ensembleName + '" && EQ_ELS["ensembleViewTitle"].textContent === "' + ensembleName + '", "동등성 ' + code + ': 워드마크·태그라인·Ensemble 이름이 ' + code + ' 표기로 전환됨");',
+    'eqUtterances.length = 0;',
+    'speakFr(itemText(items()[0]), 1, null);',
+    'ok(eqUtterances.length === 1 && eqUtterances[0].lang === "' + speech + '" && eqUtterances[0].voice && eqUtterances[0].voice.lang === "' + voiceLang + '", "동등성 ' + code + ': 듣기가 ' + speech + ' 발화 + 해당 언어 음성(' + voiceLang + ')으로 호출됨");',
+    'speakFr(itemText(items()[0]), 0.7, null);',
+    'ok(eqUtterances.length === 2 && eqUtterances[1].rate === 0.7 && eqUtterances[1].lang === "' + speech + '", "동등성 ' + code + ': 느리게 듣기도 ' + speech + '·0.7배속으로 호출됨");',
+    'renderStudy();',
+    'ok(EQ_ELS["studyCard"].innerHTML.includes(itemText(items()[0])) && EQ_ELS["studyCard"].innerHTML.includes(items()[0].ko), "동등성 ' + code + ': 1단계 읽어보기에 문장·뜻이 렌더됨");',
+    'EQ_ELS["goStep2"].onclick();',
+    'ok(currentStep === 2, "동등성 ' + code + ': 따라 쓰기 단계로 진행");',
+    'EQ_ELS["typeInput"].value = itemText(items()[0]); checkTyping();',
+    'ok(!!EQ_ELS["advanceBtn"], "동등성 ' + code + ': 따라 쓰기 정답 시 진행 버튼 표시");',
+    'EQ_ELS["advanceBtn"].onclick();',
+    'ok(currentStep === 3, "동등성 ' + code + ': 가리고 쓰기 단계로 진행");',
+    'EQ_ELS["typeInput"].value = itemText(items()[0]); checkTyping();',
+    'EQ_ELS["advanceBtn"].onclick();',
+    'ok(B.completed.length === 1 && B.completed[0] === items()[0].id, "동등성 ' + code + ': 3단계 완주 시 완료 처리됨");',
+    'ok(xpOf(B.completed.length, B.reviewCorrect) === 10 && EQ_ELS["doneBox"].innerHTML.includes("한 문장 완료"), "동등성 ' + code + ': 완료 XP +10 적립 + 완료 화면 표시");',
+    'renderQuizEntry();',
+    'ok(EQ_ELS["quizArea"].innerHTML === "", "동등성 ' + code + ': 완료 3개 미만이면 복습 퀴즈가 열리지 않음 (조건 동일)");',
+    'B.completed = items().slice(0, 3).map(i => i.id); renderQuizEntry();',
+    'ok(!!EQ_ELS["quizStartBtn"], "동등성 ' + code + ': 완료 3개에서 복습 퀴즈 진입 버튼 표시");',
+    'startQuiz();',
+    'ok(!!quizItem && items().indexOf(quizItem) > -1, "동등성 ' + code + ': 퀴즈가 활성 언어 문장에서 출제됨");',
+    'EQ_ELS["quizInput"].value = itemText(quizItem); checkQuiz();',
+    'ok(B.reviewCorrect === 1 && B.reviewIds.join(",") === String(quizItem.id) && xpOf(B.completed.length, B.reviewCorrect) === 35, "동등성 ' + code + ': 퀴즈 정답 채점 +5 XP, 맞힌 id가 버킷에 기록됨");',
+    'renderBrowse();',
+    'ok(EQ_ELS["browseList"].innerHTML.includes(itemText(items()[1])) && (EQ_ELS["browseList"].innerHTML.match(/class="li-meta"/g) || []).length === items().length, "동등성 ' + code + ': 주제별 목록이 활성 언어 문장 전체로 렌더됨");',
+    'ok(EQ_ELS["topicMap"].innerHTML.includes(items()[0].topic), "동등성 ' + code + ': 정복 지도가 활성 언어 주제로 집계됨");',
+    'renderWords();',
+    'ok(EQ_ELS["wordsList"].innerHTML.includes(items()[0].words[0][0]) && EQ_ELS["wordsList"].innerHTML.includes(items()[0].words[0][1]), "동등성 ' + code + ': 단어 화면이 활성 언어 단어로 렌더됨");',
+    'progress.byLang.fr.completed = [1, 2]; progress.byLang.fr.index = 5;',
+    'setLang("fr");',
+    'ok(curLang() === "fr" && P().completed.join(",") === "1,2" && P().index === 5, "동등성 ' + code + ': 프랑스어로 전환하면 기존 프랑스어 진도가 그대로 보임");',
+    'setLang("' + code + '");',
+    'ok(curLang() === "' + code + '" && B.completed.length === 3 && B.reviewCorrect === 1, "동등성 ' + code + ': 다시 돌아와도 ' + code + ' 진도가 그대로 보존됨");',
+    'ok(progress.byLang.fr.completed.join(",") === "1,2", "동등성 ' + code + ': 왕복 전환 후에도 프랑스어 진도 무손상");'
+  ].join("\n");
+}
+eval(eqPrelude + "\n" + eqHelperSrc + "\n" + eqFns + "\n" + eqDriver("en", "en-US", "en-GB", "ONE PHRASE", "한 문장 영어", "Together"));
+eval(eqPrelude + "\n" + eqHelperSrc + "\n" + eqFns + "\n" + eqDriver("es", "es-ES", "es-ES", "UNA FRASE", "한 문장 스페인어", "Juntos"));
+
+console.log("\n[기능 동등성: 언어별 동기화 페이로드]");
+{ const captured = [];
+  const sbStubEq = { from() { return { upsert(a, o) { captured.push({ a: a, o: o }); return Promise.resolve({ error: null }); } }; } };
+  const payloadPrelude = [
+    'let sb = sbStubEq;',
+    'let sbUser = { id: "user-1" };',
+    'let sbProfile = { nickname: "테스터" };',
+    'let progress = null;'
+  ].join("\n");
+  const pushSrcEq = html.match(/async function pushSbProgress\(\)\{[\s\S]*?\n\}/)[0];
+  eval(payloadPrelude + "\n" + eqHelperSrc + "\n" + ptrSrc + "\n" + pushSrcEq + "\n" + [
+    'progress = defaultProgress(); progress.lang = "es";',
+    'progress.byLang.es.completed = ["es-1", "es-2"]; progress.byLang.es.completedAt = { "es-1": "2026-10-21" };',
+    'pushSbProgress();',
+    'ok(captured.length === 1 && captured[0].a.lang === "es" && captured[0].a.user_id === "user-1", "동기화 페이로드: 활성 언어(es) 행으로 upsert됨");',
+    'ok(Object.keys(captured[0].a.completed).join(",") === "es-1,es-2" && captured[0].o && captured[0].o.onConflict === "user_id,lang", "동기화 페이로드: 완료는 활성 언어 버킷 기준, onConflict는 user_id,lang");',
+    'progress.lang = "en"; progress.byLang.en.completed = ["en-1"];',
+    'pushSbProgress();',
+    'ok(captured.length === 2 && captured[1].a.lang === "en" && Object.keys(captured[1].a.completed).join(",") === "en-1", "동기화 페이로드: 언어를 바꾸면 그 언어 행으로 나감");'
+  ].join("\n"));
+}
+
+console.log("\n[기능 동등성: Ensemble이 활성 언어 기준으로 표시]");
+async function runEqEnsembleSmoke() {
+  const E2_ELS = {};
+  function makeE2El(id) {
+    const el = { id: id, value: "", style: {}, textContent: "", onclick: null, _html: "", _listeners: {},
+      classList: { toggle() {}, add() {}, remove() {}, contains() { return false; } },
+      setAttribute() {}, getAttribute() { return null; },
+      addEventListener(t, f) { this._listeners[t] = f; },
+      focus() {}, scrollIntoView() {} };
+    Object.defineProperty(el, "innerHTML", {
+      get() { return this._html; },
+      set(v) { this._html = v; const re = /id="([^"]+)"/g; let m; while ((m = re.exec(v))) { if (!E2_ELS[m[1]]) E2_ELS[m[1]] = makeE2El(m[1]); } }
+    });
+    return el;
+  }
+  const e2Document = {
+    getElementById(id) { if (!E2_ELS[id]) E2_ELS[id] = makeE2El(id); return E2_ELS[id]; },
+    querySelectorAll() { return []; }
+  };
+  const PROFILES_EQ = [{ id: "user-1", nickname: "테스터" }, { id: "user-2", nickname: "친구" }];
+  const PROGRESS_EQ = [
+    { user_id: "user-1", lang: "fr", completed: { "1": "2026-10-01", "2": "2026-10-02", "3": "2026-10-03" }, review_correct: { ids: [], count: 0 } },
+    { user_id: "user-1", lang: "es", completed: { "es-1": "2026-10-21", "es-2": "2026-10-21" }, review_correct: { ids: [], count: 1 } },
+    { user_id: "user-2", lang: "es", completed: { "es-1": "2026-10-20" }, review_correct: { ids: [], count: 0 } },
+    { user_id: "user-2", lang: "fr", completed: { "1": "2026-10-01" }, review_correct: { ids: [], count: 0 } }
+  ];
+  const eqConds = [];
+  function sbTableEq(table) {
+    const chain = { _conds: [],
+      select() { return chain; },
+      eq(col, val) { chain._conds.push([col, val]); eqConds.push(table + ":" + col + "=" + val); return chain; },
+      then(res, rej) {
+        const rows = (table === "profiles" ? PROFILES_EQ : PROGRESS_EQ).filter(r => chain._conds.every(([c, v]) => r[c] === v));
+        return Promise.resolve({ data: rows, error: null }).then(res, rej);
+      } };
+    return chain;
+  }
+  const prelude = [
+    'let sb = { from(t) { return sbTableEq(t); } };',
+    'let sbUser = { id: "user-1" };',
+    'let progress = null;',
+    'const document = e2Document;',
+    'function renderProfileBtn(){}',
+    'function sbLogout(){}'
+  ].join("\n");
+  const fns = [
+    escSrc, lvArrSrc, lvlSrc, xpSrc2, rriSrc, rxpSrc,
+    html.match(/const AVATAR_PASTELS = \[[^\n]*/)[0],
+    html.match(/const AVATAR_PASTELS_DARK = \[[^\n]*/)[0],
+    html.match(/function avatarBg\(nickname\)\{[\s\S]*?\n\}/)[0],
+    html.match(/function avatarHtml\(nickname, big\)\{[\s\S]*?\n\}/)[0],
+    html.match(/async function renderTogetherMembers\(\)\{[\s\S]*?\n\}/)[0]
+  ].join("\n");
+  eval(prelude + "\n" + eqHelperSrc + "\n" + fns + "\n" + 'progress = defaultProgress(); progress.lang = "es";');
+  await renderTogetherMembers();
+  const h = E2_ELS["view-together"].innerHTML;
+  ok(eqConds.includes("progress:lang=es"), "동등성 Ensemble: progress를 활성 언어(es)로 걸러 조회함");
+  ok(h.includes("완료 2 / 10"), "동등성 Ensemble: 내 완료 수가 es 기준 2/10으로 표시됨 (fr 기록 3개가 섞이지 않음)");
+  ok(h.includes("완료 1 / 10"), "동등성 Ensemble: 다른 참여자도 es 기준 1/10으로 표시됨");
+}
+
+(async function finish() {
+  try { await runEqEnsembleSmoke(); } catch (e) { ok(false, "동등성 Ensemble: 스모크 실행 오류", String((e && e.message) || e)); }
+  console.log("\n결과: PASS " + pass + " / FAIL " + fail);
+  process.exit(fail ? 1 : 0);
+})();

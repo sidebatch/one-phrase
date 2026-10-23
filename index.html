@@ -279,6 +279,10 @@ footer{margin-top:var(--sp6);border-top:1px solid var(--line-soft);padding:20px 
 details{background:var(--card);border:1px solid var(--line-soft);border-radius:var(--r-md);padding:12px 14px;margin:10px 0}
 summary{font-weight:800;cursor:pointer}
 
+.langseg{display:flex;gap:8px;margin:0 0 12px}
+.langsegbtn{flex:1;min-height:44px;padding:8px 6px;background:var(--card);border:1.5px solid var(--line-soft);border-radius:12px;font:inherit;font-size:14.5px;font-weight:800;color:var(--ink);cursor:pointer;transition:transform .12s var(--ease),background .18s ease,border-color .18s ease}
+.langsegbtn:active{transform:scale(.97)}
+.langsegbtn.on{background:var(--blue);border-color:var(--blue);color:#fff}
 .themerow{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
 .themeopt{flex:1;min-width:96px;display:flex;align-items:center;gap:9px;min-height:52px;padding:9px 12px;background:var(--card);border:1.5px solid var(--line-soft);border-radius:14px;font:inherit;color:var(--ink);cursor:pointer;text-align:left;transition:transform .12s var(--ease),border-color .18s ease}
 .themeopt:active{transform:scale(.98)}
@@ -296,8 +300,8 @@ summary{font-weight:800;cursor:pointer}
 <body>
 <div class="wrap">
 <header class="masthead">
-<div class="brandrow"><span class="logo" aria-hidden="true">O</span><span class="wordmark">ONE PHRASE</span><button class="profilebtn" id="profileBtn" aria-label="내 정보" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M5.2 19.8c.8-3.6 3.4-5.4 6.8-5.4s6 1.8 6.8 5.4"/></svg></button><button class="menubtn" id="menuBtn" aria-haspopup="dialog" aria-expanded="false">☰ 메뉴</button></div>
-<h1>한 문장 외국어</h1>
+<div class="brandrow"><span class="logo" id="logoTile" aria-hidden="true">O</span><span class="wordmark" id="wordmarkEl">ONE PHRASE</span><button class="profilebtn" id="profileBtn" aria-label="내 정보" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M5.2 19.8c.8-3.6 3.4-5.4 6.8-5.4s6 1.8 6.8 5.4"/></svg></button><button class="menubtn" id="menuBtn" aria-haspopup="dialog" aria-expanded="false">☰ 메뉴</button></div>
+<h1 id="h1Title">한 문장 외국어</h1>
 <div class="progress" id="progressArea">
 <div class="progress-top"><span id="progressLine">불러오는 중…</span><span class="todaychip" id="todayChip">오늘 0문장</span></div>
 <div class="pbar" id="pbar" role="progressbar" aria-label="전체 진행률" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="pfill" id="pfill"></div></div>
@@ -309,11 +313,16 @@ summary{font-weight:800;cursor:pointer}
 <div class="menubackdrop" id="menuBackdrop"></div>
 <div class="menupanel" role="dialog" aria-modal="true" aria-label="메뉴">
 <div class="menuhandle" aria-hidden="true"></div>
-<div class="menuhead"><span class="menuword">ONE PHRASE</span></div>
+<div class="menuhead"><span class="menuword" id="menuWord">ONE PHRASE</span></div>
+<div class="langseg" role="radiogroup" aria-label="학습 언어">
+<button class="langsegbtn on" data-lang="fr" role="radio" aria-checked="true">프랑스어</button>
+<button class="langsegbtn" data-lang="en" role="radio" aria-checked="false">영어</button>
+<button class="langsegbtn" data-lang="es" role="radio" aria-checked="false">스페인어</button>
+</div>
 <button class="menurow on" data-menu="study"><span class="menutile t-study" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.2C10.2 4.7 8 4.1 5.5 4.1c-.6 0-1 .4-1 1v13.2c0 .6.4 1 1 1 2.5 0 4.7.6 6.5 2.1 1.8-1.5 4-2.1 6.5-2.1.6 0 1-.4 1-1V5.1c0-.6-.4-1-1-1-2.5 0-4.7.6-6.5 2.1z"/><path d="M12 6.2v13.2"/></svg></span><span class="menutext"><span class="menulabel">공부하기</span><span class="menusub">이어서 바로 공부</span></span><span class="menudot" aria-hidden="true"></span></button>
 <button class="menurow" data-menu="browse"><span class="menutile t-browse" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.4 21 8.3l-9 4.9L3 8.3l9-4.9z"/><path d="M3.9 12.9 12 17.3l8.1-4.4"/><path d="M3.9 16.9 12 21.3l8.1-4.4"/></svg></span><span class="menutext"><span class="menulabel">주제별</span><span class="menusub">주제 골라 보기</span></span><span class="menudot" aria-hidden="true" hidden></span></button>
 <button class="menurow" data-menu="words"><span class="menutile t-words" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.6" y="3.6" width="16.8" height="16.8" rx="3.6"/><path d="M8.4 16.6 12 8.6l3.6 8"/><path d="M9.8 13.7h4.4"/></svg></span><span class="menutext"><span class="menulabel">단어</span><span class="menusub">단어 모아 보기</span></span><span class="menudot" aria-hidden="true" hidden></span></button>
-<button class="menurow" data-menu="together"><span class="menutile t-together" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8.2" r="3.1"/><path d="M3.6 19.4c.6-3 2.7-4.6 5.4-4.6s4.8 1.6 5.4 4.6"/><circle cx="17.2" cy="9.2" r="2.5"/><path d="M16.9 14.9c2 .3 3.4 1.7 3.9 4"/></svg></span><span class="menutext"><span class="menulabel">Ensemble</span><span class="menusub">서로의 진도 보기</span></span><span class="menudot" aria-hidden="true" hidden></span></button>
+<button class="menurow" data-menu="together"><span class="menutile t-together" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8.2" r="3.1"/><path d="M3.6 19.4c.6-3 2.7-4.6 5.4-4.6s4.8 1.6 5.4 4.6"/><circle cx="17.2" cy="9.2" r="2.5"/><path d="M16.9 14.9c2 .3 3.4 1.7 3.9 4"/></svg></span><span class="menutext"><span class="menulabel" id="ensembleMenuLabel">Ensemble</span><span class="menusub">서로의 진도 보기</span></span><span class="menudot" aria-hidden="true" hidden></span></button>
 <button class="menurow" data-menu="about"><span class="menutile t-about" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.7" fill="currentColor" stroke="none"/></svg></span><span class="menutext"><span class="menulabel">더보기</span><span class="menusub">안내·공유·설정</span></span><span class="menudot" aria-hidden="true" hidden></span></button>
 <button class="menurow menuclose" id="menuCloseBtn">닫기</button>
 </div>
@@ -354,7 +363,7 @@ summary{font-weight:800;cursor:pointer}
 </div>
 
 <div id="tab-together" hidden>
-<h2 class="viewtitle">Ensemble</h2>
+<h2 class="viewtitle" id="ensembleViewTitle">Ensemble</h2>
 <p class="lead">서로의 진도를 보며 같이 공부해요.</p>
 <p class="gcvisits" id="gcBadge" hidden></p>
 <div id="view-together"><div class="card loadcard">불러오는 중…</div></div>
@@ -365,9 +374,9 @@ summary{font-weight:800;cursor:pointer}
 <p>읽어보기 → 따라 쓰기 → 가리고 쓰기. 한 문장을 3단계로 외우는 앱이에요. 기본은 한 문장만, 끝나면 “한 문장 더”로 이어집니다.</p>
 </details>
 <details><summary>이 앱에 대해</summary>
-<p>특정 시험 전용이 아니라, 일상에서 바로 쓰는 프랑스어 문장을 익히는 앱이에요. 문장마다 도움되는 영역을 표시해 뒀습니다.</p>
+<p>특정 시험 전용이 아니라, 일상에서 바로 쓰는 외국어 문장을 익히는 앱이에요. 메뉴에서 프랑스어·영어·스페인어를 골라 공부할 수 있어요.</p>
 </details>
-<details><summary>Ensemble</summary>
+<details><summary id="ensembleAboutTitle">Ensemble</summary>
 <p>구글 로그인 후 닉네임을 정하면, 서로의 레벨과 완료 문장을 볼 수 있어요. 보이는 건 닉네임뿐입니다.</p>
 </details>
 <details><summary>레벨과 XP</summary>
@@ -399,13 +408,13 @@ summary{font-weight:800;cursor:pointer}
 </div>
 
 <footer>
-<div class="footbrand"><span class="footlogo" aria-hidden="true">O</span><span class="footword">ONE PHRASE</span><span class="footko">한 문장 외국어</span></div>
-<div class="footmeta">v1.31.2 · © 2026 sidebatch</div>
+<div class="footbrand"><span class="footlogo" id="footTile" aria-hidden="true">O</span><span class="footword" id="footWord">ONE PHRASE</span><span class="footko" id="footKo">한 문장 외국어</span></div>
+<div class="footmeta">v1.32.0 · © 2026 sidebatch</div>
 </footer>
 </div>
 <script>
 "use strict";
-const APP_VERSION = "1.31.2";
+const APP_VERSION = "1.32.0";
 const STORAGE_KEY = "une-phrase-progress-v1";
 const SUPABASE_URL = "https://cmhitsgoicxvmlwtrdrb.supabase.co";
 const SUPABASE_KEY = "sb_publishable_iZugJ1l1p3DSk_BB2Y3N3Q_qZwSo637";
@@ -698,6 +707,37 @@ const ITEMS = [
 {"id":285,"fr":"Je te confirme que je serai là à l'heure, à moins que mon quart de travail ne se termine plus tard que prévu.","ko":"제시간에 갈 거라고 확인해 줄게. 내 근무가 예정보다 늦게 끝나지 않는 한 말이야.","chunks":[["Je te confirme que je serai là à l'heure","제시간에 갈 거라고 확인해 줄게"],["à moins que mon quart de travail ne se termine","내 근무가 끝나지 않는 한"],["plus tard que prévu","예정보다 늦게"]],"pattern":"예외를 달아 약속할 때: je serai là, à moins que mon quart ne se termine… → subjonctif après à moins que (…하지 않는 한)","words":[["quart de travail","근무 교대(시간)"],["prévu","예정된"]],"topic":"약속","level":"B2","tef":"EO 말하기 · CO 듣기"},
 {"id":286,"fr":"Si tu ne peux pas venir vendredi, nous reporterons le rendez-vous à la semaine suivante, pourvu que cela te convienne.","ko":"금요일에 못 오면 약속을 다음 주로 미룰게. 네가 괜찮다면 말이야.","chunks":[["Si tu ne peux pas venir vendredi","금요일에 못 오면"],["nous reporterons le rendez-vous à la semaine suivante","약속을 다음 주로 미룰게"],["pourvu que cela te convienne","네가 괜찮다면"]],"pattern":"조건이 붙은 연기 제안: nous reporterons…, pourvu que cela te convienne → subjonctif après pourvu que (…가 괜찮다면)","words":[["rendez-vous","약속, 만남"],["semaine suivante","다음 주"]],"topic":"약속","level":"B2","tef":"EO 말하기 · EE 쓰기"}
 ];
+const ITEMS_EN = [
+{"id":"en-1","lang":"en","text":"Because of the rain, we decided to stay home and watch a movie instead.","ko":"비 때문에 집에 있으면서 대신 영화를 보기로 했다.","chunks":[["Because of the rain","비 때문에"],["we decided to stay home","집에 있기로 했다"],["and watch a movie instead","대신 영화를 보기로"]],"pattern":"이유를 명사로 받는 전치사: because of + 명사 → 표현 because of (~ 때문에)","words":[["instead","대신에"],["decide","결정하다"]],"topic":"일상","level":"B1"},
+{"id":"en-2","lang":"en","text":"Even though the meeting ran late, we managed to finish the report on time.","ko":"회의가 늦게까지 이어졌지만, 보고서를 제시간에 끝낼 수 있었다.","chunks":[["Even though the meeting ran late","회의가 늦게까지 이어졌지만"],["we managed to finish the report","보고서를 끝낼 수 있었다"],["on time","제시간에"]],"pattern":"양보를 붙여 말한다: Even though + 문장, … → 연결어 even though (~인데도)","words":[["manage to","어떻게든 ~하다"],["report","보고서"]],"topic":"직장","level":"B1"},
+{"id":"en-3","lang":"en","text":"I used to drink three cups of coffee a day, but now I only have one in the morning.","ko":"예전에는 하루에 커피를 세 잔 마셨지만, 지금은 아침에 한 잔만 마신다.","chunks":[["I used to drink three cups of coffee a day","예전에는 하루에 커피를 세 잔 마셨다"],["but now I only have one","하지만 지금은 한 잔만 마신다"],["in the morning","아침에"]],"pattern":"과거의 습관은 used to + 동사원형 → 표현 used to (~하곤 했다)","words":[["cup","잔"],["only","겨우, ~만"]],"topic":"일상","level":"B1"},
+{"id":"en-4","lang":"en","text":"Hurry up — the movie is about to start, and we still need to find our seats.","ko":"서둘러. 영화가 막 시작하려 하고, 우리는 아직 자리를 찾아야 해.","chunks":[["Hurry up","서둘러"],["the movie is about to start","영화가 막 시작하려 한다"],["we still need to find our seats","아직 자리를 찾아야 한다"]],"pattern":"막 ~하려던 참: be about to + 동사원형 → 표현 be about to (막 ~하려 하다)","words":[["hurry up","서두르다"],["seat","자리, 좌석"]],"topic":"약속","level":"B1"},
+{"id":"en-5","lang":"en","text":"We planned to cook at home, but we ended up ordering pizza because nobody wanted to wash the dishes.","ko":"집에서 요리할 계획이었지만, 아무도 설거지를 하고 싶어 하지 않아서 결국 피자를 시키게 됐다.","chunks":[["We planned to cook at home","집에서 요리할 계획이었다"],["we ended up ordering pizza","결국 피자를 시키게 됐다"],["because nobody wanted to wash the dishes","아무도 설거지를 하고 싶어 하지 않았기 때문에"]],"pattern":"결국 그렇게 된다: end up + ~ing → 표현 end up -ing (결국 ~하게 되다)","words":[["plan","계획하다"],["order","주문하다, 시키다"]],"topic":"일상","level":"B2"},
+{"id":"en-6","lang":"en","text":"It turns out that the new software is much easier to use than we expected.","ko":"알고 보니 새 소프트웨어는 우리가 예상했던 것보다 훨씬 쓰기 쉽다.","chunks":[["It turns out that","알고 보니 ~이다"],["the new software is much easier to use","새 소프트웨어가 훨씬 쓰기 쉽다"],["than we expected","우리가 예상했던 것보다"]],"pattern":"알고 보니: It turns out that + 문장 → 구문 it turns out (알고 보니 ~이다)","words":[["expect","예상하다"],["software","소프트웨어"]],"topic":"직장","level":"B2"},
+{"id":"en-7","lang":"en","text":"I would rather walk to the station than wait for the bus in this cold weather.","ko":"이 추운 날씨에 버스를 기다리는 것보다 역까지 걷는 편이 낫다.","chunks":[["I would rather walk to the station","역까지 걷는 편이 낫다"],["than wait for the bus","버스를 기다리는 것보다"],["in this cold weather","이 추운 날씨에"]],"pattern":"차라리 ~하겠다: would rather A than B → 표현 would rather (~하는 편이 낫다)","words":[["rather","차라리"],["weather","날씨"]],"topic":"일상","level":"B1"},
+{"id":"en-8","lang":"en","text":"As long as you exercise a little every day, you don't need an expensive gym membership.","ko":"매일 조금씩 운동하기만 하면, 비싼 헬스장 회원권은 필요 없다.","chunks":[["As long as you exercise a little every day","매일 조금씩 운동하기만 하면"],["you don't need an expensive gym membership","비싼 헬스장 회원권이 필요 없다"]],"pattern":"조건은 as long as로 건다: As long as + 문장, … → 연결어 as long as (~하기만 하면)","words":[["exercise","운동하다"],["membership","회원권, 회원 자격"]],"topic":"건강","level":"B1"},
+{"id":"en-9","lang":"en","text":"The more you practice speaking, the more confident you become in a foreign language.","ko":"말하기를 연습할수록 외국어에 더 자신감이 생긴다.","chunks":[["The more you practice speaking","말하기를 연습할수록"],["the more confident you become","더 자신감이 생긴다"],["in a foreign language","외국어에서"]],"pattern":"할수록 더하다: The more …, the more … → 구문 the more … the more (~할수록 더 ~하다)","words":[["confident","자신감 있는"],["practice","연습하다"]],"topic":"교육","level":"B2"},
+{"id":"en-10","lang":"en","text":"When rent keeps rising like this, many young people may have no choice but to live with their parents.","ko":"월세가 이렇게 계속 오르면, 많은 젊은이가 부모와 살 수밖에 없을지도 모른다.","chunks":[["When rent keeps rising like this","월세가 이렇게 계속 오르면"],["many young people may have no choice but to live with their parents","많은 젊은이는 부모와 살 수밖에 없을지도 모른다"]],"pattern":"선택지가 없다: have no choice but to + 동사원형 → 표현 have no choice but to (~할 수밖에 없다)","words":[["rent","월세, 집세"],["choice","선택"]],"topic":"의견","level":"B2"}
+];
+const ITEMS_ES = [
+{"id":"es-1","lang":"es","text":"Tengo que levantarme temprano mañana porque el trabajo empieza a las siete.","ko":"일이 일곱 시에 시작해서 내일 일찍 일어나야 한다.","chunks":[["Tengo que levantarme temprano","일찍 일어나야 한다"],["mañana","내일"],["porque el trabajo empieza a las siete","일이 일곱 시에 시작해서"]],"pattern":"해야 할 일: tener que + 동사원형 → 표현 tener que (~해야 한다)","words":[["levantarse","일어나다"],["temprano","일찍"]],"topic":"일상","level":"A2"},
+{"id":"es-2","lang":"es","text":"Este fin de semana voy a visitar a mi familia y vamos a comer juntos.","ko":"이번 주말에 가족을 방문할 것이고, 함께 식사할 것이다.","chunks":[["Este fin de semana","이번 주말에"],["voy a visitar a mi familia","가족을 방문할 것이다"],["y vamos a comer juntos","그리고 함께 식사할 것이다"]],"pattern":"계획은 ir a + 동사원형으로: voy a visitar… → 표현 ir a + infinitivo (~할 예정이다)","words":[["visitar","방문하다"],["juntos","함께"]],"topic":"약속","level":"A2"},
+{"id":"es-3","lang":"es","text":"Me gustaría viajar a España algún día para practicar el idioma.","ko":"언젠가 언어를 연습하러 스페인에 여행 가고 싶다.","chunks":[["Me gustaría viajar a España","스페인에 여행 가고 싶다"],["algún día","언젠가"],["para practicar el idioma","언어를 연습하기 위해"]],"pattern":"부드러운 바람: me gustaría + 동사원형 → 표현 me gustaría (~하고 싶다)","words":[["viajar","여행하다"],["idioma","언어"]],"topic":"의견","level":"B1"},
+{"id":"es-4","lang":"es","text":"Bebo mucha agua durante el día porque hace mucho calor.","ko":"날씨가 아주 더워서 낮 동안 물을 많이 마신다.","chunks":[["Bebo mucha agua","물을 많이 마신다"],["durante el día","낮 동안에"],["porque hace mucho calor","날씨가 아주 덥기 때문에"]],"pattern":"이유는 porque로 잇는다: …, porque + 문장 → 연결어 porque (왜냐하면)","words":[["beber","마시다"],["calor","더위"]],"topic":"건강","level":"A2"},
+{"id":"es-5","lang":"es","text":"Aunque el trabajo es difícil, aprendo algo nuevo cada día.","ko":"일이 힘들긴 해도, 매일 새로운 것을 배운다.","chunks":[["Aunque el trabajo es difícil","일이 힘들긴 해도"],["aprendo algo nuevo","새로운 것을 배운다"],["cada día","매일"]],"pattern":"양보는 aunque로: Aunque + 문장, … → 연결어 aunque (~이지만, ~인데도)","words":[["difícil","어려운"],["aprender","배우다"]],"topic":"직장","level":"B1"},
+{"id":"es-6","lang":"es","text":"Ahora estoy estudiando español en casa con una aplicación.","ko":"지금 집에서 앱으로 스페인어를 공부하고 있다.","chunks":[["Ahora","지금"],["estoy estudiando español","스페인어를 공부하고 있다"],["en casa con una aplicación","집에서 앱으로"]],"pattern":"지금 진행 중: estar + ~ando/iendo → 표현 estar + gerundio (~하고 있다)","words":[["estudiar","공부하다"],["aplicación","앱, 애플리케이션"]],"topic":"일상","level":"B1"},
+{"id":"es-7","lang":"es","text":"Hace dos años que estudio francés y ya puedo mantener una conversación.","ko":"프랑스어를 공부한 지 2년이 됐고, 이제 대화도 이어 갈 수 있다.","chunks":[["Hace dos años que estudio francés","프랑스어를 공부한 지 2년이 됐다"],["y ya puedo mantener una conversación","그리고 이제 대화도 이어 갈 수 있다"]],"pattern":"기간이 흘렀다: hace + 기간 + que + 현재형 → 표현 hace … que (~한 지 …가 됐다)","words":[["mantener","유지하다, 이어 가다"],["conversación","대화"]],"topic":"일상","level":"B1"},
+{"id":"es-8","lang":"es","text":"Quiero comprar un billete de tren para mañana por la mañana.","ko":"내일 아침 기차표를 사고 싶다.","chunks":[["Quiero comprar un billete de tren","기차표를 사고 싶다"],["para mañana","내일 것으로"],["por la mañana","아침에"]],"pattern":"원하는 것은 quiero + 동사원형, 아침 시간대는 por la mañana 덩어리로 → 표현 querer (~하고 싶다)","words":[["billete","표, 승차권"],["tren","기차"]],"topic":"교통","level":"A2"},
+{"id":"es-9","lang":"es","text":"Por la mañana siempre desayuno café con leche y un poco de fruta.","ko":"아침에는 항상 카페오레와 과일을 조금 아침으로 먹는다.","chunks":[["Por la mañana","아침에는"],["siempre desayuno café con leche","항상 카페오레를 아침으로 먹는다"],["y un poco de fruta","그리고 과일을 조금"]],"pattern":"아침 시간대는 por la mañana로 통째로 말한다 → 표현 por la mañana (아침에)","words":[["desayunar","아침을 먹다"],["fruta","과일"]],"topic":"건강","level":"B1"},
+{"id":"es-10","lang":"es","text":"Creo que estudiar un poco cada día puede ser mejor que estudiar mucho una sola vez.","ko":"매일 조금씩 공부하는 것이 한 번에 많이 공부하는 것보다 나을 수 있다고 생각한다.","chunks":[["Creo que","내 생각에는"],["estudiar un poco cada día","매일 조금씩 공부하는 것이"],["puede ser mejor que estudiar mucho una sola vez","한 번에 많이 공부하는 것보다 나을 수 있다"]],"pattern":"의견은 creo que로 열고 단정은 puede로 늦춘다: creo que … puede ser … → 표현 creo que (내 생각에는)","words":[["cada día","매일"],["una sola vez","단 한 번"]],"topic":"의견","level":"B1"}
+];
+const LANGS = {
+  fr: { name:"프랑스어", appName:"Une Phrase", wordmark:"UNE PHRASE", tile:"U", ensemble:"Ensemble", speech:"fr-FR", prefix:"fr" },
+  en: { name:"영어", appName:"One Phrase", wordmark:"ONE PHRASE", tile:"O", ensemble:"Together", speech:"en-US", prefix:"en" },
+  es: { name:"스페인어", appName:"Una Frase", wordmark:"UNA FRASE", tile:"U", ensemble:"Juntos", speech:"es-ES", prefix:"es" }
+};
+const LANG_CODES = ["fr", "en", "es"];
+const ITEMS_BY_LANG = { fr: ITEMS, en: ITEMS_EN, es: ITEMS_ES };
 /* ---------- 순수 함수 (테스트 대상) ---------- */
 function normalizeForCompare(s){
   return (s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/['’]/g,"'").replace(/[^a-z0-9' ]/g," ").replace(/\s+/g," ").trim();
@@ -718,6 +758,7 @@ function correctHtml(answerFr, xpNote){
   return '<div class="feedback ok">✓ 맞았어요!'+(xpNote||"")+'</div>'
     + '<div class="answerbox"><span class="answer-label">정답</span><div class="answer-fr">'+esc(answerFr)+'</div></div>';
 }
+function itemText(it){ return it ? (it.text || it.fr || "") : ""; }
 function wrongHtml(mine, answer){
   const d = diffWords(mine, answer);
   const segMine = d.mine.length ? d.mine.map((w,i)=> d.mineDiff[i] ? '<span class="wdiff">'+esc(w)+'</span>' : esc(w)).join(" ") : '<span class="diff-empty">아직 쓰지 않았어요</span>';
@@ -726,7 +767,15 @@ function wrongHtml(mine, answer){
     + '<div class="diff-row"><span class="diff-label">내가 쓴 문장</span><span class="diff-line">'+segMine+'</span></div>'
     + '<div class="diff-row"><span class="diff-label">정답</span><span class="diff-line">'+segAns+'</span></div></div>';
 }
-function activityOf(p){ if(!p) return -1; return (p.completed?p.completed.length:0)*100000 + (p.reviewCorrect||0)*100 + (p.index||0); }
+function activityOf(p){
+  if(!p) return -1;
+  if(p.byLang && typeof p.byLang === "object"){
+    let s = 0;
+    Object.keys(p.byLang).forEach(k=>{ const b = p.byLang[k] || {}; s += (b.completed?b.completed.length:0)*100000 + (b.reviewCorrect||0)*100 + (b.index||0); });
+    return s;
+  }
+  return (p.completed?p.completed.length:0)*100000 + (p.reviewCorrect||0)*100 + (p.index||0);
+}
 function pickRestore(localData, vaultData){
   if(!vaultData) return localData;
   if(!localData) return vaultData;
@@ -784,10 +833,24 @@ function quizPool(items, completed, currentId){
 }
 
 /* ---------- Ensemble 동기화 순수 함수 (테스트 대상) ---------- */
+function normId(id){
+  if(typeof id === "number") return isFinite(id) ? id : null;
+  const s = String(id);
+  if(/^\d+$/.test(s)) return Number(s);
+  if(/^[a-z]{2}-\d+$/.test(s)) return s;
+  return null;
+}
+function cmpIds(a, b){
+  const an = typeof a === "number", bn = typeof b === "number";
+  if(an && bn) return a - b;
+  if(an) return -1;
+  if(bn) return 1;
+  return String(a) < String(b) ? -1 : (String(a) > String(b) ? 1 : 0);
+}
 function remoteReviewInfo(rc){
-  if(Array.isArray(rc)) return { ids: rc.map(Number).filter(n=>!isNaN(n)), count: rc.length };
+  if(Array.isArray(rc)) return { ids: rc.map(normId).filter(n=>n!==null), count: rc.length };
   if(rc && typeof rc === "object"){
-    const ids = Array.isArray(rc.ids) ? rc.ids.map(Number).filter(n=>!isNaN(n)) : [];
+    const ids = Array.isArray(rc.ids) ? rc.ids.map(normId).filter(n=>n!==null) : [];
     return { ids: ids, count: (typeof rc.count === "number" ? rc.count : ids.length) };
   }
   return { ids: [], count: 0 };
@@ -796,12 +859,12 @@ function mergeProgressData(local, remote){
   local = local || {}; remote = remote || {};
   const dates = {};
   (Array.isArray(local.completed) ? local.completed : []).forEach(id=>{
-    const n = Number(id); if(isNaN(n)) return;
+    const n = normId(id); if(n === null) return;
     dates[n] = (local.completedAt && local.completedAt[id]) || null;
   });
   const rc = (remote.completed && typeof remote.completed === "object") ? remote.completed : {};
   Object.keys(rc).forEach(k=>{
-    const id = Number(k); if(isNaN(id)) return;
+    const id = normId(k); if(id === null) return;
     const rd = rc[k] || null;
     if(!(id in dates)) dates[id] = rd;
     else if(dates[id] && rd) dates[id] = dates[id] < rd ? dates[id] : rd;
@@ -809,11 +872,11 @@ function mergeProgressData(local, remote){
   });
   const ri = remoteReviewInfo(remote.review_correct);
   const idsSet = new Set();
-  (Array.isArray(local.reviewIds) ? local.reviewIds : []).forEach(id=>{ const n = Number(id); if(!isNaN(n)) idsSet.add(n); });
+  (Array.isArray(local.reviewIds) ? local.reviewIds : []).forEach(id=>{ const n = normId(id); if(n !== null) idsSet.add(n); });
   ri.ids.forEach(id=>idsSet.add(id));
-  const reviewIds = [...idsSet].sort((a,b)=>a-b);
+  const reviewIds = [...idsSet].sort(cmpIds);
   const reviewCorrect = Math.max(local.reviewCorrect||0, ri.count||0, reviewIds.length);
-  const completedIds = Object.keys(dates).map(Number).sort((a,b)=>a-b);
+  const completedIds = Object.keys(dates).map(normId).sort(cmpIds);
   const completedAt = {};
   completedIds.forEach(id=>{ if(dates[id]) completedAt[id] = dates[id]; });
   return { completed: completedIds, completedAt: completedAt, reviewIds: reviewIds, reviewCorrect: reviewCorrect };
@@ -840,7 +903,31 @@ async function vaultSet(key,val){ if(!vaultReady) return; try{ const db=await id
 async function vaultDelete(key){ try{ const db=await idbOpen(); await new Promise((res,rej)=>{ const tx=db.transaction("kv","readwrite").objectStore("kv").delete(key); tx.onsuccess=()=>res(); tx.onerror=()=>rej(tx.error); }); }catch(e){} }
 
 /* ---------- 상태 ---------- */
-function defaultProgress(){ return { index:0, completed:[], doneDates:[], step:1, reviewCorrect:0, completedAt:{}, reviewIds:[], sound:true, theme:"light" }; }
+function defaultLangProgress(){ return { index:0, completed:[], doneDates:[], step:1, reviewCorrect:0, completedAt:{}, reviewIds:[] }; }
+function defaultProgress(){ return { lang:"fr", byLang:{ fr:defaultLangProgress(), en:defaultLangProgress(), es:defaultLangProgress() }, sound:true, theme:"light" }; }
+function migrateProgress(raw){
+  const out = defaultProgress();
+  if(!raw || typeof raw !== "object") return out;
+  if(LANG_CODES.includes(raw.lang)) out.lang = raw.lang;
+  out.sound = raw.sound !== false;
+  if(raw.theme === "black" || raw.theme === "paper") out.theme = raw.theme;
+  if(raw.byLang && typeof raw.byLang === "object"){
+    LANG_CODES.forEach(code=>{ if(raw.byLang[code] && typeof raw.byLang[code] === "object") out.byLang[code] = Object.assign(defaultLangProgress(), raw.byLang[code]); });
+  } else {
+    const bucket = defaultLangProgress();
+    ["index","completed","doneDates","step","reviewCorrect","completedAt","reviewIds"].forEach(k=>{ if(raw[k] !== undefined) bucket[k] = raw[k]; });
+    out.byLang.fr = bucket;
+  }
+  return out;
+}
+function curLang(){ return LANGS[progress.lang] ? progress.lang : "fr"; }
+function P(){
+  if(!progress.byLang || typeof progress.byLang !== "object") progress.byLang = {};
+  const code = curLang();
+  if(!progress.byLang[code] || typeof progress.byLang[code] !== "object") progress.byLang[code] = defaultLangProgress();
+  return progress.byLang[code];
+}
+function items(){ return ITEMS_BY_LANG[curLang()]; }
 let progress = defaultProgress();
 function loadLocal(){ try{ const raw=localStorage.getItem(STORAGE_KEY); return raw?JSON.parse(raw):null; }catch(e){ return null; } }
 function saveProgress(){
@@ -854,16 +941,16 @@ async function initStorage(){
   const vaultRaw = await vaultGet(STORAGE_KEY);
   let vaultData = null; try{ vaultData = vaultRaw?JSON.parse(vaultRaw):null; }catch(e){}
   const chosen = pickRestore(localData, vaultData);
-  if(chosen){ progress = Object.assign(defaultProgress(), chosen); }
+  if(chosen){ progress = migrateProgress(chosen); }
   vaultReady = true;
   if(chosen && JSON.stringify(chosen)!==JSON.stringify(localData)){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); }catch(e){} }
   vaultSet(STORAGE_KEY, JSON.stringify(progress));
-  currentStep = [1,2,3].includes(progress.step) ? progress.step : 1;
+  currentStep = [1,2,3].includes(P().step) ? P().step : 1;
   renderVaultState();
 }
 function renderVaultState(){
   const txt = persistGranted===true ? "영구 보관 요청 허용됨 · IndexedDB 보관함 사용 중" : persistGranted===false ? "영구 보관 요청 미허용 · IndexedDB 보관함 사용 중 (브라우저가 비울 수 있음)" : "IndexedDB 보관함 사용 중";
-  const a=document.getElementById("vaultState"); if(a) a.textContent = "현재 상태: "+txt+" · 완료한 문장 "+progress.completed.length+"개";
+  const a=document.getElementById("vaultState"); if(a) a.textContent = "현재 상태: "+txt+" · 완료한 문장 "+P().completed.length+"개";
   const b=document.getElementById("vaultFooter"); if(b) b.textContent = txt;
 }
 
@@ -886,11 +973,12 @@ function refreshVoices(){
     if(list.length) voiceCache = list;
   }catch(e){}
 }
-function pickFrVoice(voices){
-  const fr = (voices || []).filter(v=>v && v.lang && String(v.lang).toLowerCase().startsWith("fr"));
-  if(!fr.length) return null;
-  for(let i=0;i<fr.length;i++){ if(fr[i].localService) return fr[i]; }
-  return fr[0];
+function pickVoice(voices, prefix){
+  const pre = String(prefix || "fr").toLowerCase();
+  const list = (voices || []).filter(v=>v && v.lang && String(v.lang).toLowerCase().startsWith(pre));
+  if(!list.length) return null;
+  for(let i=0;i<list.length;i++){ if(list[i].localService) return list[i]; }
+  return list[0];
 }
 function clearSpeakingUI(){
   if(speakBtn && speakBtn.classList) speakBtn.classList.remove("playing");
@@ -908,8 +996,8 @@ function speakFr(text, rate, btn){
       speakWaitTimer = null;
       if(typeof ss.resume === "function") ss.resume();
       const u = new SpeechSynthesisUtterance(text);
-      u.lang = "fr-FR"; u.rate = (typeof rate === "number") ? rate : 1.0;
-      const voice = pickFrVoice(voiceCache.length ? voiceCache : (typeof ss.getVoices === "function" ? ss.getVoices() : []));
+      u.lang = LANGS[curLang()].speech; u.rate = (typeof rate === "number") ? rate : 1.0;
+      const voice = pickVoice(voiceCache.length ? voiceCache : (typeof ss.getVoices === "function" ? ss.getVoices() : []), LANGS[curLang()].prefix);
       if(voice) u.voice = voice;
       const seq = ++speakSeq;
       clearSpeakingUI();
@@ -936,7 +1024,7 @@ function warmUpSpeech(){
   try{
     if(!("speechSynthesis" in window)) return;
     const u = new SpeechSynthesisUtterance("a");
-    u.volume = 0; u.lang = "fr-FR";
+    u.volume = 0; u.lang = LANGS[curLang()].speech;
     window.speechSynthesis.speak(u);
   }catch(e){}
 }
@@ -990,14 +1078,14 @@ function bindWordProg(inputId, progId, targetFr){
   inp.addEventListener("input", upd);
   upd();
 }
-function setStep(n){ currentStep = n; progress.step = n; saveProgress(); }
-function currentItem(){ return ITEMS[Math.min(progress.index, ITEMS.length-1)]; }
+function setStep(n){ currentStep = n; P().step = n; saveProgress(); }
+function currentItem(){ return items()[Math.min(P().index, items().length-1)]; }
 function esc(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
 function renderProgress(){
-  const doneCount = progress.completed.length, total = ITEMS.length;
+  const doneCount = P().completed.length, total = items().length;
   const pct = total ? Math.round(doneCount/total*100) : 0;
-  const today = countToday(progress);
-  document.getElementById("progressLine").textContent = "지금까지 "+doneCount+" / "+total+"문장 완료 · 현재 "+(progress.index+1)+"번째 문장";
+  const today = countToday(P());
+  document.getElementById("progressLine").textContent = "지금까지 "+doneCount+" / "+total+"문장 완료 · 현재 "+(P().index+1)+"번째 문장";
   const chip = document.getElementById("todayChip");
   chip.textContent = "오늘 "+today+"문장";
   chip.classList.toggle("hot", today>0);
@@ -1006,7 +1094,7 @@ function renderProgress(){
   document.getElementById("pbar").setAttribute("aria-valuenow", pct);
   document.getElementById("progressPct").textContent = "전체 "+pct+"%";
   document.getElementById("progressLeft").textContent = doneCount>=total ? "전부 완료했어요" : (total-doneCount)+"문장 남음";
-  const lv = levelOf(xpOf(doneCount, progress.reviewCorrect||0));
+  const lv = levelOf(xpOf(doneCount, P().reviewCorrect||0));
   document.getElementById("lvLabel").textContent = medalOf(lv.lv)+" Lv."+lv.lv+" "+lv.title;
   document.getElementById("lvNext").textContent = lv.nextAt===null ? "최고 레벨" : "다음 레벨까지 "+lv.toNext+" XP";
   requestAnimationFrame(()=>{ document.getElementById("lvFill").style.width = lv.pct+"%"; });
@@ -1017,18 +1105,17 @@ function renderStudy(){
   completionInFlight = false;
   clearSpeakingUI();
   const it = currentItem();
-  const done = progress.completed.includes(it.id);
+  const done = P().completed.includes(it.id);
   let h = "";
-  const tefSeg = currentStep===1 ? ' · 도움되는 영역: '+esc(it.tef) : '';
-  h += '<div class="meta">'+esc(it.topic)+' · '+esc(it.level)+tefSeg+(done?' <span class="donebadge">✓ 완료</span>':'')+'</div>';
+  h += '<div class="meta">'+esc(it.topic)+' · '+esc(it.level)+(done?' <span class="donebadge">✓ 완료</span>':'')+'</div>';
   if(currentStep===1){
-    h += '<div class="fr">'+esc(it.fr)+'</div><p class="ko">'+esc(it.ko)+'</p>';
+    h += '<div class="fr">'+esc(itemText(it))+'</div><p class="ko">'+esc(it.ko)+'</p>';
     h += '<div>'+it.chunks.map(c=>'<span class="chunk"><b>'+esc(c[0])+'</b><span>'+esc(c[1])+'</span></span>').join("")+'</div>';
     h += '<div class="pattern">'+esc(it.pattern)+'</div>';
     h += '<div class="words">핵심 단어: '+it.words.map(w=>'<b>'+esc(w[0])+'</b> '+esc(w[1])).join(" · ")+'</div>';
     h += '<div class="btnrow"><button class="ghost" id="listenBtn">'+SPEAKER_SVG+'듣기</button>'+slowListenBtnHtml()+'<button class="primary" id="goStep2">따라 쓰기</button></div>';
   } else if(currentStep===2){
-    h += '<div class="fr">'+esc(it.fr)+'</div><p class="ko">'+esc(it.ko)+'</p>';
+    h += '<div class="fr">'+esc(itemText(it))+'</div><p class="ko">'+esc(it.ko)+'</p>';
     h += '<p class="lead">위 문장을 보면서 그대로 타이핑하세요.</p>';
     h += '<textarea id="typeInput" rows="3" placeholder="문장을 보면서 써 보세요" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><div class="wordprog" id="wordProg" aria-live="polite"></div><div id="fb"></div>';
     h += '<div class="btnrow"><button class="primary" id="checkBtn">확인하기</button><button class="ghost" id="listenBtn">'+SPEAKER_SVG+'듣기</button>'+slowListenBtnHtml()+'</div>';
@@ -1041,11 +1128,11 @@ function renderStudy(){
   }
   document.getElementById("studyCard").innerHTML = h;
   document.getElementById("doneBox").innerHTML = "";
-  const lb = document.getElementById("listenBtn"); if(lb) lb.onclick = ()=>speakFr(it.fr, 1, lb);
-  const slb = document.getElementById("slowListenBtn"); if(slb) slb.onclick = ()=>speakFr(it.fr, 0.7, slb);
+  const lb = document.getElementById("listenBtn"); if(lb) lb.onclick = ()=>speakFr(itemText(it), 1, lb);
+  const slb = document.getElementById("slowListenBtn"); if(slb) slb.onclick = ()=>speakFr(itemText(it), 0.7, slb);
   const g2 = document.getElementById("goStep2"); if(g2) g2.onclick = ()=>{ setStep(2); renderStudy(); };
   const cb = document.getElementById("checkBtn"); if(cb) cb.onclick = checkTyping;
-  bindWordProg("typeInput", "wordProg", it.fr);
+  bindWordProg("typeInput", "wordProg", itemText(it));
   const bb = document.getElementById("backBtn"); if(bb) bb.onclick = ()=>{ setStep(currentStep===3 ? 2 : 1); renderStudy(); };
   renderQuizEntry();
   renderProgress();
@@ -1054,10 +1141,10 @@ function checkTyping(){
   const it = currentItem();
   const input = document.getElementById("typeInput").value;
   const fb = document.getElementById("fb");
-  if(isCorrect(input, it.fr)){
+  if(isCorrect(input, itemText(it))){
     playSound(true);
     const label = currentStep===2 ? "가리고 쓰기" : "완료하기 →";
-    fb.innerHTML = correctHtml(it.fr) + '<div class="advancewrap"><button class="primary" id="advanceBtn">'+label+'</button></div>';
+    fb.innerHTML = correctHtml(itemText(it)) + '<div class="advancewrap"><button class="primary" id="advanceBtn">'+label+'</button></div>';
     const cb = document.getElementById("checkBtn"); if(cb) cb.style.display = "none";
     document.getElementById("advanceBtn").onclick = ()=>{
       if(currentStep===2){ setStep(3); renderStudy(); }
@@ -1065,7 +1152,7 @@ function checkTyping(){
     };
   } else {
     playSound(false);
-    fb.innerHTML = wrongHtml(input, it.fr);
+    fb.innerHTML = wrongHtml(input, itemText(it));
   }
 }
 function completeSentence(){
@@ -1073,50 +1160,50 @@ function completeSentence(){
   completionInFlight = true;
   clearSpeakingUI();
   const it = currentItem();
-  const lvBefore = levelOf(xpOf(progress.completed.length, progress.reviewCorrect||0));
+  const lvBefore = levelOf(xpOf(P().completed.length, P().reviewCorrect||0));
   let gained = 0;
-  if(!progress.completed.includes(it.id)){
-    progress.completed.push(it.id); progress.doneDates.push(todayKey());
-    if(!progress.completedAt) progress.completedAt = {};
-    if(!progress.completedAt[it.id]) progress.completedAt[it.id] = todayKey();
+  if(!P().completed.includes(it.id)){
+    P().completed.push(it.id); P().doneDates.push(todayKey());
+    if(!P().completedAt) P().completedAt = {};
+    if(!P().completedAt[it.id]) P().completedAt[it.id] = todayKey();
     gained = 10;
   }
-  if(progress.index < ITEMS.length-1) progress.index++;
-  progress.step = 1;
+  if(P().index < items().length-1) P().index++;
+  P().step = 1;
   saveProgress(); renderVaultState(); renderProgress();
-  const lvAfter = levelOf(xpOf(progress.completed.length, progress.reviewCorrect||0));
-  const pctAll = Math.round(progress.completed.length/ITEMS.length*100);
+  const lvAfter = levelOf(xpOf(P().completed.length, P().reviewCorrect||0));
+  const pctAll = Math.round(P().completed.length/items().length*100);
   let extra = "";
   if(gained) extra += '<div class="xpgain">+'+gained+' XP</div>';
   if(lvAfter.lv > lvBefore.lv) extra += '<div class="levelup">레벨 업! Lv.'+lvAfter.lv+' '+esc(lvAfter.title)+'</div>';
   document.getElementById("studyCard").innerHTML = "";
-  document.getElementById("doneBox").innerHTML = '<div class="card donebox"><div class="donecircle" aria-hidden="true">✓</div><div class="big">한 문장 완료!</div>'+extra+'<p>오늘 '+countToday(progress)+'문장째 · 지금까지 '+progress.completed.length+' / '+ITEMS.length+'문장</p><div class="pbar donebar"><div class="pfill" style="width:'+pctAll+'%"></div></div><div class="donepct">전체 '+pctAll+'%</div><button class="primary" id="oneMoreBtn">한 문장 더 →</button></div>';
+  document.getElementById("doneBox").innerHTML = '<div class="card donebox"><div class="donecircle" aria-hidden="true">✓</div><div class="big">한 문장 완료!</div>'+extra+'<p>오늘 '+countToday(P())+'문장째 · 지금까지 '+P().completed.length+' / '+items().length+'문장</p><div class="pbar donebar"><div class="pfill" style="width:'+pctAll+'%"></div></div><div class="donepct">전체 '+pctAll+'%</div><button class="primary" id="oneMoreBtn">한 문장 더 →</button></div>';
   document.getElementById("oneMoreBtn").onclick = ()=>{ setStep(1); renderStudy(); window.scrollTo({top:0,behavior:"smooth"}); };
   const doneEl = document.getElementById("doneBox");
   if(doneEl && doneEl.scrollIntoView) doneEl.scrollIntoView({behavior:"smooth", block:"start"});
   renderQuizEntry();
 }
-function goToItem(idx, step){ progress.index = idx; setStep(step||1); showTab("study"); renderStudy(); window.scrollTo({top:0,behavior:"smooth"}); }
+function goToItem(idx, step){ P().index = idx; setStep(step||1); showTab("study"); renderStudy(); window.scrollTo({top:0,behavior:"smooth"}); }
 
 /* ---------- 복습 퀴즈 ---------- */
 function renderQuizEntry(){
   const area = document.getElementById("quizArea");
   if(!area || quizItem) return;
-  if(progress.completed.length < 3){ area.innerHTML = ""; return; }
+  if(P().completed.length < 3){ area.innerHTML = ""; return; }
   area.innerHTML = '<div class="card quizcard"><div class="meta">복습 퀴즈</div><p class="ko" style="margin:6px 0 10px">끝낸 문장에서 한 문장, 뜻만 보고 다시 써 보세요. 맞히면 +5 XP</p><button class="primary" id="quizStartBtn">복습 퀴즈 — 끝낸 문장에서 다시 쓰기</button></div>';
   document.getElementById("quizStartBtn").onclick = ()=>startQuiz();
 }
 function startQuiz(excludeId){
   quizAnswered = false;
-  let pool = quizPool(ITEMS, progress.completed, currentItem().id);
+  let pool = quizPool(items(), P().completed, currentItem().id);
   if(excludeId && pool.length > 1) pool = pool.filter(i=>i.id!==excludeId);
-  if(!pool.length) pool = ITEMS.filter(i=>progress.completed.includes(i.id) && i.id!==excludeId);
+  if(!pool.length) pool = items().filter(i=>P().completed.includes(i.id) && i.id!==excludeId);
   if(!pool.length){ quizItem = null; renderQuizEntry(); return; }
   quizItem = pool[Math.floor(Math.random()*pool.length)];
   document.getElementById("quizArea").innerHTML = '<div class="card quizcard"><div class="meta">복습 퀴즈 · 맞히면 +5 XP</div><p class="ko" style="font-size:19px;font-weight:700;margin-top:8px">'+esc(quizItem.ko)+'</p><textarea id="quizInput" rows="3" placeholder="프랑스어 문장을 써 보세요" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><div class="wordprog" id="quizWordProg" aria-live="polite"></div><div id="quizFb"></div><div class="btnrow"><button class="primary" id="quizCheckBtn">확인하기</button><button class="ghost" id="quizQuitBtn">그만하기</button></div></div>';
   document.getElementById("quizCheckBtn").onclick = checkQuiz;
   document.getElementById("quizQuitBtn").onclick = endQuiz;
-  bindWordProg("quizInput", "quizWordProg", quizItem.fr);
+  bindWordProg("quizInput", "quizWordProg", itemText(quizItem));
   const qi = document.getElementById("quizInput"); if(qi) qi.focus();
 }
 function checkQuiz(){
@@ -1124,16 +1211,16 @@ function checkQuiz(){
   quizAnswered = true;
   const input = document.getElementById("quizInput").value;
   let h = "";
-  if(isCorrect(input, quizItem.fr)){
+  if(isCorrect(input, itemText(quizItem))){
     playSound(true);
-    progress.reviewCorrect = (progress.reviewCorrect||0)+1;
-    if(!Array.isArray(progress.reviewIds)) progress.reviewIds = [];
-    if(!progress.reviewIds.includes(quizItem.id)) progress.reviewIds.push(quizItem.id);
+    P().reviewCorrect = (P().reviewCorrect||0)+1;
+    if(!Array.isArray(P().reviewIds)) P().reviewIds = [];
+    if(!P().reviewIds.includes(quizItem.id)) P().reviewIds.push(quizItem.id);
     saveProgress(); renderVaultState(); renderProgress();
-    h = correctHtml(quizItem.fr, " +5 XP");
+    h = correctHtml(itemText(quizItem), " +5 XP");
   } else {
     playSound(false);
-    h = wrongHtml(input, quizItem.fr);
+    h = wrongHtml(input, itemText(quizItem));
   }
   h += '<div class="btnrow" style="margin-top:12px"><button class="primary" id="quizMoreBtn">한 문제 더</button><button class="ghost" id="quizDoneBtn">끝내기</button></div>';
   document.getElementById("quizFb").innerHTML = h;
@@ -1151,7 +1238,7 @@ let sbLoadPromise = null;
 let sbAuthWired = false;
 let sbUser = null;
 let sbProfile = null;
-let sbSyncDone = false;
+let sbSyncedLangs = {};
 let sbMerging = false;
 let sbUploadTimer = null;
 function loadSupabase(){
@@ -1180,9 +1267,9 @@ function wireSbAuth(){
   try{
     sb.auth.onAuthStateChange((event, session)=>{
       sbUser = session ? session.user : null;
-      if(event === "SIGNED_OUT"){ sbProfile = null; sbSyncDone = false; }
+      if(event === "SIGNED_OUT"){ sbProfile = null; sbSyncedLangs = {}; }
       renderProfileBtn();
-      if(sbUser && !sbSyncDone){ syncSbOnLogin().then(()=>{ if(currentTab === "together") renderTogether(); }); }
+      if(sbUser){ syncSbOnLogin().then(()=>{ if(currentTab === "together") renderTogether(); }); }
       else if(currentTab === "together") renderTogether();
     });
   }catch(e){}
@@ -1207,7 +1294,7 @@ async function loadSbProfile(){
 async function fetchSbRemote(){
   if(!sb || !sbUser) return null;
   try{
-    const { data, error } = await sb.from("progress").select("completed, review_correct").eq("user_id", sbUser.id).maybeSingle();
+    const { data, error } = await sb.from("progress").select("completed, review_correct").eq("user_id", sbUser.id).eq("lang", curLang()).maybeSingle();
     if(error) throw error;
     return data || null;
   }catch(e){ return null; }
@@ -1215,20 +1302,20 @@ async function fetchSbRemote(){
 async function pushSbProgress(){
   if(!sb || !sbUser || !sbProfile) return;
   try{
-    const payload = progressToRemote(progress);
-    await sb.from("progress").upsert({ user_id: sbUser.id, lang: "fr", completed: payload.completed, review_correct: payload.review_correct, updated_at: new Date().toISOString() });
+    const payload = progressToRemote(P());
+    await sb.from("progress").upsert({ user_id: sbUser.id, lang: curLang(), completed: payload.completed, review_correct: payload.review_correct, updated_at: new Date().toISOString() }, { onConflict: "user_id,lang" });
   }catch(e){}
 }
 async function mergeSbAndPush(){
   if(!sb || !sbUser || !sbProfile) return;
   const remote = await fetchSbRemote();
   if(remote){
-    const merged = mergeProgressData(progress, remote);
+    const merged = mergeProgressData(P(), remote);
     sbMerging = true;
-    progress.completed = merged.completed;
-    progress.completedAt = merged.completedAt;
-    progress.reviewIds = merged.reviewIds;
-    progress.reviewCorrect = merged.reviewCorrect;
+    P().completed = merged.completed;
+    P().completedAt = merged.completedAt;
+    P().reviewIds = merged.reviewIds;
+    P().reviewCorrect = merged.reviewCorrect;
     saveProgress();
     sbMerging = false;
     renderVaultState(); renderProgress();
@@ -1236,8 +1323,10 @@ async function mergeSbAndPush(){
   await pushSbProgress();
 }
 async function syncSbOnLogin(){
-  if(!sb || !sbUser || sbSyncDone) return;
-  sbSyncDone = true;
+  if(!sb || !sbUser) return;
+  const lg = curLang();
+  if(sbSyncedLangs[lg]) return;
+  sbSyncedLangs[lg] = true;
   await loadSbProfile();
   if(sbProfile) await mergeSbAndPush();
 }
@@ -1255,7 +1344,7 @@ async function sbLogin(){
 }
 async function sbLogout(){
   try{ if(sb) await sb.auth.signOut(); }catch(e){}
-  sbUser = null; sbProfile = null; sbSyncDone = false;
+  sbUser = null; sbProfile = null; sbSyncedLangs = {};
   renderProfileBtn();
   renderTogether();
 }
@@ -1291,7 +1380,7 @@ async function sbAuthReturnInit(){
     }
     if(!sbUser) return;
     await loadSbProfile();
-    if(sbProfile){ if(!sbSyncDone) await syncSbOnLogin(); }
+    if(sbProfile){ await syncSbOnLogin(); }
     else openNickModal(true);
   }catch(e){}
 }
@@ -1355,12 +1444,12 @@ function renderProfile(){
   const emailBlock = (sbUser && sbUser.email)
     ? '<div class="profileemail maskable" id="profileEmail" role="button" tabindex="0" title="탭하면 전체 보이기/가리기"><span id="profileEmailTxt">'+esc(maskEmail(sbUser.email))+'</span><span class="emailhint" id="profileEmailHint">탭하면 보이기</span></div>'
     : '<div class="profileemail"></div>';
-  const xp = xpOf(progress.completed.length, progress.reviewCorrect||0);
+  const xp = xpOf(P().completed.length, P().reviewCorrect||0);
   const lv = levelOf(xp);
   const medalBlock = '<div class="profilemedal" aria-hidden="true">'+medalOf(lv.lv)+'</div><div class="profilelv">Lv.'+lv.lv+' '+esc(lv.title)+'</div>';
   const stats = '<div class="pbar"><div class="pfill gold" style="width:'+lv.pct+'%"></div></div>'
     + '<div class="profilenext">'+(lv.nextAt===null ? "최고 레벨이에요" : "다음 레벨까지 "+lv.toNext+" XP")+'</div>'
-    + '<div class="profilestats"><span>총 '+xp+' XP</span><span>완료 '+progress.completed.length+' / '+ITEMS.length+'문장</span><span>복습 맞힘 '+(progress.reviewCorrect||0)+'개</span></div>';
+    + '<div class="profilestats"><span>총 '+xp+' XP</span><span>완료 '+P().completed.length+' / '+items().length+'문장</span><span>복습 맞힘 '+(P().reviewCorrect||0)+'개</span></div>';
   let h = "";
   if(sbUser && sbProfile){
     h += '<div class="profiletop">'+avatarHtml(sbProfile.nickname, true)+'<div><div class="profilename">'+esc(sbProfile.nickname)+'</div>'+emailBlock+'</div></div>';
@@ -1373,7 +1462,7 @@ function renderProfile(){
   } else {
     h += '<div class="profiletop"><span class="avatar big" style="background:var(--soft)" aria-hidden="true">'+PERSON_SVG+'</span><div><div class="profilename">게스트</div><div class="profileemail">이 기기의 기록만 보여요</div></div></div>';
     h += medalBlock + stats;
-    h += '<p class="modaldesc" style="margin-top:12px">로그인하면 기록이 서버에도 보관되고, Ensemble에서 서로의 진도를 볼 수 있어요.</p>';
+    h += '<p class="modaldesc" style="margin-top:12px">로그인하면 기록이 서버에도 보관되고, '+esc(LANGS[curLang()].ensemble)+'에서 서로의 진도를 볼 수 있어요.</p>';
     h += '<button class="primary modalbtn" id="profileLoginBtn">구글로 시작하기</button>';
   }
   el.innerHTML = h;
@@ -1393,17 +1482,17 @@ async function renderTogether(){
   let client = null;
   try{ client = await loadSupabase(); }catch(e){ client = null; }
   if(!client || !sb){
-    el.innerHTML = '<div class="card"><p class="ko" style="margin:0">Ensemble은 네트워크가 필요해요. 연결을 확인하고 다시 열어 보세요.</p></div>';
+    el.innerHTML = '<div class="card"><p class="ko" style="margin:0">'+esc(LANGS[curLang()].ensemble)+'은 네트워크가 필요해요. 연결을 확인하고 다시 열어 보세요.</p></div>';
     return;
   }
   wireSbAuth();
   await sbCurrentUser();
   if(!sbUser){
-    el.innerHTML = '<div class="card herocard"><div class="heroicon" aria-hidden="true">'+PEOPLE_SVG+'</div><div class="herotitle">Ensemble</div><p class="ko">같이 공부하는 사람들과 서로의 레벨과 완료 문장을 볼 수 있어요. 보이는 건 닉네임뿐입니다.</p><button class="primary" id="sbLoginBtn">구글로 시작하기</button></div>';
+    el.innerHTML = '<div class="card herocard"><div class="heroicon" aria-hidden="true">'+PEOPLE_SVG+'</div><div class="herotitle">'+esc(LANGS[curLang()].ensemble)+'</div><p class="ko">같이 공부하는 사람들과 서로의 레벨과 완료 문장을 볼 수 있어요. 보이는 건 닉네임뿐입니다.</p><button class="primary" id="sbLoginBtn">구글로 시작하기</button></div>';
     const lb = document.getElementById("sbLoginBtn"); if(lb) lb.onclick = sbLogin;
     return;
   }
-  if(!sbSyncDone) await syncSbOnLogin();
+  await syncSbOnLogin();
   if(!sbProfile) await loadSbProfile();
   if(!sbProfile){
     el.innerHTML = '<div class="card nickbanner"><span class="banneremoji" aria-hidden="true">✏️</span><span class="bannertext"><b>닉네임이 필요해요</b><span>닉네임을 정하면 참여자 목록에 나타나요.</span></span><button class="primary" id="sbOpenNickBtn">닉네임 정하기</button></div>';
@@ -1420,7 +1509,7 @@ async function renderTogetherMembers(){
     const r1 = await sb.from("profiles").select("id, nickname");
     if(r1.error) throw r1.error;
     profs = r1.data || [];
-    const r2 = await sb.from("progress").select("user_id, completed, review_correct");
+    const r2 = await sb.from("progress").select("user_id, completed, review_correct").eq("lang", curLang());
     if(!r2.error) progs = r2.data || [];
   }catch(e){
     el.innerHTML = '<div class="card"><p class="ko" style="margin:0">목록을 불러오지 못했어요. 네트워크를 확인하고 다시 열어 보세요.</p></div>';
@@ -1434,17 +1523,17 @@ async function renderTogetherMembers(){
     return { id: p.id, nickname: p.nickname, doneCount: cnt, xp: remoteXpOf(g), me: !!(sbUser && p.id === sbUser.id) };
   }).sort((a,b)=> (b.xp - a.xp) || a.nickname.localeCompare(b.nickname));
   const mine = rows.find(r=>r.me);
-  const pctOf = cnt => ITEMS.length ? Math.round(cnt / ITEMS.length * 100) : 0;
+  const pctOf = cnt => items().length ? Math.round(cnt / items().length * 100) : 0;
   let h = "";
   if(mine){
     const mlv = levelOf(mine.xp);
     const mpct = pctOf(mine.doneCount);
     h += '<div class="card mycard"><div class="memhead">'+avatarHtml(mine.nickname)+'<span class="memname">'+esc(mine.nickname)+'</span><span class="lvbadge">Lv.'+mlv.lv+' '+medalOf(mlv.lv)+' '+esc(mlv.title)+'</span></div>'
       + '<div class="pbar"><div class="pfill" style="width:'+mpct+'%"></div></div>'
-      + '<div class="memprog"><span>완료 '+mine.doneCount+' / '+ITEMS.length+'</span><span class="progress-pct">'+mpct+'%</span></div>'
+      + '<div class="memprog"><span>완료 '+mine.doneCount+' / '+items().length+'</span><span class="progress-pct">'+mpct+'%</span></div>'
       + '<div class="btnrow" style="margin-top:12px"><button class="ghost" id="sbRefreshBtn">새로고침</button><button class="ghost" id="sbLogoutBtn">로그아웃</button></div></div>';
   }
-  h += '<div class="meta" style="margin:6px 2px 2px">Ensemble 참여자 '+rows.length+'명</div>';
+  h += '<div class="meta" style="margin:6px 2px 2px">'+esc(LANGS[curLang()].ensemble)+' 참여자 '+rows.length+'명</div>';
   if(!rows.length){
     h += '<div class="card"><p class="ko" style="margin:0">아직 참여자가 없어요.</p></div>';
   }
@@ -1453,7 +1542,7 @@ async function renderTogetherMembers(){
     const pct = pctOf(r.doneCount);
     return '<div class="card membercard'+(r.me?" me":"")+'"><div class="memhead">'+avatarHtml(r.nickname)+'<span class="memname">'+esc(r.nickname)+(r.me?' (나)':'')+'</span><span class="lvbadge">Lv.'+lv.lv+' '+medalOf(lv.lv)+' '+esc(lv.title)+'</span></div>'
       + '<div class="pbar"><div class="pfill" style="width:'+pct+'%"></div></div>'
-      + '<div class="memprog"><span>완료 '+r.doneCount+' / '+ITEMS.length+'</span><span>'+r.xp+' XP</span></div>'
+      + '<div class="memprog"><span>완료 '+r.doneCount+' / '+items().length+'</span><span>'+r.xp+' XP</span></div>'
       + '<div style="margin-top:10px"><button class="ghost" data-sbdone="'+esc(r.id)+'">완료 문장 보기</button></div><div id="sbdone-'+esc(r.id)+'"></div></div>';
   }).join("");
   el.innerHTML = h;
@@ -1469,15 +1558,15 @@ async function toggleMemberDone(userId, btn){
   btn.textContent = "불러오는 중…";
   let ids = [];
   try{
-    const { data, error } = await sb.from("progress").select("completed").eq("user_id", userId).maybeSingle();
+    const { data, error } = await sb.from("progress").select("completed").eq("user_id", userId).eq("lang", curLang()).maybeSingle();
     if(error) throw error;
-    if(data && data.completed && typeof data.completed === "object") ids = Object.keys(data.completed).map(Number).filter(n=>!isNaN(n)).sort((a,b)=>a-b);
+    if(data && data.completed && typeof data.completed === "object") ids = Object.keys(data.completed).map(normId).filter(n=>n!==null).sort(cmpIds);
   }catch(e){ btn.textContent = "완료 문장 보기"; return; }
   const byIdMap = {};
-  ITEMS.forEach(i=>{ byIdMap[i.id] = i; });
+  items().forEach(i=>{ byIdMap[i.id] = i; });
   const list = ids.map(id=>byIdMap[id]).filter(Boolean);
   box.innerHTML = list.length
-    ? '<div class="donelist">'+list.map(i=>'<div class="doneitem"><b>'+i.id+'.</b> '+esc(i.fr)+'<br><span class="meta">'+esc(i.topic)+' · '+esc(i.level)+'</span></div>').join("")+'</div>'
+    ? '<div class="donelist">'+list.map(i=>'<div class="doneitem"><b>'+i.id+'.</b> '+esc(itemText(i))+'<br><span class="meta">'+esc(i.topic)+' · '+esc(i.level)+'</span></div>').join("")+'</div>'
     : '<p class="meta" style="margin:8px 0 0">아직 완료한 문장이 없어요.</p>';
   btn.textContent = "완료 문장 닫기";
 }
@@ -1510,6 +1599,38 @@ async function doReset(){
   vaultReady = true; await vaultDelete(STORAGE_KEY);
   applyTheme(themeOf(), false); renderVaultState(); renderSoundBtn(); renderResetZone(); renderStudy();
 }
+/* ---------- 언어 전환 ---------- */
+function applyLangLabels(){
+  const L = LANGS[curLang()];
+  const tagline = "한 문장 " + L.name;
+  const set = (id, txt)=>{ const el = document.getElementById(id); if(el) el.textContent = txt; };
+  set("logoTile", L.tile); set("wordmarkEl", L.wordmark); set("menuWord", L.wordmark);
+  set("footTile", L.tile); set("footWord", L.wordmark); set("footKo", tagline);
+  set("h1Title", tagline);
+  set("ensembleMenuLabel", L.ensemble); set("ensembleViewTitle", L.ensemble); set("ensembleAboutTitle", L.ensemble);
+  document.querySelectorAll("[data-lang]").forEach(b=>{
+    const on = b.getAttribute("data-lang") === curLang();
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-checked", on ? "true" : "false");
+  });
+}
+function setLang(code){
+  if(!LANGS[code] || code === curLang()){ applyLangLabels(); return; }
+  clearSpeakingUI();
+  progress.lang = code;
+  quizItem = null; quizAnswered = false; completionInFlight = false;
+  browseTopic = "전체";
+  currentStep = [1,2,3].includes(P().step) ? P().step : 1;
+  saveProgress();
+  applyLangLabels();
+  renderProgress();
+  renderStudy();
+  renderVaultState();
+  if(currentTab === "browse") renderBrowse();
+  if(currentTab === "words") renderWords();
+  if(currentTab === "together") renderTogether();
+}
+
 /* ---------- 메뉴 (유일한 화면 이동 수단) ---------- */
 function openMenu(){
   menuOpen = true;
@@ -1545,27 +1666,27 @@ let browseTopic = "전체";
 function renderTopicMap(){
   const el = document.getElementById("topicMap");
   if(!el) return;
-  const stats = topicStats(ITEMS, progress.completed);
+  const stats = topicStats(items(), P().completed);
   el.innerHTML = '<div class="meta" style="margin-top:4px">정복 지도</div><div class="mapgrid">'+stats.map(t=>'<button class="mapcard'+(t.conquered?" conquered":"")+'" data-mtopic="'+esc(t.topic)+'"><span class="map-top"><b>'+esc(t.topic)+'</b>'+(t.conquered?'<span class="conqbadge">정복</span>':'')+'</span><span class="map-count">'+t.done+' / '+t.total+'문장</span><span class="pbar mapbar"><span class="pfill" style="width:'+t.pct+'%"></span></span></button>').join("")+'</div>';
   document.querySelectorAll("[data-mtopic]").forEach(b=>b.onclick=()=>{ browseTopic = b.getAttribute("data-mtopic"); renderBrowse(); });
 }
 function renderBrowse(){
   renderTopicMap();
-  const topics = ["전체"].concat([...new Set(ITEMS.map(i=>i.topic))]);
+  const topics = ["전체"].concat([...new Set(items().map(i=>i.topic))]);
   document.getElementById("topicFilter").innerHTML = topics.map(t=>'<button class="tabbtn'+(t===browseTopic?" on":"")+'" data-topic="'+esc(t)+'">'+esc(t)+'</button>').join("");
   document.querySelectorAll("[data-topic]").forEach(b=>b.onclick=()=>{ browseTopic=b.getAttribute("data-topic"); renderBrowse(); });
-  const list = ITEMS.filter(i=>browseTopic==="전체"||i.topic===browseTopic);
+  const list = items().filter(i=>browseTopic==="전체"||i.topic===browseTopic);
   document.getElementById("browseList").innerHTML = list.map(i=>{
-    const isDone = progress.completed.includes(i.id);
-    return '<button class="listitem'+(isDone?" isdone":"")+'" data-idx="'+(i.id-1)+'"><span class="li-check" aria-hidden="true">✓</span><span class="li-body"><b>'+i.id+'. '+esc(i.fr)+'</b><span class="li-ko">'+esc(i.ko)+'</span><span class="li-meta">'+esc(i.topic)+' · '+esc(i.level)+(isDone?' <span class="donebadge">완료</span>':'')+'</span></span></button>';
+    const isDone = P().completed.includes(i.id);
+    return '<button class="listitem'+(isDone?" isdone":"")+'" data-idx="'+items().indexOf(i)+'"><span class="li-check" aria-hidden="true">✓</span><span class="li-body"><b>'+i.id+'. '+esc(itemText(i))+'</b><span class="li-ko">'+esc(i.ko)+'</span><span class="li-meta">'+esc(i.topic)+' · '+esc(i.level)+(isDone?' <span class="donebadge">완료</span>':'')+'</span></span></button>';
   }).join("");
   document.querySelectorAll("[data-idx]").forEach(b=>b.onclick=()=>goToItem(parseInt(b.getAttribute("data-idx"),10),1));
 }
 function renderWords(){
   const map = new Map();
   const learned = new Set();
-  ITEMS.forEach(i=>i.words.forEach(w=>{ if(!map.has(w[0])) map.set(w[0], w[1]); if(progress.completed.includes(i.id)) learned.add(w[0]); }));
-  document.getElementById("wordsList").innerHTML = [...map.entries()].sort((a,b)=>a[0].localeCompare(b[0],"fr")).map(e=>{
+  items().forEach(i=>i.words.forEach(w=>{ if(!map.has(w[0])) map.set(w[0], w[1]); if(P().completed.includes(i.id)) learned.add(w[0]); }));
+  document.getElementById("wordsList").innerHTML = [...map.entries()].sort((a,b)=>a[0].localeCompare(b[0], curLang())).map(e=>{
     const isLearned = learned.has(e[0]);
     return '<button class="listitem worditem'+(isLearned?" learned":"")+'" data-word="'+esc(e[0])+'"><span class="wtext"><b>'+esc(e[0])+'</b> — '+esc(e[1])+'</span>'+(isLearned?'<span class="wlearned">✓ 학습</span>':'')+'</button>';
   }).join("");
@@ -1577,6 +1698,7 @@ document.getElementById("menuBtn").onclick = ()=>openMenu();
 document.getElementById("menuCloseBtn").onclick = ()=>closeMenu();
 document.getElementById("menuBackdrop").onclick = ()=>closeMenu();
 document.querySelectorAll("[data-menu]").forEach(b=>b.onclick=()=>goMenu(b.getAttribute("data-menu")));
+document.querySelectorAll("[data-lang]").forEach(b=>b.onclick=()=>setLang(b.getAttribute("data-lang")));
 document.getElementById("nickCloseBtn").onclick = ()=>closeNickModal();
 document.getElementById("nickBackdrop").onclick = ()=>closeNickModal();
 document.getElementById("profileBtn").onclick = ()=>openProfile();
@@ -1643,7 +1765,7 @@ function shareApp(){
 document.getElementById("shareBtn").onclick = ()=>{ shareApp(); };
 renderResetZone();
 if("serviceWorker" in navigator){ navigator.serviceWorker.register("./sw.js").catch(()=>{}); }
-initStorage().then(()=>{ applyTheme(themeOf(), false); renderSoundBtn(); renderStudy(); });
+initStorage().then(()=>{ applyTheme(themeOf(), false); applyLangLabels(); renderSoundBtn(); renderStudy(); });
 if(isOAuthReturn()){ sbAuthReturnInit(); }
 </script>
 <script data-goatcounter="https://une-phrase.goatcounter.com/count"
