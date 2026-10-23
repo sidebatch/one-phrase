@@ -172,6 +172,9 @@ button.ghost.playing{background:var(--blue);color:#fff;border-color:var(--blue)}
 .memprog{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:700;color:var(--sub);margin-top:5px}
 .memprog .progress-pct{color:var(--blue-text);font-weight:800}
 .membercard{margin:10px 0;padding:14px 16px}
+.memlangs{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.memlang{font-size:12px;font-weight:700;color:var(--sub);background:var(--track);padding:3px 9px;border-radius:var(--r-pill)}
+.memlang.on{color:var(--blue-text);background:var(--done-bg)}
 .membercard.me{background:var(--done-bg);border-color:var(--done-line)}
 .donelist{margin-top:8px}
 .doneitem{padding:7px 0;border-top:1px solid var(--line-soft);font-size:14.5px}
@@ -409,12 +412,12 @@ summary{font-weight:800;cursor:pointer}
 
 <footer>
 <div class="footbrand"><span class="footlogo" id="footTile" aria-hidden="true">O</span><span class="footword" id="footWord">ONE PHRASE</span><span class="footko" id="footKo">한 문장 외국어</span></div>
-<div class="footmeta">v1.32.0 · © 2026 sidebatch</div>
+<div class="footmeta">v1.32.1 · © 2026 sidebatch</div>
 </footer>
 </div>
 <script>
 "use strict";
-const APP_VERSION = "1.32.0";
+const APP_VERSION = "1.32.1";
 const STORAGE_KEY = "une-phrase-progress-v1";
 const SUPABASE_URL = "https://cmhitsgoicxvmlwtrdrb.supabase.co";
 const SUPABASE_KEY = "sb_publishable_iZugJ1l1p3DSk_BB2Y3N3Q_qZwSo637";
@@ -799,6 +802,15 @@ const LEVELS = [
 ];
 const LEVEL_MEDALS = ["🌱","🌿","🍀","🥉","🥈","🥇","💎","🔥","⭐","👑"];
 function medalOf(lv){ return LEVEL_MEDALS[lv-1] || ""; }
+function langLineOf(code, count, reviewCorrect){
+  if(!count) return null;
+  const lv = levelOf(xpOf(count, reviewCorrect||0));
+  return { code: code, name: LANGS[code].name, medal: medalOf(lv.lv), lv: lv.lv, count: count };
+}
+function langLinesHtml(lines, activeCode){
+  if(!lines || !lines.length) return "";
+  return '<div class="memlangs">'+lines.map(l=>'<span class="memlang'+(l.code===activeCode?" on":"")+'">'+esc(l.name)+' '+l.medal+' Lv.'+l.lv+' · '+l.count+'문장</span>').join("")+'</div>';
+}
 function maskEmail(email){
   const e = String(email || "");
   const at = e.indexOf("@");
@@ -1449,7 +1461,8 @@ function renderProfile(){
   const medalBlock = '<div class="profilemedal" aria-hidden="true">'+medalOf(lv.lv)+'</div><div class="profilelv">Lv.'+lv.lv+' '+esc(lv.title)+'</div>';
   const stats = '<div class="pbar"><div class="pfill gold" style="width:'+lv.pct+'%"></div></div>'
     + '<div class="profilenext">'+(lv.nextAt===null ? "최고 레벨이에요" : "다음 레벨까지 "+lv.toNext+" XP")+'</div>'
-    + '<div class="profilestats"><span>총 '+xp+' XP</span><span>완료 '+P().completed.length+' / '+items().length+'문장</span><span>복습 맞힘 '+(P().reviewCorrect||0)+'개</span></div>';
+    + '<div class="profilestats"><span>총 '+xp+' XP</span><span>완료 '+P().completed.length+' / '+items().length+'문장</span><span>복습 맞힘 '+(P().reviewCorrect||0)+'개</span></div>'
+    + langLinesHtml(LANG_CODES.map(code=>{ const b = (progress.byLang||{})[code] || {}; return langLineOf(code, (b.completed||[]).length, b.reviewCorrect||0); }).filter(Boolean), curLang());
   let h = "";
   if(sbUser && sbProfile){
     h += '<div class="profiletop">'+avatarHtml(sbProfile.nickname, true)+'<div><div class="profilename">'+esc(sbProfile.nickname)+'</div>'+emailBlock+'</div></div>';
@@ -1509,18 +1522,24 @@ async function renderTogetherMembers(){
     const r1 = await sb.from("profiles").select("id, nickname");
     if(r1.error) throw r1.error;
     profs = r1.data || [];
-    const r2 = await sb.from("progress").select("user_id, completed, review_correct").eq("lang", curLang());
+    const r2 = await sb.from("progress").select("user_id, lang, completed, review_correct");
     if(!r2.error) progs = r2.data || [];
   }catch(e){
     el.innerHTML = '<div class="card"><p class="ko" style="margin:0">목록을 불러오지 못했어요. 네트워크를 확인하고 다시 열어 보세요.</p></div>';
     return;
   }
   const progByUser = {};
-  progs.forEach(r=>{ progByUser[r.user_id] = r; });
+  progs.forEach(r=>{ if(!progByUser[r.user_id]) progByUser[r.user_id] = {}; progByUser[r.user_id][r.lang] = r; });
   const rows = profs.map(p=>{
-    const g = progByUser[p.id];
+    const byLang = progByUser[p.id] || {};
+    const g = byLang[curLang()];
     const cnt = (g && g.completed && typeof g.completed === "object") ? Object.keys(g.completed).length : 0;
-    return { id: p.id, nickname: p.nickname, doneCount: cnt, xp: remoteXpOf(g), me: !!(sbUser && p.id === sbUser.id) };
+    const langLines = LANG_CODES.map(code=>{
+      const row = byLang[code];
+      const c = (row && row.completed && typeof row.completed === "object") ? Object.keys(row.completed).length : 0;
+      return langLineOf(code, c, remoteReviewInfo(row ? row.review_correct : null).count);
+    }).filter(Boolean);
+    return { id: p.id, nickname: p.nickname, doneCount: cnt, xp: remoteXpOf(g), me: !!(sbUser && p.id === sbUser.id), langLines: langLines };
   }).sort((a,b)=> (b.xp - a.xp) || a.nickname.localeCompare(b.nickname));
   const mine = rows.find(r=>r.me);
   const pctOf = cnt => items().length ? Math.round(cnt / items().length * 100) : 0;
@@ -1531,6 +1550,7 @@ async function renderTogetherMembers(){
     h += '<div class="card mycard"><div class="memhead">'+avatarHtml(mine.nickname)+'<span class="memname">'+esc(mine.nickname)+'</span><span class="lvbadge">Lv.'+mlv.lv+' '+medalOf(mlv.lv)+' '+esc(mlv.title)+'</span></div>'
       + '<div class="pbar"><div class="pfill" style="width:'+mpct+'%"></div></div>'
       + '<div class="memprog"><span>완료 '+mine.doneCount+' / '+items().length+'</span><span class="progress-pct">'+mpct+'%</span></div>'
+      + langLinesHtml(mine.langLines, curLang())
       + '<div class="btnrow" style="margin-top:12px"><button class="ghost" id="sbRefreshBtn">새로고침</button><button class="ghost" id="sbLogoutBtn">로그아웃</button></div></div>';
   }
   h += '<div class="meta" style="margin:6px 2px 2px">'+esc(LANGS[curLang()].ensemble)+' 참여자 '+rows.length+'명</div>';
@@ -1543,6 +1563,7 @@ async function renderTogetherMembers(){
     return '<div class="card membercard'+(r.me?" me":"")+'"><div class="memhead">'+avatarHtml(r.nickname)+'<span class="memname">'+esc(r.nickname)+(r.me?' (나)':'')+'</span><span class="lvbadge">Lv.'+lv.lv+' '+medalOf(lv.lv)+' '+esc(lv.title)+'</span></div>'
       + '<div class="pbar"><div class="pfill" style="width:'+pct+'%"></div></div>'
       + '<div class="memprog"><span>완료 '+r.doneCount+' / '+items().length+'</span><span>'+r.xp+' XP</span></div>'
+      + langLinesHtml(r.langLines, curLang())
       + '<div style="margin-top:10px"><button class="ghost" data-sbdone="'+esc(r.id)+'">완료 문장 보기</button></div><div id="sbdone-'+esc(r.id)+'"></div></div>';
   }).join("");
   el.innerHTML = h;
@@ -1556,17 +1577,23 @@ async function toggleMemberDone(userId, btn){
   if(!box || !sb) return;
   if(box.innerHTML){ box.innerHTML = ""; btn.textContent = "완료 문장 보기"; return; }
   btn.textContent = "불러오는 중…";
-  let ids = [];
+  let rowsData = [];
   try{
-    const { data, error } = await sb.from("progress").select("completed").eq("user_id", userId).eq("lang", curLang()).maybeSingle();
+    const { data, error } = await sb.from("progress").select("completed, lang").eq("user_id", userId);
     if(error) throw error;
-    if(data && data.completed && typeof data.completed === "object") ids = Object.keys(data.completed).map(normId).filter(n=>n!==null).sort(cmpIds);
+    rowsData = Array.isArray(data) ? data : (data ? [data] : []);
   }catch(e){ btn.textContent = "완료 문장 보기"; return; }
-  const byIdMap = {};
-  items().forEach(i=>{ byIdMap[i.id] = i; });
-  const list = ids.map(id=>byIdMap[id]).filter(Boolean);
-  box.innerHTML = list.length
-    ? '<div class="donelist">'+list.map(i=>'<div class="doneitem"><b>'+i.id+'.</b> '+esc(itemText(i))+'<br><span class="meta">'+esc(i.topic)+' · '+esc(i.level)+'</span></div>').join("")+'</div>'
+  const groups = LANG_CODES.map(code=>{
+    const row = rowsData.find(r=>r.lang === code);
+    if(!row || !row.completed || typeof row.completed !== "object") return null;
+    const ids = Object.keys(row.completed).map(normId).filter(n=>n!==null).sort(cmpIds);
+    const byIdMap = {};
+    ITEMS_BY_LANG[code].forEach(i=>{ byIdMap[i.id] = i; });
+    const list = ids.map(id=>byIdMap[id]).filter(Boolean);
+    return list.length ? { code: code, list: list } : null;
+  }).filter(Boolean);
+  box.innerHTML = groups.length
+    ? groups.map(g=>'<div class="meta" style="margin:10px 0 4px">'+esc(LANGS[g.code].name)+'</div><div class="donelist">'+g.list.map(i=>'<div class="doneitem"><b>'+i.id+'.</b> '+esc(itemText(i))+'<br><span class="meta">'+esc(i.topic)+' · '+esc(i.level)+'</span></div>').join("")+'</div>').join("")
     : '<p class="meta" style="margin:8px 0 0">아직 완료한 문장이 없어요.</p>';
   btn.textContent = "완료 문장 닫기";
 }

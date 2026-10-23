@@ -1162,6 +1162,24 @@ console.log("\n[기능 동등성: 언어별 동기화 페이로드]");
   ].join("\n"));
 }
 
+console.log("\n[레벨 분리: 언어마다 XP·레벨·메달이 독립]");
+eval(eqHelperSrc + "\n" + xpSrc2 + "\n" + lvArrSrc + "\n" + lvlSrc + "\n" + [
+  'let progress = defaultProgress();',
+  'progress.byLang.fr.completed = [1, 2, 3];',
+  'progress.byLang.en.completed = ["en-1", "en-2", "en-3", "en-4", "en-5", "en-6", "en-7", "en-8", "en-9"];',
+  'progress.lang = "fr";',
+  'const lvFr = levelOf(xpOf(P().completed.length, P().reviewCorrect || 0));',
+  'progress.lang = "en";',
+  'const lvEn = levelOf(xpOf(P().completed.length, P().reviewCorrect || 0));',
+  'progress.lang = "es";',
+  'const lvEs = levelOf(xpOf(P().completed.length, P().reviewCorrect || 0));',
+  'ok(lvFr.lv === 2 && lvEn.lv === 3 && lvEs.lv === 1, "레벨 분리: fr 3개(30 XP)=Lv.2, en 9개(90 XP)=Lv.3, es 0개=Lv.1 — 서로 합산되지 않음 (합산이면 fr도 Lv.3이 됨)");',
+  'ok(xpOf(P().completed.length, 0) === 0, "레벨 분리: 활성 언어 버킷만으로 XP를 계산함");'
+].join("\n"));
+const rpSrcEq = html.match(/function renderProfile\(\)\{[\s\S]*?\n\}/)[0];
+ok(rpSrcEq.includes("langLinesHtml") && rpSrcEq.includes("progress.byLang"), "내 정보: 언어별 한 줄 요약이 로컬 진도 전체(byLang)로 표시됨");
+ok(html.includes("function langLineOf(code, count, reviewCorrect)") && html.includes("function langLinesHtml(lines, activeCode)"), "언어별 요약: 레벨·메달·완료 수를 언어 단위로 만드는 공용 헬퍼 있음");
+
 console.log("\n[기능 동등성: Ensemble이 활성 언어 기준으로 표시]");
 async function runEqEnsembleSmoke() {
   const E2_ELS = {};
@@ -1213,14 +1231,25 @@ async function runEqEnsembleSmoke() {
     html.match(/const AVATAR_PASTELS_DARK = \[[^\n]*/)[0],
     html.match(/function avatarBg\(nickname\)\{[\s\S]*?\n\}/)[0],
     html.match(/function avatarHtml\(nickname, big\)\{[\s\S]*?\n\}/)[0],
-    html.match(/async function renderTogetherMembers\(\)\{[\s\S]*?\n\}/)[0]
+    html.match(/function langLineOf\(code, count, reviewCorrect\)\{[\s\S]*?\n\}/)[0],
+    html.match(/function langLinesHtml\(lines, activeCode\)\{[\s\S]*?\n\}/)[0],
+    nidSrc, cmpSrc,
+    html.match(/async function renderTogetherMembers\(\)\{[\s\S]*?\n\}/)[0],
+    html.match(/async function toggleMemberDone\(userId, btn\)\{[\s\S]*?\n\}/)[0]
   ].join("\n");
   eval(prelude + "\n" + eqHelperSrc + "\n" + fns + "\n" + 'progress = defaultProgress(); progress.lang = "es";');
   await renderTogetherMembers();
   const h = E2_ELS["view-together"].innerHTML;
-  ok(eqConds.includes("progress:lang=es"), "동등성 Ensemble: progress를 활성 언어(es)로 걸러 조회함");
-  ok(h.includes("완료 2 / 10"), "동등성 Ensemble: 내 완료 수가 es 기준 2/10으로 표시됨 (fr 기록 3개가 섞이지 않음)");
-  ok(h.includes("완료 1 / 10"), "동등성 Ensemble: 다른 참여자도 es 기준 1/10으로 표시됨");
+  ok(!eqConds.some(c => c.indexOf("progress:lang=") === 0), "동등성 Ensemble: progress는 언어로 걸러지 않고 전 언어 행을 가져옴");
+  ok(h.includes("완료 2 / 10"), "동등성 Ensemble: 메인 진행 바는 활성 언어(es) 기준 2/10 (fr 기록 3개가 섞이지 않음)");
+  ok(h.includes("프랑스어 🌿 Lv.2 · 3문장"), "동등성 Ensemble: 내 카드에 프랑스어 줄 (Lv.2 · 3문장 — 완료 3개=30 XP로 따로 계산)");
+  ok(h.includes("스페인어 🌱 Lv.1 · 2문장"), "동등성 Ensemble: 내 카드에 스페인어 줄 (Lv.1 · 2문장 — 언어가 합산되지 않음)");
+  ok(h.includes("스페인어 🌱 Lv.1 · 1문장") && h.includes("프랑스어 🌱 Lv.1 · 1문장"), "동등성 Ensemble: 다른 참여자 카드에도 언어별 레벨·완료 수가 표시됨");
+  const fakeBtn = { textContent: "" };
+  await toggleMemberDone("user-2", fakeBtn);
+  const dh = E2_ELS["sbdone-user-2"].innerHTML;
+  ok(dh.includes("프랑스어") && dh.includes("스페인어"), "동등성 Ensemble 펼침: 완료 문장이 언어별로 구분되어 표시됨");
+  ok(dh.includes(ITEMS[0].fr) && dh.includes(ITEMS_ES_REAL[0].text), "동등성 Ensemble 펼침: 각 언어의 실제 완료 문장이 그 언어 데이터로 표시됨");
 }
 
 (async function finish() {
