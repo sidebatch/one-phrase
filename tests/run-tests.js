@@ -172,10 +172,19 @@ const challengeSrcs = [
   html.match(/function renderQuizEndState\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function renderQuizResult\(\)\{[\s\S]*?\n\}/)[0]
 ].join("\n");
+const lockSrc = [
+  html.match(/const OVERLAY_IDS = \[[^\n]*/)[0],
+  html.match(/function syncScrollLock\(\)\{[\s\S]*?\n\}/)[0]
+].join("\n");
 const mapSheetSrcs = [
+  lockSrc,
   html.match(/function renderMapSheet\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function openMapSheet\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function closeMapSheet\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function renderTopicChips\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function setTopicFilter\(t\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function setLevelFilter\(lv\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function repositionInQueue\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function goToTopicStudy\(topic\)\{[\s\S]*?\n\}/)[0],
   html.match(/function goToItem\(idx, step\)[^\n]*/)[0]
 ].join("\n");
@@ -241,6 +250,8 @@ const helperSrc = [
   html.match(/function P\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function items\(\)\{[^}]*\}/)[0],
   html.match(/function levelFilter\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function topicFilter\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function topicOptions\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function studyItems\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function levelOptions\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function itemText\(it\)\{[^}]*\}/)[0]
@@ -277,6 +288,7 @@ const smokeFns = [
   html.match(/const SPEAKER_SVG = [^\n]*/)[0],
   html.match(/const SPEAKER_SLOW_SVG = [^\n]*/)[0],
   html.match(/function slowListenBtnHtml\(\)[^\n]*/)[0],
+  lockSrc,
   html.match(/function openMenu\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function closeMenu\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function goMenu\(name\)\{[\s\S]*?\n\}/)[0],
@@ -293,6 +305,8 @@ const smokeFns = [
   html.match(/const COMPLETE_NOTE_DUR = [^\n]*/)[0],
   html.match(/function playCompleteSound\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function renderLevelChips\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function renderTopicChips\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function scopeLabel\(\)\{[\s\S]*?\n\}/)[0],
   SCHED_SRCS,
   html.match(/function renderStudy\(\)[\s\S]*?\n\}/)[0],
   ctSrc, csSrc,
@@ -429,6 +443,7 @@ const rzFns = [
   html.match(/function renderVaultState\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function closeMenu\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function showTab\(name\)\{[\s\S]*?\n\}/)[0],
+  lockSrc,
   rzSrc, drSrc
 ].join("\n");
 const rzDriver = [
@@ -599,6 +614,8 @@ const flFns = [
   html.match(/function countToday\(p\)\{[^}]*\}/)[0],
   html.match(/function bindWordProg[\s\S]*?\n\}/)[0],
   html.match(/function renderLevelChips\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function renderTopicChips\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function scopeLabel\(\)\{[\s\S]*?\n\}/)[0],
   rsSrc2, ctSrc
 ].join("\n");
 const flDriver = [
@@ -743,7 +760,7 @@ const omPrelude = [
   'let currentTab = "words";',
   'const document = omDoc;'
 ].join("\n");
-eval(omPrelude + "\n" + omSrc + "\n" + [
+eval(omPrelude + "\n" + lockSrc + "\n" + omSrc + "\n" + [
   'openMenu();',
   'ok(OM_ROWS.every((r,i)=> r._on === (i === 2) && r._dot.hidden === (i !== 2)), "메뉴 스모크: 단어 탭에서 열면 단어 행만 활성 틴트+점 표시");',
   'currentTab = "together"; openMenu();',
@@ -827,7 +844,7 @@ ok(onmSrc.includes("nickAutoShown") && onmSrc.includes("return"), "닉네임 모
 const rtSrc = html.match(/async function renderTogether\(\)\{[\s\S]*?\n\}/)[0];
 ok(rtSrc.includes("sbOpenNickBtn") && rtSrc.includes("openNickModal(false)") && rtSrc.includes("nickbanner"), "Ensemble: 닉네임이 없으면 얇은 배너 + 버튼으로 모달을 열 수 있음");
 const rtmSrc = html.match(/async function renderTogetherMembers\(\)\{[\s\S]*?\n\}/)[0];
-ok(rtmSrc.includes("avatarHtml(") && rtmSrc.includes('class="card membercard') && rtmSrc.includes('data-sbcard=') && rtmSrc.includes("lvbadge"), "Ensemble: 참여자 카드(본인 포함 단일 렌더)에 아바타 원·Lv 배지가 있음");
+ok(rtmSrc.includes("avatarHtml(") && rtmSrc.includes('class="card membercard') && rtmSrc.includes('data-sblang=') && rtmSrc.includes("lvbadge"), "Ensemble: 참여자 카드(본인 포함 단일 렌더)에 아바타 원·Lv 배지가 있음");
 ok(rtmSrc.includes("pctOf(") && rtmSrc.includes('class="pfill"') && rtmSrc.includes("Math.round"), "Ensemble: 카드마다 진행 바(완료 N/전체, %)가 있음");
 const spSrc = html.match(/function saveProgress\(\)\{[\s\S]*?\n\}/)[0];
 ok(spSrc.includes("scheduleSbUpload()"), "동기화: saveProgress가 서버 업로드를 예약함 (디바운스)");
@@ -1142,6 +1159,8 @@ const eqHelperSrc = [
   html.match(/function P\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function items\(\)\{[^}]*\}/)[0],
   html.match(/function levelFilter\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function topicFilter\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function topicOptions\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function studyItems\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function levelOptions\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function itemText\(it\)\{[^}]*\}/)[0]
@@ -1193,6 +1212,8 @@ const eqFns = [
   SCHED_SRCS, MAPSTRIP_SRC,
   html.match(/function renderProgress\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function renderLevelChips\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function renderTopicChips\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function scopeLabel\(\)\{[\s\S]*?\n\}/)[0],
   rsSrc2, ctSrc, csSrc,
   html.match(/function renderQuizEntry\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function startQuiz[\s\S]*?\n\}/)[0],
@@ -1349,7 +1370,8 @@ async function runEqEnsembleSmoke() {
     html.match(/function langLinesHtml\(lines, activeCode\)\{[\s\S]*?\n\}/)[0],
     nidSrc, cmpSrc,
     html.match(/async function renderTogetherMembers\(\)\{[\s\S]*?\n\}/)[0],
-    html.match(/async function toggleMemberDone\(userId, btn\)\{[\s\S]*?\n\}/)[0]
+    html.match(/async function memberPerLang\(userId\)\{[\s\S]*?\n\}/)[0],
+    html.match(/async function toggleMemberLang\(userId, code, btn\)\{[\s\S]*?\n\}/)[0]
   ].join("\n");
   eval(prelude + "\n" + eqHelperSrc + "\n" + fns + "\n" + 'progress = defaultProgress(); progress.lang = "es";');
   await renderTogetherMembers();
@@ -1362,12 +1384,17 @@ async function runEqEnsembleSmoke() {
   ok(h.includes("스페인어 🌱 Lv.1 · 1/30문장") && h.includes("프랑스어 🌱 Lv.1 · 1/346문장"), "동등성 Ensemble: 다른 참여자 카드에도 언어별 레벨·완료 수가 표시됨");
   ok((h.match(/\(나\)/g) || []).length === 1 && !h.includes("mycard"), "회귀(F): 본인 카드는 참여자 목록에서 한 번만 렌더됨 (별도 내 카드 중복 제거)");
   ok(!h.includes("sbRefreshBtn") && !h.includes("sbLogoutBtn"), "Ensemble 정리(G): 새로고침·로그아웃 버튼이 목록 화면에 없음 (로그아웃은 내 정보 모달에만)");
-  const fakeBtn = { textContent: "" };
-  await toggleMemberDone("user-2", fakeBtn);
-  const dh = E2_ELS["sbdone-user-2"].innerHTML;
-  ok(dh.includes("프랑스어") && dh.includes("스페인어") && dh.includes("영어"), "동등성 Ensemble 펼침: 3개 언어 섹션이 전부 표시됨");
-  ok(dh.includes(ITEMS[0].fr) && dh.includes(ITEMS_ES_REAL[0].text), "동등성 Ensemble 펼침: 각 언어의 실제 완료 문장이 그 언어 데이터로 표시됨");
-  ok(dh.includes("아직 완료한 문장이 없어요"), "동등성 Ensemble 펼침: 진도 없는 언어 섹션에는 빈 상태 문구가 표시됨");
+  const fakeBtn = { _attrs: {}, setAttribute(k, v){ this._attrs[k] = v; }, getAttribute(k){ return this._attrs[k]; } };
+  await toggleMemberLang("user-2", "fr", fakeBtn);
+  ok(E2_ELS["sbdone-user-2-fr"].innerHTML.includes(ITEMS[0].fr), "동등성 Ensemble 펼침: 프랑스어 줄을 누르면 프랑스어 완료 문장만 펼쳐짐");
+  ok(fakeBtn._attrs["aria-expanded"] === "true", "동등성 Ensemble 펼침: 펼친 언어 줄은 aria-expanded=true로 표시됨");
+  ok(E2_ELS["sbdone-user-2-es"].innerHTML === "" && E2_ELS["sbdone-user-2-en"].innerHTML === "", "동등성 Ensemble 펼침: 다른 언어는 펼쳐지지 않음");
+  await toggleMemberLang("user-2", "es", fakeBtn);
+  ok(E2_ELS["sbdone-user-2-es"].innerHTML.includes(ITEMS_ES_REAL[0].text) && E2_ELS["sbdone-user-2-fr"].innerHTML.includes(ITEMS[0].fr), "동등성 Ensemble 펼침: 스페인어를 펼쳐도 프랑스어 펼침은 유지됨 (언어별 독립 토글)");
+  await toggleMemberLang("user-2", "en", fakeBtn);
+  ok(E2_ELS["sbdone-user-2-en"].innerHTML.includes("아직 완료한 문장이 없어요"), "동등성 Ensemble 펼침: 완료 0개 언어 줄은 빈 상태 문구가 펼쳐짐");
+  await toggleMemberLang("user-2", "fr", fakeBtn);
+  ok(E2_ELS["sbdone-user-2-fr"].innerHTML === "" && E2_ELS["sbdone-user-2-es"].innerHTML.includes(ITEMS_ES_REAL[0].text), "동등성 Ensemble 펼침: 프랑스어 줄을 다시 누르면 그 언어만 접힘");
 }
 
 console.log("\n[완료 효과음: 언어별 모티프 (v1.33.0)]");
@@ -1493,7 +1520,10 @@ const lvFns = [
   html.match(/function setStep\(n\)\{[^}]*\}/)[0],
   html.match(/function levelOptions\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function renderLevelChips\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function renderTopicChips\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function scopeLabel\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function setLevelFilter\(lv\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function repositionInQueue\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function currentItem\(\)\{[^}]*\}/)[0],
   html.match(/function todayKey\(\)\{[^}]*\}/)[0],
   html.match(/function countToday\(p\)\{[^}]*\}/)[0],
@@ -1525,9 +1555,11 @@ ok(!html.includes('id="sbRefreshBtn"') && !html.includes('id="sbLogoutBtn"'), "E
 ok(html.includes('id="profileLogoutBtn"'), "Ensemble 정리(G): 로그아웃은 내 정보 모달에만 남음");
 ok(!rtmSrc.includes("mycard") && !rtmSrc.includes("const mine"), "회귀(F): renderTogetherMembers에 별도 내 카드 렌더 경로가 없음 — 본인은 참여자 목록에서 한 번만 그림");
 ok(rtmSrc.includes("LANG_CODES.map") && rtmSrc.includes("pl.count+'/'+pl.total") && !rtmSrc.includes(".filter(Boolean)"), "Ensemble(E): 카드 칩은 3개 언어 전부를 완료수/전체수로 표시하고, 진도 없는 언어도 생략하지 않음 (기존 생략 규칙이 원인이었음)");
-const tmdSrc = html.match(/async function toggleMemberDone\(userId, btn\)\{[\s\S]*?\n\}/)[0];
-ok(tmdSrc.includes("memlangsec") && tmdSrc.includes("pfill") && tmdSrc.includes("아직 완료한 문장이 없어요"), "Ensemble(E): 펼침은 언어별 섹션(진행 바 + 완료 문장 목록)으로 구성되고, 진도 없는 언어도 섹션과 빈 상태를 보여줌");
-ok(rtmSrc.includes("sbMemberCache") && tmdSrc.includes("sbMemberCache"), "Ensemble(E): 펼침은 목록을 불러올 때 함께 받은 전 언어 진도를 재사용함");
+const tmlSrc = html.match(/async function toggleMemberLang\(userId, code, btn\)\{[\s\S]*?\n\}/)[0];
+const mplSrc = html.match(/async function memberPerLang\(userId\)\{[\s\S]*?\n\}/)[0];
+ok(tmlSrc.includes("memlangsec") && tmlSrc.includes("pfill") && tmlSrc.includes("아직 완료한 문장이 없어요"), "Ensemble(E): 언어 줄 펼침은 그 언어 섹션(진행 바 + 완료 문장 목록)으로 구성되고, 진도 없는 언어는 빈 상태를 보여줌");
+ok(rtmSrc.includes("sbMemberCache") && mplSrc.includes("sbMemberCache"), "Ensemble(E): 펼침은 목록을 불러올 때 함께 받은 전 언어 진도를 재사용함");
+ok(!html.includes("data-sbcard") && !rtmSrc.includes("완료 문장 보기") && rtmSrc.includes("data-sblang") && tmlSrc.includes('"sbdone-" + userId + "-" + code'), "Ensemble 개편(v1.35.3): 카드 본문 탭·완료 문장 보기 버튼으로는 열리지 않고, 언어 줄 버튼이 그 언어 목록만 펼침");
 
 console.log("\n[로그인 유지: 부팅 시 세션 복원 (v1.33.1)]");
 const srsSrc = html.match(/function sbRestoreSession\(\)\{[\s\S]*?\n\}/)[0];
@@ -1592,6 +1624,7 @@ async function runBootRestoreSmoke() {
     'function sbLogin(){}', 'function sbLogout(){}'
   ].join("\n");
   const brFns = [
+    lockSrc,
     html.match(/const SUPABASE_URL = [^\n]*/)[0],
     html.match(/const SUPABASE_KEY = [^\n]*/)[0],
     html.match(/const SUPABASE_JS_URL = [^\n]*/)[0],
@@ -1878,6 +1911,8 @@ const rvFns = [
   html.match(/function playCompleteSound\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function renderProgress\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function renderLevelChips\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function renderTopicChips\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function scopeLabel\(\)\{[\s\S]*?\n\}/)[0],
   rsSrc2, ctSrc, csSrc,
   html.match(/function renderQuizEntry\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function startQuiz[\s\S]*?\n\}/)[0],
@@ -2008,9 +2043,153 @@ eval(rvPrelude + "\n" + helperSrc + "\n" + rvFns + "\n" + mapSheetSrcs + "\n" + 
   'RV_ELS["quizInput"].value = itemText(quizItem); checkQuiz();',
   'ok(order.join(",") === [i0.id, i1.id, i2.id, i3.id].join(","), "도전 순서 스모크: due 이른 순 → step 낮은 순 → id 순으로 결정적 출제 (실제 " + order.join(",") + ")");',
   'ok(!!RV_ELS["quizResultBtn"], "도전 순서 스모크: 전부 해결하면 결과 보기 버튼이 뜸");',
-  'endQuiz();'
+  'endQuiz();',
+  // --- (v1.35.3) 주제·레벨 쌍 유지 + 지도에서 선택하면 시트 닫힘 ---
+  'B.completed = []; B.topicFilter = "전체"; B.levelFilter = "전체"; B.index = 0; currentStep = 1;',
+  'renderMapStrip(); RV_ELS["mapStripBtn"].onclick();',
+  'ok(RV_ELS["mapOverlay"].hidden === false, "쌍 유지 스모크: 지도 시트가 열림");',
+  'goToTopicStudy("이민");',
+  'ok(RV_ELS["mapOverlay"].hidden === true, "제보1 스모크: 지도에서 주제를 선택하면 시트가 자동으로 닫힘");',
+  'ok(B.topicFilter === "이민" && B.levelFilter === "전체" && currentItem().topic === "이민", "쌍 유지 스모크: 지도 선택은 주제만 정하고 레벨은 건드리지 않음");',
+  'setLevelFilter("A1");',
+  'ok(B.topicFilter === "이민" && B.levelFilter === "A1" && currentItem().topic === "이민" && currentItem().level === "A1", "제보2 스모크: 이민을 본 채로 A1을 눌러도 일상으로 돌아가지 않고 이민 A1이 표시됨");',
+  'ok(RV_ELS["progressLine"].textContent.indexOf("이민 · A1에서") === 0, "쌍 유지 스모크: 진행 표기가 이민 · A1 범위를 표시 (실제: " + RV_ELS["progressLine"].textContent + ")");',
+  'setTopicFilter("교통");',
+  'ok(B.topicFilter === "교통" && B.levelFilter === "A1" && currentItem().topic === "교통" && currentItem().level === "A1", "쌍 유지 스모크: 주제를 바꿔도 레벨 A1이 유지됨");',
+  'renderMapStrip(); RV_ELS["mapStripBtn"].onclick();',
+  'ok(RV_ELS["mapOverlay"].hidden === false, "제보1 스모크: 지도 시트가 다시 열림");',
+  'const gi = ITEMS.findIndex(x => x.topic === "건강" && x.level === "B1");',
+  'goToItem(gi, 1);',
+  'ok(RV_ELS["mapOverlay"].hidden === true && B.topicFilter === "건강" && B.levelFilter === "B1" && currentItem().id === ITEMS[gi].id, "제보1 스모크: 지도에서 문장을 선택해도 시트가 닫히고 (주제, 레벨) 쌍이 그 문장에 맞춰짐");'
 ].join("\n"));
 
+
+console.log("\n[지도 교통정리·시트 닫힘·스크롤 잠금·단어 듣기 표기 (v1.35.3)]");
+ok(html.indexOf('id="topicChips"') > -1 && html.indexOf('id="topicChips"') < html.indexOf('id="levelChips"'), "주제 칩: 공부 화면에 주제 칩 행이 레벨 칩 위에 있음");
+ok(html.match(/function defaultLangProgress\(\)[^\n]*/)[0].includes('topicFilter:"전체"'), "주제 필터: 언어별 진도 기본값에 topicFilter(전체)가 있음");
+ok(html.match(/function migrateProgress\(raw\)\{[\s\S]*?\n\}/)[0].includes('"topicFilter"'), "주제 필터: 구 저장본 마이그레이션이 topicFilter를 기본값으로 채움");
+ok(rsSrc2.includes("renderTopicChips()"), "주제 칩: 공부 렌더가 주제 칩을 함께 그림");
+const gttSrc = html.match(/function goToTopicStudy\(topic\)\{[\s\S]*?\n\}/)[0];
+ok(gttSrc.includes("closeMapSheet()") && gttSrc.includes("topicFilter") && !gttSrc.includes("levelFilter"), "제보1·2: 지도 주제 선택은 시트부터 닫고 주제만 바꾸며 레벨은 건드리지 않음");
+const gtiLine = html.match(/function goToItem\(idx, step\)[^\n]*/)[0];
+ok(gtiLine.includes("closeMapSheet()") && gtiLine.includes("P().topicFilter = it.topic") && gtiLine.includes("P().levelFilter = it.level"), "제보1·2: 지도 문장 선택은 시트부터 닫고 (주제, 레벨) 쌍을 그 문장에 맞춤");
+const slfSrc = html.match(/function setLevelFilter\(lv\)\{[\s\S]*?\n\}/)[0];
+const stfSrc = html.match(/function setTopicFilter\(t\)\{[\s\S]*?\n\}/)[0];
+ok(slfSrc.includes("repositionInQueue()") && !slfSrc.includes("topicFilter ="), "제보2: 레벨 변경은 주제를 초기화하지 않고 쌍 큐 안에서만 위치를 다시 잡음");
+ok(stfSrc.includes("repositionInQueue()") && !stfSrc.includes("levelFilter ="), "제보2: 주제 변경은 레벨을 초기화하지 않고 쌍 큐 안에서만 위치를 다시 잡음");
+ok(html.includes("body.noscroll{overflow:hidden"), "스크롤 잠금: body.noscroll이 스크롤을 막는 CSS가 있음");
+ok(/\.menuoverlay\{[^}]*overscroll-behavior:contain/.test(html) && /\.modaloverlay\{[^}]*overscroll-behavior:contain/.test(html) && /\.menupanel\{[^}]*overscroll-behavior:contain/.test(html) && /\.modalpanel\{[^}]*overscroll-behavior:contain/.test(html), "스크롤 잠금: 오버레이와 패널이 overscroll 전파를 차단함");
+const lockFnSrcs = [
+  html.match(/function openMenu\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function closeMenu\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function openNickModal\(auto\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function closeNickModal\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/async function openProfile\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function closeProfile\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function openMapSheet\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function closeMapSheet\(\)\{[\s\S]*?\n\}/)[0]
+];
+ok(lockFnSrcs.every(s => s.includes("syncScrollLock();")), "스크롤 잠금: 메뉴·닉네임·내 정보·지도 시트의 열기/닫기 8곳 전부 syncScrollLock을 호출함");
+// 스크롤 잠금 동작 스모크: 겹쳐 열어도 마지막 하나가 닫힐 때만 해제
+const LK_ELS = {};
+function makeLkEl(id){
+  const el = { id: id, hidden: true, value: "", textContent: "", innerHTML: "", style: {}, _cls: new Set(),
+    setAttribute(){}, getAttribute(){ return null; }, focus(){}, addEventListener(){},
+    classList: { toggle(c, v){ if(v) el._cls.add(c); else el._cls.delete(c); }, add(c){ el._cls.add(c); }, remove(c){ el._cls.delete(c); }, contains(c){ return el._cls.has(c); } } };
+  return el;
+}
+const lkDocument = {
+  getElementById(id){ if(!LK_ELS[id]) LK_ELS[id] = makeLkEl(id); return LK_ELS[id]; },
+  querySelectorAll(){ return []; },
+  body: makeLkEl("body")
+};
+const lkPrelude = [
+  'let menuOpen = false;',
+  'let currentTab = "study";',
+  'let nickAutoShown = false;',
+  'const document = lkDocument;',
+  'function renderMapSheet(){}'
+].join("\n");
+const lkFns = [
+  lockSrc,
+  html.match(/function openMenu\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function closeMenu\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function openNickModal\(auto\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function closeNickModal\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function openMapSheet\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function closeMapSheet\(\)\{[\s\S]*?\n\}/)[0]
+].join("\n");
+eval(lkPrelude + "\n" + lkFns + "\n" + [
+  'openMenu();',
+  'ok(lkDocument.body.classList.contains("noscroll") && LK_ELS["menuOverlay"].hidden === false, "잠금 스모크: 메뉴를 열면 body 스크롤이 잠김");',
+  'openMapSheet();',
+  'closeMenu();',
+  'ok(lkDocument.body.classList.contains("noscroll"), "잠금 스모크: 지도 시트가 열려 있으면 메뉴를 닫아도 잠금이 유지됨");',
+  'closeMapSheet();',
+  'ok(!lkDocument.body.classList.contains("noscroll"), "잠금 스모크: 마지막 시트를 닫으면 잠금이 해제됨");',
+  'openNickModal(false);',
+  'ok(lkDocument.body.classList.contains("noscroll"), "잠금 스모크: 닉네임 모달을 열어도 잠김");',
+  'closeNickModal();',
+  'ok(!lkDocument.body.classList.contains("noscroll"), "잠금 스모크: 닉네임 모달을 닫으면 해제됨");'
+].join("\n"));
+// 빈 조합(영어 약속+B2): 멋대로 이동 없이 빈 상태만 표시
+eval(eqPrelude + "\n" + eqHelperSrc + "\n" + eqFns + "\n" + [
+  'progress = defaultProgress(); progress.lang = "en"; currentStep = 1;',
+  'const B = progress.byLang.en;',
+  'B.topicFilter = "약속"; B.levelFilter = "B2"; B.index = 0;',
+  'ok(studyItems().length === 0, "빈 조합 스모크: 영어 약속+B2에는 문장이 없음 (전제 확인)");',
+  'renderStudy();',
+  'ok(EQ_ELS["studyCard"].innerHTML.includes("이 주제·레벨에는 아직 문장이 없어요"), "빈 조합 스모크: 다른 주제로 멋대로 이동하지 않고 빈 상태 문구를 보여줌");',
+  'ok(B.topicFilter === "약속" && B.levelFilter === "B2", "빈 조합 스모크: 빈 조합에서도 (주제, 레벨) 선택이 그대로 유지됨");',
+  'renderWords();',
+  'ok(EQ_ELS["wordsList"].innerHTML.includes(\'data-word="live"\') && EQ_ELS["wordsList"].innerHTML.includes(\'data-say="liv"\'), "단어 듣기 표기: live 버튼은 화면 표기 data-word=live와 듣기 전용 data-say=liv를 함께 가짐");'
+].join("\n"));
+// 단어 듣기 표기: 클릭하면 듣기 표기로 발화됨
+const WS_ELS = {};
+function makeWsEl(id){
+  const el = { id: id, value: "", style: {}, textContent: "", onclick: null, _html: "",
+    classList: { toggle(){}, add(){}, remove(){}, contains(){ return false; } },
+    setAttribute(){}, getAttribute(){ return null; }, focus(){}, scrollIntoView(){} };
+  Object.defineProperty(el, "innerHTML", { get(){ return this._html; }, set(v){ this._html = v; } });
+  return el;
+}
+const WS_BTN_CACHE = { html: null, btns: [] };
+const wsDocument = {
+  getElementById(id){ if(!WS_ELS[id]) WS_ELS[id] = makeWsEl(id); return WS_ELS[id]; },
+  querySelectorAll(sel){
+    if(sel !== "[data-word]") return [];
+    const h = WS_ELS["wordsList"] ? WS_ELS["wordsList"]._html : "";
+    if(WS_BTN_CACHE.html === h) return WS_BTN_CACHE.btns;
+    const out = []; const re = /data-word="([^"]+)" data-say="([^"]+)"/g; let m;
+    while((m = re.exec(h))){ const attrs = { "data-word": m[1], "data-say": m[2] }; out.push({ _attrs: attrs, onclick: null, getAttribute(k){ return this._attrs[k]; }, setAttribute(){}, classList: { toggle(){} } }); }
+    WS_BTN_CACHE.html = h; WS_BTN_CACHE.btns = out;
+    return out;
+  }
+};
+const wsPrelude = [
+  'let progress = null;',
+  'const document = wsDocument;',
+  'const saidWords = [];',
+  'function speakFr(t){ saidWords.push(t); }'
+].join("\n");
+eval(wsPrelude + "\n" + eqHelperSrc + "\n" + escSrc + "\n" + html.match(/function renderWords\(\)\{[\s\S]*?\n\}/)[0] + "\n" + [
+  'progress = defaultProgress(); progress.lang = "en";',
+  'renderWords();',
+  'const btns = document.querySelectorAll("[data-word]");',
+  'const liveBtn = btns.find(b => b.getAttribute("data-word") === "live");',
+  'ok(!!liveBtn && liveBtn.getAttribute("data-say") === "liv", "단어 듣기 스모크: live 버튼이 듣기 전용 표기 liv를 가짐");',
+  'liveBtn.onclick();',
+  'ok(saidWords.length === 1 && saidWords[0] === "liv", "단어 듣기 스모크: live를 누르면 화면 표기가 아닌 liv로 발화 큐에 들어감 (살다 /lɪv/)");',
+  'const stuBtn = btns.find(b => b.getAttribute("data-word") === "student");',
+  'stuBtn.onclick();',
+  'ok(saidWords[1] === "student", "단어 듣기 스모크: 듣기 표기가 없는 단어는 원래 표기 그대로 발화됨");',
+  'ok(WS_ELS["wordsList"].innerHTML.includes("<b>live</b>"), "단어 듣기 스모크: 화면 표시는 원래 표기 live 그대로");'
+].join("\n"));
+const rwSrc = html.match(/function renderWords\(\)\{[\s\S]*?\n\}/)[0];
+ok(rwSrc.includes("w[2] || w[0]") && rwSrc.includes('getAttribute("data-say")'), "단어 듣기 표기: 단어 재생은 듣기 전용 표기(세 번째 항목)를 우선 사용함");
+const sayFixes = [];
+[["fr", ITEMS], ["en", ITEMS_EN_REAL], ["es", ITEMS_ES_REAL]].forEach(pair => pair[1].forEach(i => i.words.forEach(w => { if(w[2]) sayFixes.push(pair[0] + ":" + w[0] + "→" + w[2]); })));
+ok(sayFixes.length === 1 && sayFixes[0] === "en:live→liv", "단어 듣기 표기: 전 언어(영어·스페인어·프랑스어) 핵심 단어 전수 점검 결과 교정은 영어 live→liv 1건뿐 (실제 목록에 있는 동형어만)");
 
 /* ---------- 부팅 스모크: 페이지의 실제 메인 스크립트 전체를 실행 ----------
    함수 단위 테스트가 못 잡는 부팅 전체 흐름의 예외(선언 누락·초기화 순서)를 잡는다.

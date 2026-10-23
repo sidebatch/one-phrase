@@ -110,11 +110,12 @@ h1{font-size:26px;line-height:1.25;margin:11px 0 3px;letter-spacing:-.01em}
 .menubtn{flex:0 0 auto;white-space:nowrap;min-height:38px;background:var(--card);color:var(--ink);border:1px solid var(--line-soft);border-radius:var(--r-pill);padding:7px 14px;font-size:13.5px;font-weight:800;cursor:pointer;font:inherit;box-shadow:var(--shadow);transition:transform .12s var(--ease),background-color .18s ease}
 .menubtn:active{transform:scale(.97)}
 .menubtn[hidden]{display:none}
-.menuoverlay{position:fixed;inset:0;z-index:60}
+.menuoverlay{position:fixed;inset:0;z-index:60;overscroll-behavior:contain}
+body.noscroll{overflow:hidden;overscroll-behavior:none}
 .menuoverlay[hidden]{display:none}
 .menubackdrop{position:absolute;inset:0;background:var(--dim)}
 @keyframes slideUp{from{transform:translateY(26px);opacity:.4}to{transform:none;opacity:1}}
-.menupanel{position:absolute;left:0;right:0;bottom:0;max-width:720px;margin:0 auto;background:var(--card);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:12px 16px calc(16px + env(safe-area-inset-bottom));box-shadow:var(--sheet-shadow);animation:slideUp .25s var(--ease)}
+.menupanel{position:absolute;left:0;right:0;bottom:0;max-width:720px;margin:0 auto;background:var(--card);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:12px 16px calc(16px + env(safe-area-inset-bottom));box-shadow:var(--sheet-shadow);animation:slideUp .25s var(--ease);max-height:calc(100dvh - 24px);overflow-y:auto;overscroll-behavior:contain}
 .menuhandle{width:40px;height:4.5px;border-radius:var(--r-pill);background:var(--handle);margin:0 auto 12px}
 .menuhead{display:flex;align-items:center;justify-content:space-between;margin:0 2px 12px}
 .menuword{font-weight:900;color:var(--blue-text);letter-spacing:.14em;font-size:13px}
@@ -146,10 +147,10 @@ button.ghost.playing{background:var(--blue);color:#fff;border-color:var(--blue)}
 .menurow.on{background:var(--done-bg);border-color:var(--done-line)}
 .menurow.on .menulabel{font-weight:900}
 .menurow.menuclose{justify-content:center;color:var(--sub);font-size:14.5px;font-weight:700;min-height:44px;border-color:transparent;margin-bottom:0}
-.modaloverlay{position:fixed;inset:0;z-index:70}
+.modaloverlay{position:fixed;inset:0;z-index:70;overscroll-behavior:contain}
 .modaloverlay[hidden]{display:none}
 .modalbackdrop{position:absolute;inset:0;background:var(--dim)}
-.modalpanel{position:absolute;left:0;right:0;bottom:0;max-width:720px;margin:0 auto;background:var(--card);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:16px 18px calc(18px + env(safe-area-inset-bottom));box-shadow:var(--sheet-shadow);animation:slideUp .25s var(--ease)}
+.modalpanel{position:absolute;left:0;right:0;bottom:0;max-width:720px;margin:0 auto;background:var(--card);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:16px 18px calc(18px + env(safe-area-inset-bottom));box-shadow:var(--sheet-shadow);animation:slideUp .25s var(--ease);max-height:calc(100dvh - 24px);overflow-y:auto;overscroll-behavior:contain}
 .modalhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
 .modaltitle{font-size:17px;font-weight:900}
 .modalclose{flex:0 0 auto;width:36px;height:36px;border-radius:50%;border:1px solid var(--line-soft);background:var(--card);font-size:14px;color:var(--sub);cursor:pointer;font:inherit}
@@ -173,8 +174,10 @@ button.ghost.playing{background:var(--blue);color:#fff;border-color:var(--blue)}
 .memprog .progress-pct{color:var(--blue-text);font-weight:800}
 .membercard{margin:10px 0;padding:14px 16px}
 .memlangs{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
-.memlang{font-size:12px;font-weight:700;color:var(--sub);background:var(--track);padding:3px 9px;border-radius:var(--r-pill)}
+.memlang{font-size:12px;font-weight:700;color:var(--sub);background:var(--track);padding:3px 9px;border-radius:var(--r-pill);border:none;font-family:inherit}
+button.memlang{cursor:pointer}
 .memlang.on{color:var(--blue-text);background:var(--done-bg)}
+button.memlang[aria-expanded="true"]{box-shadow:inset 0 0 0 2px var(--blue)}
 .membercard.me{background:var(--done-bg);border-color:var(--done-line)}
 .donelist{margin-top:8px}
 .doneitem{padding:7px 0;border-top:1px solid var(--line-soft);font-size:14.5px}
@@ -299,8 +302,8 @@ footer{margin-top:var(--sp6);border-top:1px solid var(--line-soft);padding:20px 
 details{background:var(--card);border:1px solid var(--line-soft);border-radius:var(--r-md);padding:12px 14px;margin:10px 0}
 summary{font-weight:800;cursor:pointer}
 
-.levelchips{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 4px}
-.levelchips:empty{display:none}
+.levelchips,.topicchips{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 4px}
+.levelchips:empty,.topicchips:empty{display:none}
 .langseg{display:flex;gap:8px;margin:0 0 12px}
 .langsegbtn{flex:1;min-height:44px;padding:8px 6px;background:var(--card);border:1.5px solid var(--line-soft);border-radius:12px;font:inherit;font-size:14.5px;font-weight:800;color:var(--ink);cursor:pointer;transition:transform .12s var(--ease),background .18s ease,border-color .18s ease}
 .langsegbtn:active{transform:scale(.97)}
@@ -379,6 +382,7 @@ summary{font-weight:800;cursor:pointer}
 <div id="tab-study">
 <div id="mapStrip"></div>
 <div id="quizArea"></div>
+<div class="topicchips" id="topicChips" role="radiogroup" aria-label="주제 선택"></div>
 <div class="levelchips" id="levelChips" role="radiogroup" aria-label="레벨 선택"></div>
 <div class="card" id="studyCard"></div>
 <div id="doneBox"></div>
@@ -446,12 +450,12 @@ summary{font-weight:800;cursor:pointer}
 
 <footer>
 <div class="footbrand"><span class="footlogo" id="footTile" aria-hidden="true">O</span><span class="footword" id="footWord">ONE PHRASE</span><span class="footko" id="footKo">한 문장 외국어</span></div>
-<div class="footmeta">v1.35.2 · © 2026 sidebatch</div>
+<div class="footmeta">v1.35.3 · © 2026 sidebatch</div>
 </footer>
 </div>
 <script>
 "use strict";
-const APP_VERSION = "1.35.2";
+const APP_VERSION = "1.35.3";
 const STORAGE_KEY = "une-phrase-progress-v1";
 const SUPABASE_URL = "https://cmhitsgoicxvmlwtrdrb.supabase.co";
 const SUPABASE_KEY = "sb_publishable_iZugJ1l1p3DSk_BB2Y3N3Q_qZwSo637";
@@ -815,7 +819,7 @@ const ITEMS_EN = [
 {"id":"en-8","lang":"en","text":"As long as you exercise a little every day, you don't need an expensive gym membership.","ko":"매일 조금씩 운동하기만 하면, 비싼 헬스장 회원권은 필요 없다.","chunks":[["As long as you exercise a little every day","매일 조금씩 운동하기만 하면"],["you don't need an expensive gym membership","비싼 헬스장 회원권이 필요 없다"]],"pattern":"조건은 as long as로 건다: As long as + 문장, … → 연결어 as long as (~하기만 하면)","words":[["exercise","운동하다"],["membership","회원권, 회원 자격"]],"topic":"건강","level":"B1"},
 {"id":"en-9","lang":"en","text":"The more you practice speaking, the more confident you become in a foreign language.","ko":"말하기를 연습할수록 외국어에 더 자신감이 생긴다.","chunks":[["The more you practice speaking","말하기를 연습할수록"],["the more confident you become","더 자신감이 생긴다"],["in a foreign language","외국어에서"]],"pattern":"할수록 더하다: The more …, the more … → 구문 the more … the more (~할수록 더 ~하다)","words":[["confident","자신감 있는"],["practice","연습하다"]],"topic":"교육","level":"B2"},
 {"id":"en-10","lang":"en","text":"When rent keeps rising like this, many young people may have no choice but to live with their parents.","ko":"월세가 이렇게 계속 오르면, 많은 젊은이가 부모와 살 수밖에 없을지도 모른다.","chunks":[["When rent keeps rising like this","월세가 이렇게 계속 오르면"],["many young people may have no choice but to live with their parents","많은 젊은이는 부모와 살 수밖에 없을지도 모른다"]],"pattern":"선택지가 없다: have no choice but to + 동사원형 → 표현 have no choice but to (~할 수밖에 없다)","words":[["rent","월세, 집세"],["choice","선택"]],"topic":"의견","level":"B2"},
-{"id":"en-11","lang":"en","text":"Hello, I am a student and I live with my family.","ko":"안녕하세요, 저는 학생이고 가족과 함께 살아요.","chunks":[["Hello, I am a student","안녕하세요, 저는 학생이에요"],["I live with my family","가족과 함께 살아요"]],"pattern":"자기소개는 I am + 직업으로 시작한다: I am a student → 표현 I am (저는 …예요)","words":[["student","학생"],["live","살다"]],"topic":"일상","level":"A1"},
+{"id":"en-11","lang":"en","text":"Hello, I am a student and I live with my family.","ko":"안녕하세요, 저는 학생이고 가족과 함께 살아요.","chunks":[["Hello, I am a student","안녕하세요, 저는 학생이에요"],["I live with my family","가족과 함께 살아요"]],"pattern":"자기소개는 I am + 직업으로 시작한다: I am a student → 표현 I am (저는 …예요)","words":[["student","학생"],["live","살다","liv"]],"topic":"일상","level":"A1"},
 {"id":"en-12","lang":"en","text":"I usually get up at seven, but yesterday I slept until nine because I was tired.","ko":"보통 일곱 시에 일어나지만, 어제는 피곤해서 아홉 시까지 잤다.","chunks":[["I usually get up at seven","보통 일곱 시에 일어난다"],["yesterday I slept until nine","어제는 아홉 시까지 잤다"],["because I was tired","피곤했기 때문에"]],"pattern":"과거에 일어난 일은 동사를 과거형으로 바꾼다: slept, was → 과거형 (past tense)","words":[["usually","보통"],["tired","피곤한"]],"topic":"일상","level":"A2"},
 {"id":"en-13","lang":"en","text":"I work in a small restaurant, and my shift starts at nine in the morning.","ko":"작은 식당에서 일하고, 근무는 아침 아홉 시에 시작해요.","chunks":[["I work in a small restaurant","작은 식당에서 일한다"],["my shift starts at nine","근무가 아홉 시에 시작한다"],["in the morning","아침에"]],"pattern":"시각 앞에는 at을 붙인다: at nine → 전치사 at (…시에)","words":[["shift","근무, 교대"],["start","시작하다"]],"topic":"직장","level":"A1"},
 {"id":"en-14","lang":"en","text":"Tomorrow I have to finish the report before my boss comes back.","ko":"내일 상사가 돌아오기 전에 보고서를 끝내야 한다.","chunks":[["Tomorrow I have to finish the report","내일 보고서를 끝내야 한다"],["before my boss comes back","상사가 돌아오기 전에"]],"pattern":"의무는 have to + 동사원형으로 말한다: I have to finish… → 표현 have to (~해야 한다)","words":[["boss","상사"],["finish","끝내다"]],"topic":"직장","level":"A2"},
@@ -1220,7 +1224,7 @@ async function vaultSet(key,val){ if(!vaultReady) return; try{ const db=await id
 async function vaultDelete(key){ try{ const db=await idbOpen(); await new Promise((res,rej)=>{ const tx=db.transaction("kv","readwrite").objectStore("kv").delete(key); tx.onsuccess=()=>res(); tx.onerror=()=>rej(tx.error); }); }catch(e){} }
 
 /* ---------- 상태 ---------- */
-function defaultLangProgress(){ return { index:0, completed:[], doneDates:[], step:1, reviewCorrect:0, completedAt:{}, reviewIds:[], levelFilter:"전체", reviewState:{}, curveDays:[], reviewDates:[], dueSnapshot:null, wrongToday:null }; }
+function defaultLangProgress(){ return { index:0, completed:[], doneDates:[], step:1, reviewCorrect:0, completedAt:{}, reviewIds:[], levelFilter:"전체", topicFilter:"전체", reviewState:{}, curveDays:[], reviewDates:[], dueSnapshot:null, wrongToday:null }; }
 function defaultProgress(){ return { lang:"fr", byLang:{ fr:defaultLangProgress(), en:defaultLangProgress(), es:defaultLangProgress() }, sound:true, theme:"light" }; }
 function migrateProgress(raw){
   const out = defaultProgress();
@@ -1232,7 +1236,7 @@ function migrateProgress(raw){
     LANG_CODES.forEach(code=>{ if(raw.byLang[code] && typeof raw.byLang[code] === "object") out.byLang[code] = Object.assign(defaultLangProgress(), raw.byLang[code]); });
   } else {
     const bucket = defaultLangProgress();
-    ["index","completed","doneDates","step","reviewCorrect","completedAt","reviewIds","reviewState","curveDays","reviewDates","dueSnapshot","wrongToday"].forEach(k=>{ if(raw[k] !== undefined) bucket[k] = raw[k]; });
+    ["index","completed","doneDates","step","reviewCorrect","completedAt","reviewIds","levelFilter","topicFilter","reviewState","curveDays","reviewDates","dueSnapshot","wrongToday"].forEach(k=>{ if(raw[k] !== undefined) bucket[k] = raw[k]; });
     out.byLang.fr = bucket;
   }
   return out;
@@ -1435,20 +1439,55 @@ function bindWordProg(inputId, progId, targetFr){
   upd();
 }
 function setStep(n){ currentStep = n; P().step = n; saveProgress(); }
-/* ---------- 레벨 선택 (언어별 버킷에 저장, 순차 큐만 제한) ---------- */
+/* ---------- 주제·레벨 선택 (언어별 버킷에 한 쌍으로 저장, 순차 큐만 제한) ---------- */
 function levelFilter(){
   const f = P().levelFilter;
   if((f==="A1"||f==="A2"||f==="B1"||f==="B2") && items().some(i=>i.level===f)) return f;
   return "전체";
 }
+function topicFilter(){
+  const f = P().topicFilter;
+  if(f && f!=="전체" && items().some(i=>i.topic===f)) return f;
+  return "전체";
+}
+function topicOptions(){
+  return ["전체"].concat([...new Set(items().map(i=>i.topic))]);
+}
 function studyItems(){
-  const f = levelFilter();
-  return f==="전체" ? items() : items().filter(i=>i.level===f);
+  const tf = topicFilter(), f = levelFilter();
+  return items().filter(i=>(tf==="전체"||i.topic===tf)&&(f==="전체"||i.level===f));
+}
+function scopeLabel(){
+  const parts = [];
+  if(topicFilter()!=="전체") parts.push(topicFilter());
+  if(levelFilter()!=="전체") parts.push(levelFilter());
+  return parts.join(" · ");
+}
+function repositionInQueue(){
+  const q = studyItems();
+  let idx = q.findIndex(i=>!P().completed.includes(i.id));
+  if(idx < 0) idx = Math.max(0, q.length-1);
+  P().index = idx;
 }
 function levelOptions(){
   const present = [];
   ["A1","A2","B1","B2"].forEach(lv=>{ if(items().some(i=>i.level===lv)) present.push(lv); });
   return ["전체"].concat(present);
+}
+function renderTopicChips(){
+  const el = document.getElementById("topicChips");
+  if(!el) return;
+  const cur = topicFilter();
+  el.innerHTML = topicOptions().map(t=>'<button class="tabbtn'+(t===cur?" on":"")+'" data-tfilter="'+esc(t)+'" role="radio" aria-checked="'+(t===cur?"true":"false")+'">'+esc(t)+'</button>').join("");
+  document.querySelectorAll("[data-tfilter]").forEach(b=>{ b.onclick = ()=>setTopicFilter(b.getAttribute("data-tfilter")); });
+}
+function setTopicFilter(t){
+  if(!topicOptions().includes(t)) return;
+  P().topicFilter = t;
+  repositionInQueue();
+  setStep(1);
+  saveProgress();
+  renderStudy();
 }
 function renderLevelChips(){
   const el = document.getElementById("levelChips");
@@ -1460,38 +1499,34 @@ function renderLevelChips(){
 function setLevelFilter(lv){
   if(!levelOptions().includes(lv)) return;
   P().levelFilter = lv;
-  const q = studyItems();
-  let idx = q.findIndex(i=>!P().completed.includes(i.id));
-  if(idx < 0) idx = Math.max(0, q.length-1);
-  P().index = idx;
+  repositionInQueue();
   setStep(1);
   saveProgress();
-  renderLevelChips();
   renderStudy();
 }
 function currentItem(){ const q = studyItems(); return q[Math.min(P().index, q.length-1)]; }
 function esc(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
 function renderProgress(){
   const doneCount = P().completed.length, total = items().length;
-  const f = levelFilter();
+  const scope = scopeLabel();
   const q = studyItems();
   const doneSet = new Set(P().completed);
   const rangeDone = q.filter(i=>doneSet.has(i.id)).length;
   const pct = q.length ? Math.round(rangeDone/q.length*100) : 0;
   const today = countToday(P());
-  document.getElementById("progressLine").textContent = f==="전체"
+  document.getElementById("progressLine").textContent = !scope
     ? "지금까지 "+doneCount+" / "+total+"문장 완료 · 현재 "+(P().index+1)+"번째 문장"
-    : f+"에서 "+rangeDone+" / "+q.length+"문장 완료 · 전체 "+doneCount+" / "+total+"문장";
+    : scope+"에서 "+rangeDone+" / "+q.length+"문장 완료 · 전체 "+doneCount+" / "+total+"문장";
   const chip = document.getElementById("todayChip");
   chip.textContent = "오늘 "+today+"문장";
   chip.classList.toggle("hot", today>0);
   const fill = document.getElementById("pfill");
   requestAnimationFrame(()=>{ fill.style.width = pct+"%"; });
   document.getElementById("pbar").setAttribute("aria-valuenow", pct);
-  document.getElementById("progressPct").textContent = f==="전체" ? "전체 "+pct+"%" : f+" "+pct+"%";
-  document.getElementById("progressLeft").textContent = f==="전체"
+  document.getElementById("progressPct").textContent = !scope ? "전체 "+pct+"%" : scope+" "+pct+"%";
+  document.getElementById("progressLeft").textContent = !scope
     ? (doneCount>=total ? "전부 완료했어요" : (total-doneCount)+"문장 남음")
-    : (rangeDone>=q.length ? f+" 전부 완료했어요" : (q.length-rangeDone)+"문장 남음");
+    : (!q.length ? "이 조합에는 문장이 없어요" : (rangeDone>=q.length ? scope+" 전부 완료했어요" : (q.length-rangeDone)+"문장 남음"));
   const lv = levelOf(xpOf(doneCount, P().reviewCorrect||0));
   document.getElementById("lvLabel").textContent = medalOf(lv.lv)+" Lv."+lv.lv+" "+lv.title;
   document.getElementById("lvNext").textContent = lv.nextAt===null ? "최고 레벨" : "다음 레벨까지 "+lv.toNext+" XP";
@@ -1519,23 +1554,35 @@ function renderMapSheet(){
 function openMapSheet(){
   renderMapSheet();
   const ov = document.getElementById("mapOverlay"); if(ov) ov.hidden = false;
+  syncScrollLock();
 }
 function closeMapSheet(){
   const ov = document.getElementById("mapOverlay"); if(ov) ov.hidden = true;
+  syncScrollLock();
 }
 function goToTopicStudy(topic){
-  const list = items();
-  const doneSet = new Set(P().completed);
-  let idx = list.findIndex(i=>i.topic === topic && !doneSet.has(i.id));
-  if(idx < 0) idx = list.findIndex(i=>i.topic === topic);
-  if(idx < 0) return;
-  goToItem(idx, 1);
+  closeMapSheet();
+  P().topicFilter = topic;
+  repositionInQueue();
+  setStep(1);
+  saveProgress();
+  showTab("study");
+  renderStudy();
+  window.scrollTo({top:0,behavior:"smooth"});
 }
 function renderStudy(){
   completionInFlight = false;
   clearSpeakingUI();
+  renderTopicChips();
   renderLevelChips();
   const it = currentItem();
+  if(!it){
+    document.getElementById("studyCard").innerHTML = '<div class="meta">'+esc(scopeLabel() || "선택 범위")+'</div><p class="ko" style="font-size:17px;font-weight:700">이 주제·레벨에는 아직 문장이 없어요.</p><p class="lead">다른 주제나 레벨을 골라 보세요.</p>';
+    document.getElementById("doneBox").innerHTML = "";
+    renderQuizEntry();
+    renderProgress();
+    return;
+  }
   const done = P().completed.includes(it.id);
   let h = "";
   h += '<div class="meta">'+esc(it.topic)+' · '+esc(it.level)+(done?' <span class="donebadge">✓ 완료</span>':'')+'</div>';
@@ -1633,7 +1680,7 @@ function completeSentence(){
   if(doneEl && doneEl.scrollIntoView) doneEl.scrollIntoView({behavior:"smooth", block:"start"});
   renderQuizEntry();
 }
-function goToItem(idx, step){ P().levelFilter = "전체"; P().index = idx; setStep(step||1); showTab("study"); renderStudy(); window.scrollTo({top:0,behavior:"smooth"}); }
+function goToItem(idx, step){ const it = items()[idx]; if(!it) return; closeMapSheet(); P().topicFilter = it.topic; P().levelFilter = it.level; const q = studyItems(); const qi = q.findIndex(x=>x.id === it.id); P().index = qi < 0 ? 0 : qi; setStep(step||1); showTab("study"); renderStudy(); window.scrollTo({top:0,behavior:"smooth"}); }
 
 /* ---------- 복습 (망각곡선 큐) ---------- */
 function prepareReviewQueue(){
@@ -1951,10 +1998,12 @@ function openNickModal(auto){
   const fb = document.getElementById("sbNickFb"); if(fb) fb.innerHTML = "";
   const inp = document.getElementById("sbNickInput"); if(inp) inp.value = "";
   ov.hidden = false;
+  syncScrollLock();
   if(inp) setTimeout(()=>{ try{ inp.focus(); }catch(e){} }, 80);
 }
 function closeNickModal(){
   const ov = document.getElementById("nickOverlay"); if(ov) ov.hidden = true;
+  syncScrollLock();
 }
 /* ---------- 로그인 복귀 감지: OAuth에서 돌아온 실행에서만 즉시 초기화 ---------- */
 function isOAuthReturn(){
@@ -2045,6 +2094,7 @@ function renderProfileBtn(){
 async function openProfile(){
   const ov = document.getElementById("profileOverlay"); if(!ov) return;
   ov.hidden = false;
+  syncScrollLock();
   const pending = [];
   if(!sbRestoreDone) pending.push(sbRestoreSession());
   if(sbAuthInitPromise) pending.push(sbAuthInitPromise);
@@ -2058,6 +2108,7 @@ async function openProfile(){
 }
 function closeProfile(){
   const ov = document.getElementById("profileOverlay"); if(ov) ov.hidden = true;
+  syncScrollLock();
 }
 let emailShown = false;
 function renderProfile(){
@@ -2164,53 +2215,54 @@ async function renderTogetherMembers(){
     const lv = levelOf(r.xp);
     const total = items().length;
     const pct = pctOf(r.doneCount, total);
-    const chips = '<div class="memlangs">'+r.perLang.map(pl=>'<span class="memlang'+(pl.code===curLang()?" on":"")+'">'+esc(pl.name)+' '+pl.medal+' Lv.'+pl.lv+' · '+pl.count+'/'+pl.total+'문장</span>').join("")+'</div>';
-    return '<div class="card membercard'+(r.me?" me":"")+'" data-sbcard="'+esc(r.id)+'"><div class="memhead">'+avatarHtml(r.nickname)+'<span class="memname">'+esc(r.nickname)+(r.me?' (나)':'')+'</span><span class="lvbadge">Lv.'+lv.lv+' '+medalOf(lv.lv)+' '+esc(lv.title)+'</span></div>'
+    const chips = '<div class="memlangs">'+r.perLang.map(pl=>'<button type="button" class="memlang'+(pl.code===curLang()?" on":"")+'" data-sblang="'+esc(r.id)+'" data-lang="'+pl.code+'" aria-expanded="false">'+esc(pl.name)+' '+pl.medal+' Lv.'+pl.lv+' · '+pl.count+'/'+pl.total+'문장</button>').join("")+'</div>';
+    return '<div class="card membercard'+(r.me?" me":"")+'"><div class="memhead">'+avatarHtml(r.nickname)+'<span class="memname">'+esc(r.nickname)+(r.me?' (나)':'')+'</span><span class="lvbadge">Lv.'+lv.lv+' '+medalOf(lv.lv)+' '+esc(lv.title)+'</span></div>'
       + '<div class="pbar"><div class="pfill" style="width:'+pct+'%"></div></div>'
       + '<div class="memprog"><span>완료 '+r.doneCount+' / '+total+'</span><span>'+r.xp+' XP</span></div>'
       + chips
-      + '<div style="margin-top:10px"><button class="ghost" data-sbdone="'+esc(r.id)+'">완료 문장 보기</button></div><div id="sbdone-'+esc(r.id)+'"></div></div>';
+      + LANG_CODES.map(code=>'<div id="sbdone-'+esc(r.id)+'-'+code+'"></div>').join("")+'</div>';
   }).join("");
   el.innerHTML = h;
   renderProfileBtn();
-  document.querySelectorAll("[data-sbdone]").forEach(b=>{ b.onclick = (e)=>{ if(e && e.stopPropagation) e.stopPropagation(); toggleMemberDone(b.getAttribute("data-sbdone"), b); }; });
-  document.querySelectorAll("[data-sbcard]").forEach(card=>{ card.onclick = ()=>{ const b = card.querySelector("[data-sbdone]"); if(b) toggleMemberDone(card.getAttribute("data-sbcard"), b); }; });
+  document.querySelectorAll("[data-sblang]").forEach(b=>{ b.onclick = (e)=>{ if(e && e.stopPropagation) e.stopPropagation(); toggleMemberLang(b.getAttribute("data-sblang"), b.getAttribute("data-lang"), b); }; });
 }
-async function toggleMemberDone(userId, btn){
-  const box = document.getElementById("sbdone-" + userId);
+async function memberPerLang(userId){
+  if(sbMemberCache && sbMemberCache[userId]) return sbMemberCache[userId];
+  if(!sb) return null;
+  let rowsData = [];
+  try{
+    const { data, error } = await sb.from("progress").select("completed, review_correct, lang").eq("user_id", userId);
+    if(error) throw error;
+    rowsData = Array.isArray(data) ? data : (data ? [data] : []);
+  }catch(e){ return null; }
+  const perLang = LANG_CODES.map(code=>{
+    const row = rowsData.find(r=>r.lang === code);
+    const ids = (row && row.completed && typeof row.completed === "object") ? Object.keys(row.completed).map(normId).filter(n=>n!==null).sort(cmpIds) : [];
+    const rc = remoteReviewInfo(row ? row.review_correct : null).count;
+    const lv = levelOf(xpOf(ids.length, rc));
+    return { code: code, name: LANGS[code].name, ids: ids, count: ids.length, total: ITEMS_BY_LANG[code].length, lv: lv.lv, medal: medalOf(lv.lv), reviewCorrect: rc };
+  });
+  if(sbMemberCache) sbMemberCache[userId] = perLang;
+  return perLang;
+}
+async function toggleMemberLang(userId, code, btn){
+  const box = document.getElementById("sbdone-" + userId + "-" + code);
   if(!box) return;
-  if(box.innerHTML){ box.innerHTML = ""; if(btn) btn.textContent = "완료 문장 보기"; return; }
-  let perLang = (sbMemberCache && sbMemberCache[userId]) || null;
-  if(!perLang){
-    if(!sb) return;
-    if(btn) btn.textContent = "불러오는 중…";
-    let rowsData = [];
-    try{
-      const { data, error } = await sb.from("progress").select("completed, review_correct, lang").eq("user_id", userId);
-      if(error) throw error;
-      rowsData = Array.isArray(data) ? data : (data ? [data] : []);
-    }catch(e){ if(btn) btn.textContent = "완료 문장 보기"; return; }
-    perLang = LANG_CODES.map(code=>{
-      const row = rowsData.find(r=>r.lang === code);
-      const ids = (row && row.completed && typeof row.completed === "object") ? Object.keys(row.completed).map(normId).filter(n=>n!==null).sort(cmpIds) : [];
-      const rc = remoteReviewInfo(row ? row.review_correct : null).count;
-      const lv = levelOf(xpOf(ids.length, rc));
-      return { code: code, name: LANGS[code].name, ids: ids, count: ids.length, total: ITEMS_BY_LANG[code].length, lv: lv.lv, medal: medalOf(lv.lv), reviewCorrect: rc };
-    });
-  }
-  box.innerHTML = perLang.map(pl=>{
-    const byIdMap = {};
-    ITEMS_BY_LANG[pl.code].forEach(i=>{ byIdMap[i.id] = i; });
-    const list = pl.ids.map(id=>byIdMap[id]).filter(Boolean);
-    const pct = pl.total ? Math.round(list.length / pl.total * 100) : 0;
-    return '<div class="memlangsec"><div class="meta" style="margin:10px 0 4px">'+esc(pl.name)+' '+pl.medal+' Lv.'+pl.lv+' · '+list.length+' / '+pl.total+'문장</div>'
-      + '<div class="pbar"><div class="pfill" style="width:'+pct+'%"></div></div>'
-      + (list.length
-        ? '<div class="donelist">'+list.map(i=>'<div class="doneitem"><b>'+i.id+'.</b> '+esc(itemText(i))+'<br><span class="meta">'+esc(i.topic)+' · '+esc(i.level)+'</span></div>').join("")+'</div>'
-        : '<p class="meta" style="margin:8px 0 0">아직 완료한 문장이 없어요.</p>')
-      + '</div>';
-  }).join("");
-  if(btn) btn.textContent = "완료 문장 닫기";
+  if(box.innerHTML){ box.innerHTML = ""; if(btn) btn.setAttribute("aria-expanded", "false"); return; }
+  const perLang = await memberPerLang(userId);
+  if(!perLang) return;
+  const pl = perLang.find(x=>x.code === code);
+  if(!pl) return;
+  const byIdMap = {};
+  ITEMS_BY_LANG[pl.code].forEach(i=>{ byIdMap[i.id] = i; });
+  const list = pl.ids.map(id=>byIdMap[id]).filter(Boolean);
+  const pct = pl.total ? Math.round(list.length / pl.total * 100) : 0;
+  box.innerHTML = '<div class="memlangsec">'
+    + (list.length
+      ? '<div class="pbar" style="margin-top:10px"><div class="pfill" style="width:'+pct+'%"></div></div><div class="donelist">'+list.map(i=>'<div class="doneitem"><b>'+i.id+'.</b> '+esc(itemText(i))+'<br><span class="meta">'+esc(i.topic)+' · '+esc(i.level)+'</span></div>').join("")+'</div>'
+      : '<p class="meta" style="margin:8px 0 0">아직 완료한 문장이 없어요.</p>')
+    + '</div>';
+  if(btn) btn.setAttribute("aria-expanded", "true");
 }
 
 /* ---------- 기록 초기화 (2단계 확인, 팝업 없음) ---------- */
@@ -2273,6 +2325,13 @@ function setLang(code){
   if(currentTab === "together") renderTogether();
 }
 
+/* ---------- 오버레이 스크롤 잠금 (시트·모달이 열려 있으면 뒤 페이지 스크롤 차단) ---------- */
+const OVERLAY_IDS = ["menuOverlay", "nickOverlay", "profileOverlay", "mapOverlay"];
+function syncScrollLock(){
+  const open = OVERLAY_IDS.some(id=>{ const el = document.getElementById(id); return el && !el.hidden; });
+  if(document.body && document.body.classList) document.body.classList.toggle("noscroll", open);
+}
+
 /* ---------- 메뉴 (유일한 화면 이동 수단) ---------- */
 function openMenu(){
   menuOpen = true;
@@ -2284,11 +2343,13 @@ function openMenu(){
     const dot = row.querySelector(".menudot");
     if(dot) dot.hidden = !active;
   });
+  syncScrollLock();
 }
 function closeMenu(){
   menuOpen = false;
   const ov = document.getElementById("menuOverlay"); if(ov) ov.hidden = true;
   const mb = document.getElementById("menuBtn"); if(mb) mb.setAttribute("aria-expanded", "false");
+  syncScrollLock();
 }
 function goMenu(name){
   closeMenu();
@@ -2327,12 +2388,12 @@ function renderBrowse(){
 function renderWords(){
   const map = new Map();
   const learned = new Set();
-  items().forEach(i=>i.words.forEach(w=>{ if(!map.has(w[0])) map.set(w[0], w[1]); if(P().completed.includes(i.id)) learned.add(w[0]); }));
+  items().forEach(i=>i.words.forEach(w=>{ if(!map.has(w[0])) map.set(w[0], { m: w[1], say: w[2] || w[0] }); if(P().completed.includes(i.id)) learned.add(w[0]); }));
   document.getElementById("wordsList").innerHTML = [...map.entries()].sort((a,b)=>a[0].localeCompare(b[0], curLang())).map(e=>{
     const isLearned = learned.has(e[0]);
-    return '<button class="listitem worditem'+(isLearned?" learned":"")+'" data-word="'+esc(e[0])+'"><span class="wtext"><b>'+esc(e[0])+'</b> — '+esc(e[1])+'</span>'+(isLearned?'<span class="wlearned">✓ 학습</span>':'')+'</button>';
+    return '<button class="listitem worditem'+(isLearned?" learned":"")+'" data-word="'+esc(e[0])+'" data-say="'+esc(e[1].say)+'"><span class="wtext"><b>'+esc(e[0])+'</b> — '+esc(e[1].m)+'</span>'+(isLearned?'<span class="wlearned">✓ 학습</span>':'')+'</button>';
   }).join("");
-  document.querySelectorAll("[data-word]").forEach(b=>b.onclick=()=>speakFr(b.getAttribute("data-word"), 1, b));
+  document.querySelectorAll("[data-word]").forEach(b=>b.onclick=()=>speakFr(b.getAttribute("data-say") || b.getAttribute("data-word"), 1, b));
 }
 
 /* ---------- 이벤트 ---------- */
