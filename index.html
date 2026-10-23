@@ -170,7 +170,7 @@ button.ghost.playing{background:var(--blue);color:#fff;border-color:var(--blue)}
 .avatar{flex:0 0 auto;width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;color:var(--avatar-ink)}
 .memname{flex:1;min-width:0;font-size:16.5px;font-weight:800;overflow-wrap:anywhere}
 .lvbadge{flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;background:var(--done-chip);color:var(--blue-text);font-size:12px;font-weight:800;border-radius:var(--r-pill);padding:2px 9px;white-space:nowrap}
-.lvicon{flex:0 0 auto;vertical-align:middle}
+.lvicon{flex:0 0 auto;vertical-align:middle;filter:drop-shadow(0 1px 2px rgba(15,20,35,.38))}
 button.lvlabel{display:inline-flex;align-items:center;gap:6px;background:none;border:0;padding:0;font-family:inherit;font-size:inherit;cursor:pointer}
 button.lvlabel:active{opacity:.6}
 button.profilelv{display:block;width:100%;background:none;border:0;padding:0;font:inherit;color:inherit;cursor:pointer}
@@ -474,12 +474,12 @@ summary{font-weight:800;cursor:pointer}
 
 <footer>
 <div class="footbrand"><span class="footlogo" id="footTile" aria-hidden="true">O</span><span class="footword" id="footWord">ONE PHRASE</span><span class="footko" id="footKo">한 문장 외국어</span></div>
-<div class="footmeta">v1.35.6 · © 2026 sidebatch</div>
+<div class="footmeta">v1.35.7 · © 2026 sidebatch</div>
 </footer>
 </div>
 <script>
 "use strict";
-const APP_VERSION = "1.35.6";
+const APP_VERSION = "1.35.7";
 const STORAGE_KEY = "une-phrase-progress-v1";
 const SUPABASE_URL = "https://cmhitsgoicxvmlwtrdrb.supabase.co";
 const SUPABASE_KEY = "sb_publishable_iZugJ1l1p3DSk_BB2Y3N3Q_qZwSo637";
@@ -989,7 +989,7 @@ function penFountainArt(o){
     + '<line x1="6" y1="50" x2="15" y2="50" stroke="#2b2b2b" stroke-width="1" opacity="0.5"/>'
     + '<circle cx="13" cy="50" r="1.4" fill="#2b2b2b" opacity="0.5"/>'
     + '<rect x="20" y="43" width="10" height="14" fill="'+o.grip+'"/>'
-    + '<rect x="30" y="41" width="48" height="18" rx="6" fill="'+o.body+'"/>'
+    + '<rect x="30" y="41" width="48" height="18" rx="6" fill="'+o.body+'"'+(o.bodyLine ? ' stroke="'+o.bodyLine+'" stroke-width="1.2"' : '')+'/>'
     + '<rect x="30" y="52" width="48" height="7" rx="3" fill="'+o.shade+'"/>'
     + '<rect x="66" y="41" width="5" height="18" fill="'+o.band+'"/>'
     + '<rect x="58" y="33" width="16" height="5" rx="2.5" fill="'+o.band+'"/>'
@@ -1000,13 +1000,13 @@ const LEVEL_ICON_ART = [
   penPencilArt(20, 4, 58, "#f5b921", "#ffc94d", "#e09a12"),
   '<g transform="rotate(-45 50 50)"><polygon points="4,50 18,43 18,57" fill="#b9c0c9"/><polygon points="4,50 9,47.6 9,52.4" fill="#555b63"/><rect x="18" y="43" width="56" height="14" rx="3" fill="#4a4f57"/><line x1="25" y1="44" x2="25" y2="56" stroke="#33383f" stroke-width="2"/><line x1="30" y1="44" x2="30" y2="56" stroke="#33383f" stroke-width="2"/><line x1="35" y1="44" x2="35" y2="56" stroke="#33383f" stroke-width="2"/><rect x="58" y="35" width="16" height="5" rx="2.5" fill="#6b7280"/><rect x="74" y="44.5" width="10" height="11" rx="3" fill="#9aa2ac"/></g>',
   '<g transform="rotate(-45 50 50)"><polygon points="4,50 20,42 20,58" fill="#cfd6de"/><circle cx="5" cy="50" r="1.6" fill="#666e78"/><rect x="20" y="42" width="58" height="16" rx="4" fill="#2f6bd8"/><rect x="20" y="42" width="58" height="5" rx="2" fill="#5b8def"/><rect x="56" y="34" width="18" height="6" rx="3" fill="#2456ad"/><rect x="78" y="45" width="7" height="10" rx="3" fill="#2456ad"/></g>',
-  '<g transform="rotate(-45 50 50)"><polygon points="4,50 20,42 20,58" fill="#d9a441"/><circle cx="5" cy="50" r="1.6" fill="#8a6a24"/><rect x="20" y="42" width="58" height="16" rx="4" fill="#dde3ea"/><rect x="20" y="51" width="58" height="7" rx="3" fill="#b7bfca"/><rect x="44" y="42" width="5" height="16" fill="#d9a441"/><rect x="56" y="34" width="18" height="6" rx="3" fill="#d9a441"/><rect x="78" y="45" width="7" height="10" rx="3" fill="#aeb6c0"/></g>',
+  '<g transform="rotate(-45 50 50)"><polygon points="4,50 20,42 20,58" fill="#d9a441"/><circle cx="5" cy="50" r="1.6" fill="#8a6a24"/><rect x="20" y="42" width="58" height="16" rx="4" fill="#dde3ea" stroke="#a7b2bf" stroke-width="1.2"/><rect x="20" y="51" width="58" height="7" rx="3" fill="#b7bfca"/><rect x="44" y="42" width="5" height="16" fill="#d9a441"/><rect x="56" y="34" width="18" height="6" rx="3" fill="#d9a441"/><rect x="78" y="45" width="7" height="10" rx="3" fill="#aeb6c0"/></g>',
   penFountainArt({ nib:"#cfd6de", grip:"#17181c", body:"#23262b", shade:"#101215", band:"#c7ccd4" }),
   penFountainArt({ nib:"#eec25e", grip:"#17181c", body:"#26221c", shade:"#141109", band:"#d9a441" }),
   penFountainArt({ nib:"#eec25e", grip:"#141c30", body:"#274b9f", shade:"#1d3570", band:"#d9a441", extra:'<circle cx="80" cy="50" r="5.5" fill="#3b82f6" stroke="#d9a441" stroke-width="1.5"/><polygon points="78,44 79,47 82,48 79,49 78,52 77,49 74,48 77,47" fill="#fff"/>' }),
-  penFountainArt({ nib:"#e9f1f6", nibLine:"#9db8c9", grip:"#cfe2ee", body:"#f4fafd", shade:"#d9ecf7", band:"#b9cbd8", extra:'<polygon points="73,42 89,42 94,50 81,62 68,50" fill="#dcf2fd" stroke="#7fb2d9" stroke-width="1.5"/><polyline points="68,50 94,50" fill="none" stroke="#7fb2d9" stroke-width="1"/><polyline points="73,42 77,50 81,62" fill="none" stroke="#7fb2d9" stroke-width="1"/><polyline points="89,42 85,50 81,62" fill="none" stroke="#7fb2d9" stroke-width="1"/><polygon points="76,45 76.8,47.2 79,48 76.8,48.8 76,51 75.2,48.8 73,48 75.2,47.2" fill="#fff"/>' })
+  penFountainArt({ nib:"#e9f1f6", nibLine:"#9db8c9", grip:"#cfe2ee", body:"#f4fafd", bodyLine:"#9db8c9", shade:"#d9ecf7", band:"#b9cbd8", extra:'<polygon points="73,42 89,42 94,50 81,62 68,50" fill="#dcf2fd" stroke="#7fb2d9" stroke-width="1.5"/><polyline points="68,50 94,50" fill="none" stroke="#7fb2d9" stroke-width="1"/><polyline points="73,42 77,50 81,62" fill="none" stroke="#7fb2d9" stroke-width="1"/><polyline points="89,42 85,50 81,62" fill="none" stroke="#7fb2d9" stroke-width="1"/><polygon points="76,45 76.8,47.2 79,48 76.8,48.8 76,51 75.2,48.8 73,48 75.2,47.2" fill="#fff"/>' })
     + '<polygon points="15,9 16.4,13.6 21,15 16.4,16.4 15,21 13.6,16.4 9,15 13.6,13.6" fill="#9fcdf0"/><polygon points="87,17 88,20.4 91.4,21.4 88,22.4 87,25.8 86,22.4 82.6,21.4 86,20.4" fill="#9fcdf0"/>',
-  '<path d="M14,78 C30,40 52,22 84,14 C80,44 58,68 24,82 Z" fill="#f7f9fb" stroke="#bfcbd9"/>'
+  '<path d="M14,78 C30,40 52,22 84,14 C80,44 58,68 24,82 Z" fill="#f7f9fb" stroke="#a3b8cc"/>'
     + '<path d="M14,78 C36,52 56,32 84,14" stroke="#d9a441" stroke-width="2" fill="none"/>'
     + '<path d="M36,54 L26,50 M48,42 L38,36 M60,32 L52,24" stroke="#dfe5ec" stroke-width="2"/>'
     + '<circle cx="14" cy="79" r="2.5" fill="#b57f1c"/>'
@@ -1016,12 +1016,13 @@ const LEVEL_ICON_ART = [
 function levelIcon(lv, size){
   const s = size || 20;
   const art = LEVEL_ICON_ART[lv-1] || LEVEL_ICON_ART[0];
-  return '<svg class="lvicon" data-lv="'+lv+'" viewBox="0 0 100 100" width="'+s+'" height="'+s+'" aria-hidden="true"><circle cx="50" cy="50" r="48" fill="#fdf6e9"/><circle cx="50" cy="50" r="46.5" fill="none" stroke="#e7d9b8" stroke-width="2"/>' + art + '</svg>';
+  const zoom = [1.34,1.34,1.34,1.34,1.34,1.34,1.34,1.34,1.18,1.08][lv-1] || 1;
+  return '<svg class="lvicon" data-lv="'+lv+'" viewBox="0 0 100 100" width="'+s+'" height="'+s+'" aria-hidden="true"><g transform="translate(50 50) scale('+zoom+') translate(-50 -50)">' + art + '</g></svg>';
 }
 function langLineOf(code, count, reviewCorrect){
   if(!count) return null;
   const lv = levelOf(xpOf(count, reviewCorrect||0));
-  return { code: code, name: LANGS[code].name, icon: levelIcon(lv.lv, 15), lv: lv.lv, count: count };
+  return { code: code, name: LANGS[code].name, icon: levelIcon(lv.lv, 18), lv: lv.lv, count: count };
 }
 function langLinesHtml(lines, activeCode){
   if(!lines || !lines.length) return "";
@@ -1603,7 +1604,7 @@ function renderProgress(){
     ? (doneCount>=total ? "전부 완료했어요" : (total-doneCount)+"문장 남음")
     : (!q.length ? "이 조합에는 문장이 없어요" : (rangeDone>=q.length ? scope+" 전부 완료했어요" : (q.length-rangeDone)+"문장 남음"));
   const lv = levelOf(xpOf(doneCount, P().reviewCorrect||0));
-  document.getElementById("lvLabel").innerHTML = levelIcon(lv.lv, 20)+" Lv."+lv.lv+" "+lv.title;
+  document.getElementById("lvLabel").innerHTML = levelIcon(lv.lv, 26)+" Lv."+lv.lv+" "+lv.title;
   document.getElementById("lvNext").textContent = lv.nextAt===null ? "최고 레벨" : "다음 레벨까지 "+lv.toNext+" XP";
   requestAnimationFrame(()=>{ document.getElementById("lvFill").style.width = lv.pct+"%"; });
   document.getElementById("lvBar").setAttribute("aria-valuenow", lv.pct);
@@ -2197,7 +2198,7 @@ function renderProfile(){
     : '<div class="profileemail"></div>';
   const xp = xpOf(P().completed.length, P().reviewCorrect||0);
   const lv = levelOf(xp);
-  const medalBlock = '<div class="profilemedal" aria-hidden="true">'+levelIcon(lv.lv, 64)+'</div><button class="profilelv" id="profileLvBtn" aria-haspopup="dialog" title="레벨 안내 보기">Lv.'+lv.lv+' '+esc(lv.title)+'</button>';
+  const medalBlock = '<div class="profilemedal" aria-hidden="true">'+levelIcon(lv.lv, 76)+'</div><button class="profilelv" id="profileLvBtn" aria-haspopup="dialog" title="레벨 안내 보기">Lv.'+lv.lv+' '+esc(lv.title)+'</button>';
   const stats = '<div class="pbar"><div class="pfill gold" style="width:'+lv.pct+'%"></div></div>'
     + '<div class="profilenext">'+(lv.nextAt===null ? "최고 레벨이에요" : "다음 레벨까지 "+lv.toNext+" XP")+'</div>'
     + '<div class="profilestats"><span>총 '+xp+' XP</span><span>완료 '+P().completed.length+' / '+items().length+'문장</span><span>복습 맞힘 '+(P().reviewCorrect||0)+'개</span></div>'
@@ -2279,7 +2280,7 @@ async function renderTogetherMembers(){
       const rc = remoteReviewInfo(row ? row.review_correct : null).count;
       const xp = xpOf(ids.length, rc);
       const lv = levelOf(xp);
-      return { code: code, name: LANGS[code].name, ids: ids, count: ids.length, total: ITEMS_BY_LANG[code].length, xp: xp, lv: lv.lv, icon: levelIcon(lv.lv, 15), reviewCorrect: rc };
+      return { code: code, name: LANGS[code].name, ids: ids, count: ids.length, total: ITEMS_BY_LANG[code].length, xp: xp, lv: lv.lv, icon: levelIcon(lv.lv, 18), reviewCorrect: rc };
     });
     sbMemberCache[p.id] = perLang;
     const active = perLang.find(pl=>pl.code === curLang()) || perLang[0];
@@ -2295,7 +2296,7 @@ async function renderTogetherMembers(){
     const total = items().length;
     const pct = pctOf(r.doneCount, total);
     const chips = '<div class="memlangs">'+r.perLang.map(pl=>'<button type="button" class="memlang'+(pl.code===curLang()?" on":"")+'" data-sblang="'+esc(r.id)+'" data-lang="'+pl.code+'" aria-expanded="false">'+esc(pl.name)+' '+pl.icon+' Lv.'+pl.lv+' · '+pl.count+'/'+pl.total+'문장</button>').join("")+'</div>';
-    return '<div class="card membercard'+(r.me?" me":"")+'"><div class="memhead">'+avatarHtml(r.nickname)+'<span class="memname">'+esc(r.nickname)+(r.me?' (나)':'')+'</span><span class="lvbadge">Lv.'+lv.lv+' '+levelIcon(lv.lv, 15)+' '+esc(lv.title)+'</span></div>'
+    return '<div class="card membercard'+(r.me?" me":"")+'"><div class="memhead">'+avatarHtml(r.nickname)+'<span class="memname">'+esc(r.nickname)+(r.me?' (나)':'')+'</span><span class="lvbadge">Lv.'+lv.lv+' '+levelIcon(lv.lv, 18)+' '+esc(lv.title)+'</span></div>'
       + '<div class="pbar"><div class="pfill" style="width:'+pct+'%"></div></div>'
       + '<div class="memprog"><span>완료 '+r.doneCount+' / '+total+'</span><span>'+r.xp+' XP</span></div>'
       + chips
@@ -2319,7 +2320,7 @@ async function memberPerLang(userId){
     const ids = (row && row.completed && typeof row.completed === "object") ? Object.keys(row.completed).map(normId).filter(n=>n!==null).sort(cmpIds) : [];
     const rc = remoteReviewInfo(row ? row.review_correct : null).count;
     const lv = levelOf(xpOf(ids.length, rc));
-    return { code: code, name: LANGS[code].name, ids: ids, count: ids.length, total: ITEMS_BY_LANG[code].length, lv: lv.lv, icon: levelIcon(lv.lv, 15), reviewCorrect: rc };
+    return { code: code, name: LANGS[code].name, ids: ids, count: ids.length, total: ITEMS_BY_LANG[code].length, lv: lv.lv, icon: levelIcon(lv.lv, 18), reviewCorrect: rc };
   });
   if(sbMemberCache) sbMemberCache[userId] = perLang;
   return perLang;
@@ -2480,7 +2481,7 @@ function renderWords(){
 
 /* ---------- 레벨 안내 (레벨 배지를 누르면 전체 레벨표) ---------- */
 function levelRowsHtml(curLv){
-  return LEVELS.map(L=>'<div class="lvrow'+(L.lv===curLv?" cur":"")+'"><span class="lvrow-medal" aria-hidden="true">'+levelIcon(L.lv, 30)+'</span><span class="lvrow-name">Lv.'+L.lv+' '+esc(L.title)+(L.lv===curLv?'<span class="lvrow-now">지금 내 레벨</span>':"")+'</span><span class="lvrow-xp">'+L.at+' XP부터</span></div>').join("");
+  return LEVELS.map(L=>'<div class="lvrow'+(L.lv===curLv?" cur":"")+'"><span class="lvrow-medal" aria-hidden="true">'+levelIcon(L.lv, 38)+'</span><span class="lvrow-name">Lv.'+L.lv+' '+esc(L.title)+(L.lv===curLv?'<span class="lvrow-now">지금 내 레벨</span>':"")+'</span><span class="lvrow-xp">'+L.at+' XP부터</span></div>').join("");
 }
 function renderLevelInfo(){
   const el = document.getElementById("levelInfoBody"); if(!el) return;

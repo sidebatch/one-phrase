@@ -1033,6 +1033,7 @@ ok(LEVEL_ICON_ART_EVAL.length === 10, "펜 아이콘: 레벨 1~10 아이콘이 1
 ok(LEVEL_ICON_ART_EVAL[0].includes("#f2c14e") && LEVEL_ICON_ART_EVAL[1].includes("#f5b921") && LEVEL_ICON_ART_EVAL[2].includes("#4a4f57") && LEVEL_ICON_ART_EVAL[3].includes("#2f6bd8") && LEVEL_ICON_ART_EVAL[4].includes("#dde3ea"), "펜 아이콘: 1~5단계가 몽당연필·연필·샤프펜슬·볼펜·메탈 볼펜 순서");
 ok(LEVEL_ICON_ART_EVAL[5].includes("#23262b") && LEVEL_ICON_ART_EVAL[5].includes("#cfd6de") && LEVEL_ICON_ART_EVAL[6].includes("#eec25e") && LEVEL_ICON_ART_EVAL[7].includes("#274b9f") && LEVEL_ICON_ART_EVAL[8].includes("#dcf2fd") && LEVEL_ICON_ART_EVAL[9].includes("M14,78"), "펜 아이콘: 6~10단계가 실버·골드·사파이어·다이아 만년필과 깃털펜 순서");
 ok(levelIcon(1).includes("<svg") && levelIcon(1).includes('data-lv="1"') && levelIcon(10, 64).includes('width="64"') && levelIcon(10, 64).includes('data-lv="10"'), "펜 아이콘: levelIcon이 단계·크기에 맞는 인라인 SVG를 돌려줌");
+ok(!levelIcon(1).includes("#fdf6e9") && !levelIcon(5).includes('r="48"') && !levelIcon(9).includes("#e7d9b8") && levelIcon(1).includes("scale(1.34)") && levelIcon(9).includes("scale(1.18)") && levelIcon(10).includes("scale(1.08)"), "펜 아이콘: 크림 원판 제거 + 단계별 확대로 프레임을 채워 표시");
 ok(!html.includes("LEVEL_MEDALS") && !html.includes("medalOf"), "펜 아이콘: 기존 이모지 메달 체계(LEVEL_MEDALS·medalOf)가 제거됨");
 ok(lvArrSrc.includes('title:"몽당연필"') && lvArrSrc.includes('title:"실버 만년필"') && lvArrSrc.includes('title:"골드 만년필"') && lvArrSrc.includes('title:"다이아 만년필"') && lvArrSrc.includes('title:"깃털펜"'), "펜 아이콘: 레벨 이름이 펜 사다리(몽당연필→깃털펜)로 교체됨");
 ok(rtmSrc.includes("levelIcon(lv.lv") && rtmSrc.includes("pl.icon"), "펜 아이콘: Ensemble 참여자 카드의 Lv 배지와 언어별 칩에 펜 아이콘 표시");
@@ -1057,7 +1058,7 @@ ok(maskEmail("going123@gmail.com") === "go***@gmail.com", "이메일 가리기: 
 ok(maskEmail("ab@example.com") === "a***@example.com" && maskEmail("a@example.com") === "a***@example.com", "이메일 가리기: 짧은 아이디는 1글자만 남김");
 ok(maskEmail("") === "" && maskEmail("no-at-sign") === "no-at-sign", "이메일 가리기: 이메일 형식이 아니면 그대로 반환");
 ok(rpSrc.includes("maskEmail(sbUser.email)") && rpSrc.includes('id="profileEmail"') && rpSrc.includes('id="profileEmailTxt"') && rpSrc.includes("탭하면 보이기") && rpSrc.includes("탭하면 가리기"), "내 정보: 이메일은 마스킹이 기본값, 탭하면 전체 표시/다시 가리기 토글 + 힌트 문구");
-ok(html.includes('getElementById("lvLabel").innerHTML = levelIcon(lv.lv, 20)+'), "첫 화면: 공부하기 레벨 표시줄에 현재 레벨 펜 아이콘 함께 표시");
+ok(html.includes('getElementById("lvLabel").innerHTML = levelIcon(lv.lv, 26)+'), "첫 화면: 공부하기 레벨 표시줄에 현재 레벨 펜 아이콘 함께 표시");
 ok(html.includes("button.ghost.playing") && html.includes(".worditem.playing"), "재생 표시: 재생 중 버튼 스타일(.playing)이 듣기 버튼과 단어 버튼에 정의됨");
 ok(rsSrc2.includes("clearSpeakingUI();") && stSrc2.includes("clearSpeakingUI();"), "재생 표시: 단계·화면이 바뀌면 재생 중 표시 해제");
 ok(["t-study","t-browse","t-words","t-together","t-about"].every(c=>html.includes('menutile '+c+'" aria-hidden="true"><svg')), "아이콘: 메뉴 타일 5종이 모두 인라인 SVG로 교체됨");
