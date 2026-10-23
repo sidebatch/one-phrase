@@ -181,7 +181,7 @@ const mapSheetSrcs = [
   html.match(/function renderMapSheet\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function openMapSheet\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function closeMapSheet\(\)\{[\s\S]*?\n\}/)[0],
-  html.match(/function renderTopicChips\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function renderTopicTag\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function setTopicFilter\(t\)\{[\s\S]*?\n\}/)[0],
   html.match(/function setLevelFilter\(lv\)\{[\s\S]*?\n\}/)[0],
   html.match(/function repositionInQueue\(\)\{[\s\S]*?\n\}/)[0],
@@ -305,7 +305,7 @@ const smokeFns = [
   html.match(/const COMPLETE_NOTE_DUR = [^\n]*/)[0],
   html.match(/function playCompleteSound\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function renderLevelChips\(\)\{[\s\S]*?\n\}/)[0],
-  html.match(/function renderTopicChips\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function renderTopicTag\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function scopeLabel\(\)\{[\s\S]*?\n\}/)[0],
   SCHED_SRCS,
   html.match(/function renderStudy\(\)[\s\S]*?\n\}/)[0],
@@ -614,7 +614,7 @@ const flFns = [
   html.match(/function countToday\(p\)\{[^}]*\}/)[0],
   html.match(/function bindWordProg[\s\S]*?\n\}/)[0],
   html.match(/function renderLevelChips\(\)\{[\s\S]*?\n\}/)[0],
-  html.match(/function renderTopicChips\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function renderTopicTag\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function scopeLabel\(\)\{[\s\S]*?\n\}/)[0],
   rsSrc2, ctSrc
 ].join("\n");
@@ -1212,7 +1212,7 @@ const eqFns = [
   SCHED_SRCS, MAPSTRIP_SRC,
   html.match(/function renderProgress\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function renderLevelChips\(\)\{[\s\S]*?\n\}/)[0],
-  html.match(/function renderTopicChips\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function renderTopicTag\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function scopeLabel\(\)\{[\s\S]*?\n\}/)[0],
   rsSrc2, ctSrc, csSrc,
   html.match(/function renderQuizEntry\(\)\{[\s\S]*?\n\}/)[0],
@@ -1520,7 +1520,7 @@ const lvFns = [
   html.match(/function setStep\(n\)\{[^}]*\}/)[0],
   html.match(/function levelOptions\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function renderLevelChips\(\)\{[\s\S]*?\n\}/)[0],
-  html.match(/function renderTopicChips\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function renderTopicTag\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function scopeLabel\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function setLevelFilter\(lv\)\{[\s\S]*?\n\}/)[0],
   html.match(/function repositionInQueue\(\)\{[\s\S]*?\n\}/)[0],
@@ -1911,7 +1911,7 @@ const rvFns = [
   html.match(/function playCompleteSound\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function renderProgress\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function renderLevelChips\(\)\{[\s\S]*?\n\}/)[0],
-  html.match(/function renderTopicChips\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function renderTopicTag\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function scopeLabel\(\)\{[\s\S]*?\n\}/)[0],
   rsSrc2, ctSrc, csSrc,
   html.match(/function renderQuizEntry\(\)\{[\s\S]*?\n\}/)[0],
@@ -2065,10 +2065,11 @@ eval(rvPrelude + "\n" + helperSrc + "\n" + rvFns + "\n" + mapSheetSrcs + "\n" + 
 
 
 console.log("\n[지도 교통정리·시트 닫힘·스크롤 잠금·단어 듣기 표기 (v1.35.3)]");
-ok(html.indexOf('id="topicChips"') > -1 && html.indexOf('id="topicChips"') < html.indexOf('id="levelChips"'), "주제 칩: 공부 화면에 주제 칩 행이 레벨 칩 위에 있음");
+ok(html.indexOf('id="topicChips"') === -1, "공부 탭 정리(v1.35.4): 공부 화면에 주제 칩 행이 없음");
+ok(html.indexOf('id="topicTag"') > -1 && html.indexOf('id="topicTag"') < html.indexOf('id="levelChips"'), "공부 탭 정리(v1.35.4): 주제 태그 자리가 레벨 칩 위에 있음");
 ok(html.match(/function defaultLangProgress\(\)[^\n]*/)[0].includes('topicFilter:"전체"'), "주제 필터: 언어별 진도 기본값에 topicFilter(전체)가 있음");
 ok(html.match(/function migrateProgress\(raw\)\{[\s\S]*?\n\}/)[0].includes('"topicFilter"'), "주제 필터: 구 저장본 마이그레이션이 topicFilter를 기본값으로 채움");
-ok(rsSrc2.includes("renderTopicChips()"), "주제 칩: 공부 렌더가 주제 칩을 함께 그림");
+ok(rsSrc2.includes("renderTopicTag()"), "주제 태그: 공부 렌더가 주제 태그를 함께 그림");
 const gttSrc = html.match(/function goToTopicStudy\(topic\)\{[\s\S]*?\n\}/)[0];
 ok(gttSrc.includes("closeMapSheet()") && gttSrc.includes("topicFilter") && !gttSrc.includes("levelFilter"), "제보1·2: 지도 주제 선택은 시트부터 닫고 주제만 바꾸며 레벨은 건드리지 않음");
 const gtiLine = html.match(/function goToItem\(idx, step\)[^\n]*/)[0];
@@ -2077,6 +2078,76 @@ const slfSrc = html.match(/function setLevelFilter\(lv\)\{[\s\S]*?\n\}/)[0];
 const stfSrc = html.match(/function setTopicFilter\(t\)\{[\s\S]*?\n\}/)[0];
 ok(slfSrc.includes("repositionInQueue()") && !slfSrc.includes("topicFilter ="), "제보2: 레벨 변경은 주제를 초기화하지 않고 쌍 큐 안에서만 위치를 다시 잡음");
 ok(stfSrc.includes("repositionInQueue()") && !stfSrc.includes("levelFilter ="), "제보2: 주제 변경은 레벨을 초기화하지 않고 쌍 큐 안에서만 위치를 다시 잡음");
+
+console.log("\n[주제 선택 피드백·공부 탭 주제 태그 (v1.35.4)]");
+const rttSrc = html.match(/function renderTopicTag\(\)\{[\s\S]*?\n\}/)[0];
+ok(rttSrc.includes('id="topicTagClear"') && rttSrc.includes('setTopicFilter("전체")'), "주제 태그: 특정 주제일 때만 태그가 뜨고 ✕로 전체로 해제됨");
+ok(!rttSrc.includes("data-tfilter") && html.indexOf('data-tfilter') === -1, "공부 탭 정리: 주제 칩(data-tfilter)이 페이지에서 완전히 제거됨");
+ok(html.includes(".mapcard.selected{"), "주제 선택 피드백: 선택된 주제 카드 색칠 CSS(.mapcard.selected)가 있음");
+const rtmSrc2 = html.match(/function renderTopicMap\(\)\{[\s\S]*?\n\}/)[0];
+ok(rtmSrc2.includes("selected") && rtmSrc2.includes("browseTopic"), "주제 선택 피드백: 주제별 지도 카드가 browseTopic과 같으면 selected로 색칠됨");
+ok(rtmSrc2.includes("scrollToBrowseList()"), "주제 선택 피드백: 주제별 지도에서 주제를 누르면 목록으로 스크롤함");
+const sblSrc = html.match(/function scrollToBrowseList\(\)\{[\s\S]*?\n\}/)[0];
+ok(sblSrc.includes("scrollIntoView") && sblSrc.includes('"smooth"'), "주제 선택 피드백: 스크롤은 browseList로 부드럽게 이동함");
+ok(rbSrc.includes("scrollToBrowseList()"), "주제 선택 피드백: 주제 필터 칩을 눌러도 목록으로 스크롤함");
+const rmsSrc2 = html.match(/function renderMapSheet\(\)\{[\s\S]*?\n\}/)[0];
+ok(rmsSrc2.includes("selected") && rmsSrc2.includes("topicFilter()"), "주제 선택 피드백: 지도 시트 카드도 현재 공부 주제와 같으면 selected로 색칠됨");
+// 주제 태그 스모크: 지도에서 고르면 태그가 뜨고, ✕를 누르면 사라짐
+eval(rvPrelude + "\n" + helperSrc + "\n" + rvFns + "\n" + mapSheetSrcs + "\n" + [
+  'progress = migrateProgress(null);',
+  'const B = progress.byLang.fr;',
+  'renderStudy();',
+  'ok(RV_ELS["topicTag"].innerHTML === "", "주제 태그 스모크: 전체 주제일 때는 태그가 표시되지 않음");',
+  'goToTopicStudy("이민");',
+  'ok(RV_ELS["topicTag"].innerHTML.includes("주제 · 이민") && !!RV_ELS["topicTagClear"], "주제 태그 스모크: 지도에서 주제를 고르면 공부 탭에 태그 하나로만 표시됨");',
+  'RV_ELS["topicTagClear"].onclick();',
+  'ok(B.topicFilter === "전체" && RV_ELS["topicTag"].innerHTML === "", "주제 태그 스모크: 태그 ✕를 누르면 전체 주제로 해제되고 태그가 사라짐");'
+].join("\n"));
+// 주제별 스모크: 지도 카드를 누르면 색칠 + 목록 세팅 + 자동 스크롤
+const BR_ELS = {};
+const brScrollCalls = [];
+function makeBrEl(id){
+  return { id: id, hidden: true, value: "", textContent: "", innerHTML: "", style: {},
+    setAttribute(){}, getAttribute(){ return null; }, focus(){},
+    scrollIntoView(opts){ if(id === "browseList") brScrollCalls.push(opts || {}); },
+    classList: { toggle(){}, add(){}, remove(){}, contains(){ return false; } } };
+}
+function makeBrBtn(topic){
+  return { _topic: topic, onclick: null, getAttribute(){ return this._topic; }, setAttribute(){} };
+}
+const brTopicBtns = [...new Set(ITEMS.map(i=>i.topic))].map(makeBrBtn);
+const brFilterBtns = ["전체"].concat([...new Set(ITEMS.map(i=>i.topic))]).map(makeBrBtn);
+const brDocument = {
+  getElementById(id){ if(!BR_ELS[id]) BR_ELS[id] = makeBrEl(id); return BR_ELS[id]; },
+  querySelectorAll(sel){
+    if(sel === "[data-mtopic]") return brTopicBtns;
+    if(sel === "[data-topic]") return brFilterBtns;
+    return [];
+  },
+  body: makeBrEl("body")
+};
+const brPrelude = [
+  'let progress = null;',
+  'const document = brDocument;',
+  'function goToItem(){}'
+].join("\n");
+const brSrcs = [
+  escSrc, tsSrc,
+  html.match(/let browseTopic = "전체";/)[0],
+  html.match(/function scrollToBrowseList\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function renderTopicMap\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function renderBrowse\(\)\{[\s\S]*?\n\}/)[0]
+].join("\n");
+eval(brPrelude + "\n" + helperSrc + "\n" + brSrcs + "\n" + [
+  'progress = migrateProgress(null);',
+  'renderBrowse();',
+  'brTopicBtns.find(b => b._topic === "이민").onclick();',
+  'ok(browseTopic === "이민", "주제별 스모크: 지도 카드를 누르면 그 주제가 선택됨");',
+  'ok(BR_ELS["topicMap"].innerHTML.includes(\'class="mapcard selected" data-mtopic="이민"\') && (BR_ELS["topicMap"].innerHTML.match(/ selected"/g) || []).length === 1, "주제별 스모크: 선택한 주제 카드만 색칠됨");',
+  'ok(BR_ELS["browseList"].innerHTML.includes("이민") && brScrollCalls.length === 1 && brScrollCalls[0].behavior === "smooth", "주제별 스모크: 선택하면 그 주제 문장이 세팅되고 목록 위치로 부드럽게 스크롤함");',
+  'brFilterBtns.find(b => b._topic === "교통").onclick();',
+  'ok(browseTopic === "교통" && brScrollCalls.length === 2, "주제별 스모크: 필터 칩으로 주제를 바꿔도 다시 목록으로 스크롤함");'
+].join("\n"));
 ok(html.includes("body.noscroll{overflow:hidden"), "스크롤 잠금: body.noscroll이 스크롤을 막는 CSS가 있음");
 ok(/\.menuoverlay\{[^}]*overscroll-behavior:contain/.test(html) && /\.modaloverlay\{[^}]*overscroll-behavior:contain/.test(html) && /\.menupanel\{[^}]*overscroll-behavior:contain/.test(html) && /\.modalpanel\{[^}]*overscroll-behavior:contain/.test(html), "스크롤 잠금: 오버레이와 패널이 overscroll 전파를 차단함");
 const lockFnSrcs = [

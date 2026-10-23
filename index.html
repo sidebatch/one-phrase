@@ -279,6 +279,11 @@ textarea:focus,input[type=text]:focus{border-color:var(--blue-text);box-shadow:v
 .mapbar{display:block;height:8px;background:var(--track);border-radius:var(--r-pill);overflow:hidden;margin-top:8px}
 .mapbar .pfill{display:block}
 .mapcard.conquered{background:var(--done-bg);border-color:var(--done-line)}
+.mapcard.selected{border-color:var(--blue);background:var(--done-bg);box-shadow:0 0 0 1.5px var(--blue) inset}
+#topicTag{margin:2px 0 4px}
+#topicTag:empty{display:none}
+.topictag{display:inline-flex;align-items:center;gap:8px;background:var(--done-bg);border:1px solid var(--done-line);color:var(--blue-text);border-radius:var(--r-pill);padding:6px 7px 6px 14px;font-size:14px;font-weight:800}
+.topictag-x{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;border:1px solid var(--done-line);background:var(--card);color:var(--blue-text);font:inherit;font-size:12px;font-weight:900;cursor:pointer;padding:0;line-height:1}
 .mapstrip{display:block;width:100%;background:var(--card);border:1px solid var(--line-soft);border-radius:var(--r-md);padding:10px 12px;margin:0 0 var(--sp3);font:inherit;color:var(--ink);text-align:left;cursor:pointer;box-shadow:var(--shadow)}
 .mapstrip:active{transform:scale(.99)}
 .mapstrip-head{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:900;color:var(--blue-text);margin-bottom:8px}
@@ -302,8 +307,8 @@ footer{margin-top:var(--sp6);border-top:1px solid var(--line-soft);padding:20px 
 details{background:var(--card);border:1px solid var(--line-soft);border-radius:var(--r-md);padding:12px 14px;margin:10px 0}
 summary{font-weight:800;cursor:pointer}
 
-.levelchips,.topicchips{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 4px}
-.levelchips:empty,.topicchips:empty{display:none}
+.levelchips{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 4px}
+.levelchips:empty{display:none}
 .langseg{display:flex;gap:8px;margin:0 0 12px}
 .langsegbtn{flex:1;min-height:44px;padding:8px 6px;background:var(--card);border:1.5px solid var(--line-soft);border-radius:12px;font:inherit;font-size:14.5px;font-weight:800;color:var(--ink);cursor:pointer;transition:transform .12s var(--ease),background .18s ease,border-color .18s ease}
 .langsegbtn:active{transform:scale(.97)}
@@ -382,7 +387,7 @@ summary{font-weight:800;cursor:pointer}
 <div id="tab-study">
 <div id="mapStrip"></div>
 <div id="quizArea"></div>
-<div class="topicchips" id="topicChips" role="radiogroup" aria-label="주제 선택"></div>
+<div id="topicTag"></div>
 <div class="levelchips" id="levelChips" role="radiogroup" aria-label="레벨 선택"></div>
 <div class="card" id="studyCard"></div>
 <div id="doneBox"></div>
@@ -450,12 +455,12 @@ summary{font-weight:800;cursor:pointer}
 
 <footer>
 <div class="footbrand"><span class="footlogo" id="footTile" aria-hidden="true">O</span><span class="footword" id="footWord">ONE PHRASE</span><span class="footko" id="footKo">한 문장 외국어</span></div>
-<div class="footmeta">v1.35.3 · © 2026 sidebatch</div>
+<div class="footmeta">v1.35.4 · © 2026 sidebatch</div>
 </footer>
 </div>
 <script>
 "use strict";
-const APP_VERSION = "1.35.3";
+const APP_VERSION = "1.35.4";
 const STORAGE_KEY = "une-phrase-progress-v1";
 const SUPABASE_URL = "https://cmhitsgoicxvmlwtrdrb.supabase.co";
 const SUPABASE_KEY = "sb_publishable_iZugJ1l1p3DSk_BB2Y3N3Q_qZwSo637";
@@ -1474,12 +1479,13 @@ function levelOptions(){
   ["A1","A2","B1","B2"].forEach(lv=>{ if(items().some(i=>i.level===lv)) present.push(lv); });
   return ["전체"].concat(present);
 }
-function renderTopicChips(){
-  const el = document.getElementById("topicChips");
+function renderTopicTag(){
+  const el = document.getElementById("topicTag");
   if(!el) return;
   const cur = topicFilter();
-  el.innerHTML = topicOptions().map(t=>'<button class="tabbtn'+(t===cur?" on":"")+'" data-tfilter="'+esc(t)+'" role="radio" aria-checked="'+(t===cur?"true":"false")+'">'+esc(t)+'</button>').join("");
-  document.querySelectorAll("[data-tfilter]").forEach(b=>{ b.onclick = ()=>setTopicFilter(b.getAttribute("data-tfilter")); });
+  if(cur === "전체"){ el.innerHTML = ""; return; }
+  el.innerHTML = '<span class="topictag">주제 · '+esc(cur)+'<button class="topictag-x" id="topicTagClear" aria-label="주제 선택 해제">✕</button></span>';
+  const b = document.getElementById("topicTagClear"); if(b) b.onclick = ()=>setTopicFilter("전체");
 }
 function setTopicFilter(t){
   if(!topicOptions().includes(t)) return;
@@ -1548,7 +1554,8 @@ function renderMapSheet(){
   const el = document.getElementById("mapSheetGrid");
   if(!el) return;
   const stats = topicStats(items(), P().completed);
-  el.innerHTML = '<div class="mapgrid">'+stats.map(t=>'<button class="mapcard'+(t.conquered?" conquered":"")+'" data-mapsheet="'+esc(t.topic)+'"><span class="map-top"><b>'+esc(t.topic)+'</b>'+(t.conquered?'<span class="conqbadge">정복</span>':'')+'</span><span class="map-count">'+t.done+' / '+t.total+'문장</span><span class="pbar mapbar"><span class="pfill" style="width:'+t.pct+'%"></span></span></button>').join("")+'</div>';
+  const cur = topicFilter();
+  el.innerHTML = '<div class="mapgrid">'+stats.map(t=>'<button class="mapcard'+(t.conquered?" conquered":"")+(cur!=="전체"&&t.topic===cur?" selected":"")+'" data-mapsheet="'+esc(t.topic)+'"><span class="map-top"><b>'+esc(t.topic)+'</b>'+(t.conquered?'<span class="conqbadge">정복</span>':'')+'</span><span class="map-count">'+t.done+' / '+t.total+'문장</span><span class="pbar mapbar"><span class="pfill" style="width:'+t.pct+'%"></span></span></button>').join("")+'</div>';
   document.querySelectorAll("[data-mapsheet]").forEach(b=>b.onclick=()=>{ const tp = b.getAttribute("data-mapsheet"); closeMapSheet(); goToTopicStudy(tp); });
 }
 function openMapSheet(){
@@ -1573,7 +1580,7 @@ function goToTopicStudy(topic){
 function renderStudy(){
   completionInFlight = false;
   clearSpeakingUI();
-  renderTopicChips();
+  renderTopicTag();
   renderLevelChips();
   const it = currentItem();
   if(!it){
@@ -2366,18 +2373,22 @@ function showTab(name){
   ["study","browse","words","together","about"].forEach(t=>{ document.getElementById("tab-"+t).hidden = t!==name; });
 }
 let browseTopic = "전체";
+function scrollToBrowseList(){
+  const el = document.getElementById("browseList");
+  if(el && el.scrollIntoView) el.scrollIntoView({behavior:"smooth", block:"start"});
+}
 function renderTopicMap(){
   const el = document.getElementById("topicMap");
   if(!el) return;
   const stats = topicStats(items(), P().completed);
-  el.innerHTML = '<div class="meta" style="margin-top:4px">정복 지도</div><div class="mapgrid">'+stats.map(t=>'<button class="mapcard'+(t.conquered?" conquered":"")+'" data-mtopic="'+esc(t.topic)+'"><span class="map-top"><b>'+esc(t.topic)+'</b>'+(t.conquered?'<span class="conqbadge">정복</span>':'')+'</span><span class="map-count">'+t.done+' / '+t.total+'문장</span><span class="pbar mapbar"><span class="pfill" style="width:'+t.pct+'%"></span></span></button>').join("")+'</div>';
-  document.querySelectorAll("[data-mtopic]").forEach(b=>b.onclick=()=>{ browseTopic = b.getAttribute("data-mtopic"); renderBrowse(); });
+  el.innerHTML = '<div class="meta" style="margin-top:4px">정복 지도</div><div class="mapgrid">'+stats.map(t=>'<button class="mapcard'+(t.conquered?" conquered":"")+(browseTopic!=="전체"&&t.topic===browseTopic?" selected":"")+'" data-mtopic="'+esc(t.topic)+'"><span class="map-top"><b>'+esc(t.topic)+'</b>'+(t.conquered?'<span class="conqbadge">정복</span>':'')+'</span><span class="map-count">'+t.done+' / '+t.total+'문장</span><span class="pbar mapbar"><span class="pfill" style="width:'+t.pct+'%"></span></span></button>').join("")+'</div>';
+  document.querySelectorAll("[data-mtopic]").forEach(b=>b.onclick=()=>{ browseTopic = b.getAttribute("data-mtopic"); renderBrowse(); scrollToBrowseList(); });
 }
 function renderBrowse(){
   renderTopicMap();
   const topics = ["전체"].concat([...new Set(items().map(i=>i.topic))]);
   document.getElementById("topicFilter").innerHTML = topics.map(t=>'<button class="tabbtn'+(t===browseTopic?" on":"")+'" data-topic="'+esc(t)+'">'+esc(t)+'</button>').join("");
-  document.querySelectorAll("[data-topic]").forEach(b=>b.onclick=()=>{ browseTopic=b.getAttribute("data-topic"); renderBrowse(); });
+  document.querySelectorAll("[data-topic]").forEach(b=>b.onclick=()=>{ browseTopic=b.getAttribute("data-topic"); renderBrowse(); scrollToBrowseList(); });
   const list = items().filter(i=>browseTopic==="전체"||i.topic===browseTopic);
   document.getElementById("browseList").innerHTML = list.map(i=>{
     const isDone = P().completed.includes(i.id);
