@@ -446,12 +446,12 @@ summary{font-weight:800;cursor:pointer}
 
 <footer>
 <div class="footbrand"><span class="footlogo" id="footTile" aria-hidden="true">O</span><span class="footword" id="footWord">ONE PHRASE</span><span class="footko" id="footKo">한 문장 외국어</span></div>
-<div class="footmeta">v1.35.1 · © 2026 sidebatch</div>
+<div class="footmeta">v1.35.2 · © 2026 sidebatch</div>
 </footer>
 </div>
 <script>
 "use strict";
-const APP_VERSION = "1.35.1";
+const APP_VERSION = "1.35.2";
 const STORAGE_KEY = "une-phrase-progress-v1";
 const SUPABASE_URL = "https://cmhitsgoicxvmlwtrdrb.supabase.co";
 const SUPABASE_KEY = "sb_publishable_iZugJ1l1p3DSk_BB2Y3N3Q_qZwSo637";
@@ -1638,11 +1638,13 @@ function goToItem(idx, step){ P().levelFilter = "전체"; P().index = idx; setSt
 /* ---------- 복습 (망각곡선 큐) ---------- */
 function prepareReviewQueue(){
   const today = todayKey();
-  const before = JSON.stringify({ st: P().reviewState || {}, cd: P().curveDays || [], ds: P().dueSnapshot || null });
-  P().reviewState = ensureReviewState(P(), today);
-  P().dueSnapshot = captureDueSnapshot(P(), today);
-  P().curveDays = syncCurveDays(P(), today);
-  if(before !== JSON.stringify({ st: P().reviewState, cd: P().curveDays, ds: P().dueSnapshot || null })) saveProgress();
+  try{
+    const before = JSON.stringify({ st: P().reviewState || {}, cd: P().curveDays || [], ds: P().dueSnapshot || null });
+    P().reviewState = ensureReviewState(P(), today);
+    P().dueSnapshot = captureDueSnapshot(P(), today);
+    P().curveDays = syncCurveDays(P(), today);
+    if(before !== JSON.stringify({ st: P().reviewState, cd: P().curveDays, ds: P().dueSnapshot || null })) saveProgress();
+  }catch(e){ /* 일일 준비가 실패해도 렌더링은 스냅샷 없이 진행한다 */ }
   return today;
 }
 function curveLineHtml(lit, dueN, curveN){
@@ -1817,6 +1819,19 @@ function checkQuiz(){
   const db = document.getElementById("quizDoneBtn"); if(db) db.onclick = endQuiz;
 }
 function endQuiz(){ quizItem = null; quizAnswered = false; quizMode = "free"; quizSeen = new Set(); quizChallengeTotal = 0; quizDueUniverse = []; renderQuizEntry(); }
+/* ---------- Ensemble (Supabase: 지연 로드, 실패해도 본체는 무영향) ---------- */
+let sb = null;
+let sbLoadPromise = null;
+let sbAuthWired = false;
+let sbUser = null;
+let sbProfile = null;
+let sbSyncedLangs = {};
+let sbMemberCache = {};
+let sbMerging = false;
+let sbUploadTimer = null;
+let sbRestoreDone = false;
+let sbRestorePromise = null;
+let sbAuthInitPromise = null;
 function loadSupabase(){
   if(sb) return Promise.resolve(sb);
   if(sbLoadPromise) return sbLoadPromise;
@@ -2395,8 +2410,9 @@ function shareApp(){
 document.getElementById("shareBtn").onclick = ()=>{ shareApp(); };
 renderResetZone();
 if("serviceWorker" in navigator){ navigator.serviceWorker.register("./sw.js").catch(()=>{}); }
-initStorage().then(()=>{ applyTheme(themeOf(), false); applyLangLabels(); renderSoundBtn(); renderStudy(); });
-sbRestoreSession();
+initStorage().then(()=>{ applyTheme(themeOf(), false); applyLangLabels(); renderSoundBtn(); renderStudy(); })
+  .catch(()=>{ try{ renderStudy(); }catch(e){} });
+try{ sbRestoreSession(); }catch(e){}
 if(isOAuthReturn()){ sbAuthInitPromise = sbAuthReturnInit(); sbAuthInitPromise.then(()=>{ sbAuthInitPromise = null; }, ()=>{ sbAuthInitPromise = null; }); }
 </script>
 <script data-goatcounter="https://une-phrase.goatcounter.com/count"

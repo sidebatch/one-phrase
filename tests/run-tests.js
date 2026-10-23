@@ -1534,7 +1534,7 @@ const srsSrc = html.match(/function sbRestoreSession\(\)\{[\s\S]*?\n\}/)[0];
 ok(srsSrc.includes("loadSupabase()") && srsSrc.includes("wireSbAuth()") && srsSrc.includes("sbCurrentUser()"), "세션 복원: 부팅 복원이 Supabase를 로드해 저장된 세션을 확인함 (getSession 경로)");
 ok(srsSrc.includes("syncSbOnLogin()") && srsSrc.includes("renderProfileBtn()"), "세션 복원: 세션이 있으면 현재 언어 동기화를 돌리고 아바타 버튼을 갱신함");
 ok(srsSrc.includes("if(sbRestorePromise) return sbRestorePromise;") && srsSrc.includes("finally{ sbRestoreDone = true; }"), "세션 복원: 한 번만 실행되고, 성공·실패와 무관하게 완료로 표시됨 (실패·오프라인이면 게스트로 조용히 동작)");
-ok(html.includes("sbRestoreSession();\nif(isOAuthReturn()){ sbAuthInitPromise = sbAuthReturnInit();"), "세션 복원: 모든 부팅에서 복원이 실행됨 (OAuth 복귀 초기화를 대신 실행하는 구조가 아님)");
+ok(html.includes("try{ sbRestoreSession(); }catch(e){}\nif(isOAuthReturn()){ sbAuthInitPromise = sbAuthReturnInit();"), "세션 복원: 모든 부팅에서 복원이 실행됨 (OAuth 복귀 초기화를 대신 실행하는 구조가 아님)");
 const opSrc = html.match(/async function openProfile\(\)\{[\s\S]*?\n\}/)[0];
 ok(opSrc.includes("로그인 상태를 확인하고 있어요") && opSrc.indexOf("로그인 상태를 확인하고 있어요") < opSrc.indexOf("renderProfile();"), "내 정보: 복원이 끝나기 전에는 게스트로 확정 렌더하지 않고 확인 중 표시 뒤에 최종 상태로 그림");
 ok(opSrc.includes("await Promise.all(pending)") && opSrc.includes("if(ov.hidden) return;"), "내 정보: 복원을 기다리는 동안 모달을 닫으면 닫힌 모달에 뒤늦게 렌더하지 않음");
@@ -2011,7 +2011,130 @@ eval(rvPrelude + "\n" + helperSrc + "\n" + rvFns + "\n" + mapSheetSrcs + "\n" + 
   'endQuiz();'
 ].join("\n"));
 
+
+/* ---------- 부팅 스모크: 페이지의 실제 메인 스크립트 전체를 실행 ----------
+   함수 단위 테스트가 못 잡는 부팅 전체 흐름의 예외(선언 누락·초기화 순서)를 잡는다.
+   선언을 테스트가 주입하지 않고 index.html의 스크립트를 통째로 실행하는 것이 핵심이다. */
+async function runFullBootSmoke() {
+  console.log("\n[부팅 스모크: 실제 초기화 시퀀스 전체 실행]");
+  const vm = require("vm");
+  const lines = html.split("\n");
+  const starts = [];
+  lines.forEach((l, i) => { if (l.trim() === "<script>") starts.push(i); });
+  let mainSrc = "";
+  if (starts.length >= 2) {
+    let e = starts[1] + 1;
+    while (e < lines.length && lines[e].trim() !== "</script>") e++;
+    mainSrc = lines.slice(starts[1] + 1, e).join("\n");
+  }
+  ok(mainSrc.length > 10000, "부팅 스모크: 메인 스크립트 추출됨 (" + mainSrc.length + "자)");
+  if (!mainSrc) return;
+
+  class BootEl {
+    constructor(tag) {
+      this.tagName = String(tag || "div").toUpperCase();
+      this.children = []; this.style = {}; this.dataset = {}; this._attrs = {};
+      this._classes = new Set(); this._html = ""; this._text = "";
+      this.hidden = false; this.value = ""; this.disabled = false;
+      const self = this;
+      this.classList = {
+        add: (...cs) => cs.forEach(c => self._classes.add(c)),
+        remove: (...cs) => cs.forEach(c => self._classes.delete(c)),
+        toggle: (c, f) => { if (f === undefined) f = !self._classes.has(c); if (f) self._classes.add(c); else self._classes.delete(c); return f; },
+        contains: c => self._classes.has(c)
+      };
+    }
+    get innerHTML() { return this._html; }
+    set innerHTML(v) { this._html = String(v); }
+    get textContent() { return this._text; }
+    set textContent(v) { this._text = String(v); }
+    setAttribute(k, v) { this._attrs[k] = String(v); }
+    getAttribute(k) { return k in this._attrs ? this._attrs[k] : null; }
+    removeAttribute(k) { delete this._attrs[k]; }
+    addEventListener() {} removeEventListener() {}
+    appendChild(c) { this.children.push(c); return c; }
+    removeChild(c) { return c; }
+    insertBefore(c) { this.children.push(c); return c; }
+    querySelector() { return null; }
+    querySelectorAll() { return []; }
+    focus() {} blur() {} click() {} scrollIntoView() {}
+    getBoundingClientRect() { return { top: 0, left: 0, width: 0, height: 0 }; }
+  }
+
+  async function bootOnce(fixture) {
+    const byId = new Map();
+    const rafCbs = [];
+    const errors = [];
+    const store = new Map(Object.entries(fixture || {}));
+    const doc = {
+      documentElement: new BootEl("html"), head: new BootEl("head"), body: new BootEl("body"),
+      getElementById: id => { if (!byId.has(id)) byId.set(id, new BootEl("div")); return byId.get(id); },
+      querySelector: () => null, querySelectorAll: () => [],
+      createElement: t => new BootEl(t),
+      addEventListener: () => {}, removeEventListener: () => {}
+    };
+    const sandbox = {
+      console, setTimeout, clearTimeout, setInterval, clearInterval,
+      document: doc,
+      localStorage: {
+        getItem: k => (store.has(k) ? store.get(k) : null),
+        setItem: (k, v) => { store.set(k, String(v)); },
+        removeItem: k => { store.delete(k); },
+        clear: () => store.clear()
+      },
+      navigator: { storage: { persist: async () => true, persisted: async () => true }, userAgent: "bootsmoke" },
+      location: { origin: "https://sidebatch.github.io", pathname: "/one-phrase/", search: "", hash: "", href: "https://sidebatch.github.io/one-phrase/" },
+      requestAnimationFrame: cb => { rafCbs.push(cb); return rafCbs.length; },
+      fetch: () => Promise.reject(new Error("no network in stub")),
+      alert: () => {}, URL, Blob
+    };
+    sandbox.window = sandbox; sandbox.self = sandbox; sandbox.globalThis = sandbox;
+    const ctx = vm.createContext(sandbox);
+    const onRej = e2 => { const st = String((e2 && e2.stack) || e2); if (st.includes("index-main.js")) errors.push("unhandled: " + String((e2 && e2.message) || e2)); };
+    process.on("unhandledRejection", onRej);
+    try { vm.runInContext(mainSrc, ctx, { filename: "index-main.js" }); }
+    catch (e) { errors.push("sync: " + String((e && e.message) || e)); }
+    for (let i = 0; i < 60; i++) {
+      await new Promise(r => setTimeout(r, 5));
+      while (rafCbs.length) { const cb = rafCbs.shift(); try { cb(0); } catch (e) { errors.push("raf: " + String((e && e.message) || e)); } }
+    }
+    process.removeListener("unhandledRejection", onRej);
+    const study = byId.get("studyCard"), quiz = byId.get("quizArea");
+    return { errors, studyHtml: study ? study.innerHTML : "", quizHtml: quiz ? quiz.innerHTML : "", store };
+  }
+
+  const KEY = "une-phrase-progress-v1";
+  const b1350 = extra => Object.assign({
+    index: 3, completed: [1, 2, 3], doneDates: ["2026-10-21", "2026-10-22"], step: 1, reviewCorrect: 1,
+    completedAt: { "1": "2026-10-20", "2": "2026-10-21", "3": "2026-10-22" }, reviewIds: [2], levelFilter: "전체",
+    reviewState: { "1": { step: 0, due: "2026-10-21", last: "2026-10-20" }, "2": { step: 1, due: "2026-10-24", last: "2026-10-21" }, "3": { step: 0, due: "2026-10-23", last: "2026-10-22" } },
+    curveDays: ["2026-10-22"], reviewDates: ["2026-10-22", "2026-10-22"]
+  }, extra || {});
+  const e1350 = () => ({ index: 0, completed: [], doneDates: [], step: 1, reviewCorrect: 0, completedAt: {}, reviewIds: [], levelFilter: "전체", reviewState: {}, curveDays: [], reviewDates: [] });
+  const b134 = () => ({ index: 2, completed: [1, 2], doneDates: ["2026-10-21"], step: 1, reviewCorrect: 0, completedAt: { "1": "2026-10-20", "2": "2026-10-21" }, reviewIds: [], levelFilter: "전체" });
+  const wrap = fr => ({ [KEY]: JSON.stringify({ lang: "fr", sound: true, theme: "light", byLang: { fr, en: e1350(), es: e1350() } }) });
+
+  const cases = [
+    ["신규(저장본 없음)", {}],
+    ["v1.35.0 형식 저장본", wrap(b1350())],
+    ["v1.34 형식 저장본(reviewState 없음)", { [KEY]: JSON.stringify({ lang: "fr", sound: true, theme: "light", byLang: { fr: b134(), en: b134(), es: b134() } }) }],
+    ["손상된 필드(dueSnapshot·wrongToday·reviewState·curveDays 타입 오류)", wrap(b1350({ dueSnapshot: { date: 42, ids: "junk" }, wrongToday: "oops", reviewState: { "1": null, "2": { step: "x", due: 7 }, "zz": { step: 0, due: "2026-10-01", last: "2026-10-01" } }, curveDays: "notarray" }))]
+  ];
+  for (const [label, fixture] of cases) {
+    const r = await bootOnce(fixture);
+    ok(r.errors.length === 0, "부팅 스모크 " + label + ": 초기화 예외 없음", r.errors.join(" | "));
+    ok(r.studyHtml.length > 0, "부팅 스모크 " + label + ": 첫 렌더(공부 카드) 도달");
+    ok(r.quizHtml.length > 0, "부팅 스모크 " + label + ": 복습 카드 렌더 도달");
+    if (label.startsWith("v1.35.0")) {
+      let kept = null;
+      try { kept = JSON.parse(r.store.get(KEY)); } catch (e) {}
+      ok(!!kept && JSON.stringify(kept.byLang.fr.completed) === "[1,2,3]", "부팅 스모크 v1.35.0 형식: 기존 진도(완료 3개)가 삭제·초기화되지 않음");
+    }
+  }
+}
+
 (async function finish() {
+  try { await runFullBootSmoke(); } catch (e) { ok(false, "부팅 스모크: 실행 오류", String((e && e.stack) || e)); }
   try { await runEqEnsembleSmoke(); } catch (e) { ok(false, "동등성 Ensemble: 스모크 실행 오류", String((e && e.message) || e)); }
   try { await runBootRestoreSmoke(); } catch (e) { ok(false, "부팅 복원: 스모크 실행 오류", String((e && e.stack) || e)); }
   try { await runResetTokenSmoke(); } catch (e) { ok(false, "초기화 토큰: 스모크 실행 오류", String((e && e.stack) || e)); }
