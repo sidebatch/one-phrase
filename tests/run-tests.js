@@ -1012,6 +1012,8 @@ const renderOptsSrc = html.match(/function renderThemeOpts\(\)\{[\s\S]*?\n\}/)[0
     "const THEME_META_COLORS = { light:'#1C3A71', black:'#050607', paper:'#F6EFE3' };\n" + themeOfSrc + "\nreturn { themeOf };")(fakeDoc, progress, saveProgress);
   ok(api2.themeOf() === "light", "테마: 알 수 없는 테마 값은 라이트로 취급");
 }
+ok(/\.themelabel\{[^}]*white-space:\s*nowrap/.test(html), "테마: 이름 라벨이 가로 한 줄로 표시됨 (nowrap)");
+ok(/\.themeopt\{[^}]*min-width:\s*132px/.test(html), "테마: 카드 최소 폭 132px으로 한 줄 라벨이 들어갈 폭 보장");
 const ptrSrcT = html.match(/function progressToRemote\(p\)\{[\s\S]*?\n\}/)[0];
 eval(ptrSrcT);
 {
@@ -1031,7 +1033,7 @@ const LEVEL_ICON_ART_EVAL = eval(iconArtSrc.match(/\[[\s\S]*\]/)[0]);
 eval(iconSrc);
 ok(LEVEL_ICON_ART_EVAL.length === 10, "펜 아이콘: 레벨 1~10 아이콘이 10개 있음");
 ok(LEVEL_ICON_ART_EVAL[0].includes("#f2c14e") && LEVEL_ICON_ART_EVAL[1].includes("#f5b921") && LEVEL_ICON_ART_EVAL[2].includes("#4a4f57") && LEVEL_ICON_ART_EVAL[3].includes("#2f6bd8") && LEVEL_ICON_ART_EVAL[4].includes("#dde3ea"), "펜 아이콘: 1~5단계가 몽당연필·연필·샤프펜슬·볼펜·메탈 볼펜 순서");
-ok(LEVEL_ICON_ART_EVAL[5].includes("#23262b") && LEVEL_ICON_ART_EVAL[5].includes("#cfd6de") && LEVEL_ICON_ART_EVAL[6].includes("#eec25e") && LEVEL_ICON_ART_EVAL[7].includes("#274b9f") && LEVEL_ICON_ART_EVAL[8].includes("#dcf2fd") && LEVEL_ICON_ART_EVAL[9].includes("M14,78"), "펜 아이콘: 6~10단계가 실버·골드·사파이어·다이아 만년필과 깃털펜 순서");
+ok(LEVEL_ICON_ART_EVAL[5].includes("#23262b") && LEVEL_ICON_ART_EVAL[5].includes("#cfd6de") && LEVEL_ICON_ART_EVAL[6].includes("#eec25e") && LEVEL_ICON_ART_EVAL[7].includes("#1e4fa3") && LEVEL_ICON_ART_EVAL[7].includes("#7db4ff") && LEVEL_ICON_ART_EVAL[8].includes("#f4fafd") && LEVEL_ICON_ART_EVAL[8].includes("#dff3ff") && LEVEL_ICON_ART_EVAL[9].includes('stroke="#eec25e"') && LEVEL_ICON_ART_EVAL[9].includes("#232d38"), "펜 아이콘: 6~10단계가 실버·골드·사파이어·다이아 만년필과 깃털펜 순서");
 ok(levelIcon(1).includes("<svg") && levelIcon(1).includes('data-lv="1"') && levelIcon(10, 64).includes('width="64"') && levelIcon(10, 64).includes('data-lv="10"'), "펜 아이콘: levelIcon이 단계·크기에 맞는 인라인 SVG를 돌려줌");
 ok(!levelIcon(1).includes("#fdf6e9") && !levelIcon(5).includes('r="48"') && !levelIcon(9).includes("#e7d9b8") && levelIcon(1).includes("scale(1.34)") && levelIcon(9).includes("scale(1.18)") && levelIcon(10).includes("scale(1.08)"), "펜 아이콘: 크림 원판 제거 + 단계별 확대로 프레임을 채워 표시");
 ok(!html.includes("LEVEL_MEDALS") && !html.includes("medalOf"), "펜 아이콘: 기존 이모지 메달 체계(LEVEL_MEDALS·medalOf)가 제거됨");
