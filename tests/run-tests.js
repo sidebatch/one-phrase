@@ -19,7 +19,10 @@ ok(ITEMS.every(i => Array.isArray(i.chunks) && i.chunks.length >= 2 && i.chunks.
 ok(ITEMS.every(i => i.pattern && i.pattern.length >= 10), "패턴 한 줄 있음");
 ok(ITEMS.every(i => Array.isArray(i.words) && i.words.length >= 1 && i.words.every(w => w[0] && w[1])), "핵심 단어 1개 이상");
 ok(ITEMS.every(i => i.topic && i.level && i.tef), "주제·레벨·TEF 연결 있음");
-ok(ITEMS.every(i => ["A2", "B1", "B2"].includes(i.level)), "레벨은 A2/B1/B2");
+ok(ITEMS.every(i => ["A1", "A2", "B1", "B2"].includes(i.level)), "레벨은 A1/A2/B1/B2 (A1 도입, v1.33.0)");
+ok(ITEMS.length === 306, "프랑스어 문장 총 306개 (실제 " + ITEMS.length + ")");
+{ const dist = lv => ITEMS.filter(i => i.level === lv).length;
+  ok(dist("A1") === 10 && dist("A2") === 98 && dist("B1") === 96 && dist("B2") === 102, "프랑스어 레벨 분포: A1 10 · A2 98 · B1 96 · B2 102 (신규 A1~A2 20개 반영)"); }
 ok(ITEMS.every(i => /(EO 말하기|EE 쓰기|CE 읽기|CO 듣기)/.test(i.tef)), "TEF 표기에 한국어 영역명 병기");
 const topics = [...new Set(ITEMS.map(i => i.topic))];
 ok(topics.length >= 8, "주제 8종 이상 (실제 " + topics.length + ": " + topics.join(",") + ")");
@@ -74,7 +77,7 @@ ok(html.includes('fr-FR'), "TTS 언어 fr-FR");
 console.log("\n[단계 이어가기]");
 ok(html.includes("function setStep(n){ currentStep = n; P().step = n; saveProgress(); }"), "단계 이동 시 기록에 단계 저장 (setStep)");
 ok(html.includes("currentStep = [1,2,3].includes(P().step) ? P().step : 1;"), "다시 열면 저장된 단계로 복원 (활성 언어 버킷)");
-ok(/P\(\)\.index < items\(\)\.length-1\) P\(\)\.index\+\+;\s*\n\s*P\(\)\.step = 1;/.test(html), "문장 완료 시 다음 문장은 1단계부터 (기록 단계 초기화)");
+ok(/P\(\)\.index < studyItems\(\)\.length-1\) P\(\)\.index\+\+;\s*\n\s*P\(\)\.step = 1;/.test(html), "문장 완료 시 다음 문장은 1단계부터 (기록 단계 초기화, 레벨 범위 큐 기준)");
 
 console.log("\n[완료 시각화·폴리시]");
 ok(html.includes('id="pfill"') && html.includes('role="progressbar"'), "헤더 전체 진행률 바 있음");
@@ -188,6 +191,9 @@ const helperSrc = [
   html.match(/function curLang\(\)\{[^}]*\}/)[0],
   html.match(/function P\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function items\(\)\{[^}]*\}/)[0],
+  html.match(/function levelFilter\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function studyItems\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function levelOptions\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function itemText\(it\)\{[^}]*\}/)[0]
 ].join("\n");
 const smokePrelude = [
@@ -228,6 +234,12 @@ const smokeFns = [
   html.match(/function todayKey\(\)\{[^}]*\}/)[0],
   html.match(/function countToday\(p\)\{[^}]*\}/)[0],
   html.match(/function bindWordProg[\s\S]*?\n\}/)[0],
+  html.match(/function soundEnabled\(\)[^\n]*/)[0],
+  html.match(/const COMPLETE_MOTIFS = \{[\s\S]*?\n\};/)[0],
+  html.match(/const COMPLETE_NOTE_GAP = [^\n]*/)[0],
+  html.match(/const COMPLETE_NOTE_DUR = [^\n]*/)[0],
+  html.match(/function playCompleteSound\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function renderLevelChips\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function renderStudy\(\)[\s\S]*?\n\}/)[0],
   ctSrc, csSrc,
   html.match(/function startQuiz[\s\S]*?\n\}/)[0],
@@ -531,6 +543,7 @@ const flFns = [
   html.match(/function todayKey\(\)\{[^}]*\}/)[0],
   html.match(/function countToday\(p\)\{[^}]*\}/)[0],
   html.match(/function bindWordProg[\s\S]*?\n\}/)[0],
+  html.match(/function renderLevelChips\(\)\{[\s\S]*?\n\}/)[0],
   rsSrc2, ctSrc
 ].join("\n");
 const flDriver = [
@@ -568,7 +581,29 @@ const flDriver = [
   'ok(currentStep === 3, "재통과 스모크: 재통과 후에야 3단계로 넘어감");',
   'FL_ELS["typeInput"].value = ITEMS[0].fr;',
   'checkTyping();',
-  'ok(FL_ELS["fb"].innerHTML.includes("완료하기"), "흐름 스모크: 3단계 정답 후 버튼은 완료하기");'
+  'ok(FL_ELS["fb"].innerHTML.includes("완료하기"), "흐름 스모크: 3단계 정답 후 버튼은 완료하기");',
+  // 강등 흐름 (v1.33.0): 3단계 오답 → 확인 → 2단계로 내려가 재통과해야만 3단계 재진입
+  'progress = migrateProgress({ index:1, step:3, completed:[], doneDates:[], completedAt:{}, reviewCorrect:0, sound:true });',
+  'currentStep = 3;',
+  'renderStudy();',
+  'FL_ELS["typeInput"].value = "전혀 다른 문장을 썼어요";',
+  'checkTyping();',
+  'ok(FL_ELS["fb"].innerHTML.includes("여기가 달라요") && FL_ELS["fb"].innerHTML.includes(\'id="demoteBtn"\'), "강등 스모크: 3단계 오답이면 diff와 확인 버튼(확인하고 다시 따라 쓰기)이 함께 표시됨");',
+  'ok(FL_ELS["fb"].innerHTML.includes("확인하고 다시 따라 쓰기"), "강등 스모크: 확인 버튼 라벨이 안내대로임");',
+  'ok(FL_ELS["typeInput"].disabled === true, "강등 스모크: 확인 상태에서는 입력이 잠겨 3단계에서 바로 재시도할 수 없음");',
+  'ok(FL_ELS["checkBtn"].style.display === "none" && FL_ELS["backBtn"].style.display === "none", "강등 스모크: 확인 상태의 버튼은 확인 계열 하나뿐 (확인하기·뒤로 숨김)");',
+  'FL_ELS["demoteBtn"].onclick();',
+  'ok(currentStep === 2 && progress.byLang.fr.step === 2, "강등 스모크: 확인을 누르면 자동으로 2단계(따라 쓰기)로 내려감");',
+  'const cardD = FL_ELS["studyCard"].innerHTML;',
+  'ok(cardD.includes(ITEMS[1].fr) && cardD.includes(\'id="checkBtn"\'), "강등 스모크: 2단계는 문장을 보여주는 따라 쓰기로 다시 열림");',
+  'FL_ELS["typeInput"].value = "또 틀린 문장";',
+  'checkTyping();',
+  'ok(!FL_ELS["fb"].innerHTML.includes("demoteBtn") && FL_ELS["fb"].innerHTML.includes("여기가 달라요"), "강등 스모크: 2단계 오답은 기존처럼 그 자리에서 diff만 보고 다시 시도 가능 (강등 없음)");',
+  'FL_ELS["typeInput"].value = ITEMS[1].fr;',
+  'checkTyping();',
+  'ok(FL_ELS["fb"].innerHTML.includes(\'id="advanceBtn"\'), "강등 스모크: 2단계를 다시 정답으로 통과해야 진행 버튼이 나타남");',
+  'FL_ELS["advanceBtn"].onclick();',
+  'ok(currentStep === 3, "강등 스모크: 2단계 재통과 후에야 3단계로 재진입함");'
 ].join("\n");
 eval(flPrelude + "\n" + helperSrc + "\n" + flFns + "\n" + flDriver);
 
@@ -737,7 +772,7 @@ ok(onmSrc.includes("nickAutoShown") && onmSrc.includes("return"), "닉네임 모
 const rtSrc = html.match(/async function renderTogether\(\)\{[\s\S]*?\n\}/)[0];
 ok(rtSrc.includes("sbOpenNickBtn") && rtSrc.includes("openNickModal(false)") && rtSrc.includes("nickbanner"), "Ensemble: 닉네임이 없으면 얇은 배너 + 버튼으로 모달을 열 수 있음");
 const rtmSrc = html.match(/async function renderTogetherMembers\(\)\{[\s\S]*?\n\}/)[0];
-ok(rtmSrc.includes("avatarHtml(") && rtmSrc.includes('class="card mycard"') && rtmSrc.includes('class="card membercard') && rtmSrc.includes("lvbadge"), "Ensemble: 내 카드·참여자 카드에 아바타 원·Lv 배지가 있음");
+ok(rtmSrc.includes("avatarHtml(") && rtmSrc.includes('class="card membercard') && rtmSrc.includes('data-sbcard=') && rtmSrc.includes("lvbadge"), "Ensemble: 참여자 카드(본인 포함 단일 렌더)에 아바타 원·Lv 배지가 있음");
 ok(rtmSrc.includes("pctOf(") && rtmSrc.includes('class="pfill"') && rtmSrc.includes("Math.round"), "Ensemble: 카드마다 진행 바(완료 N/전체, %)가 있음");
 const spSrc = html.match(/function saveProgress\(\)\{[\s\S]*?\n\}/)[0];
 ok(spSrc.includes("scheduleSbUpload()"), "동기화: saveProgress가 서버 업로드를 예약함 (디바운스)");
@@ -917,7 +952,7 @@ const LEVEL_MEDALS_EVAL = eval(medalArrSrc.match(/\[[\s\S]*\]/)[0]);
 ok(LEVEL_MEDALS_EVAL.length === 10, "메달: 레벨 1~10 메달이 10개 있음");
 ok(LEVEL_MEDALS_EVAL.join("") === "🌱🌿🍀🥉🥈🥇💎🔥⭐👑", "메달: 순서가 🌱🌿🍀🥉🥈🥇💎🔥⭐👑");
 ok(medalOf(1) === "🌱" && medalOf(4) === "🥉" && medalOf(6) === "🥇" && medalOf(10) === "👑", "메달: medalOf가 레벨에 맞는 메달을 돌려줌");
-ok(rtmSrc.includes("medalOf(mlv.lv)") && rtmSrc.includes("medalOf(lv.lv)"), "메달: Ensemble 내 카드와 참여자 행의 Lv 배지 옆에 메달 표시");
+ok(rtmSrc.includes("medalOf(lv.lv)") && rtmSrc.includes("pl.medal"), "메달: Ensemble 참여자 카드의 Lv 배지와 언어별 칩에 메달 표시");
 ok(html.includes('id="profileBtn"') && html.indexOf('id="profileBtn"') > html.indexOf('class="brandrow"') && html.indexOf('id="profileBtn"') < html.indexOf('id="menuBtn"'), "내 정보: 헤더 아바타 버튼이 메뉴 버튼 왼쪽에 있음");
 ok(html.includes('id="profileOverlay" hidden') && html.includes('id="profileBackdrop"') && html.includes('id="profileCloseBtn"') && html.includes('aria-label="내 정보"'), "내 정보: 바텀시트 모달(배경·닫기 ✕)이 전역에 있고 처음에는 숨겨져 있음");
 ok(html.includes('getElementById("profileBtn").onclick') && html.includes("function openProfile()") && html.includes("renderProfile();"), "내 정보: 버튼을 누르면 모달이 열리고 열 때마다 최신 데이터로 렌더");
@@ -953,8 +988,8 @@ console.log("\n[다언어 콘텐츠·표기 (v1.32.0)]");
 const ITEMS_EN_REAL = JSON.parse(html.match(/const ITEMS_EN = (\[[\s\S]*?\n\]);/)[1]);
 const ITEMS_ES_REAL = JSON.parse(html.match(/const ITEMS_ES = (\[[\s\S]*?\n\]);/)[1]);
 const FR_TOPICS = [...new Set(ITEMS.map(i => i.topic))];
-for (const [arr, code, levels] of [[ITEMS_EN_REAL, "en", ["B1", "B2"]], [ITEMS_ES_REAL, "es", ["A2", "B1"]]]) {
-  ok(arr.length === 10, "다언어 콘텐츠: " + code + " 문장 10개 (실제 " + arr.length + ")");
+for (const [arr, code, levels] of [[ITEMS_EN_REAL, "en", ["A1", "A2", "B1", "B2"]], [ITEMS_ES_REAL, "es", ["A1", "A2", "B1"]]]) {
+  ok(arr.length === 30, "다언어 콘텐츠: " + code + " 문장 30개 (기존 10 + A1~A2 신규 20, 실제 " + arr.length + ")");
   ok(new Set(arr.map(i => i.id)).size === arr.length && arr.every(i => i.id.startsWith(code + "-")), "다언어 콘텐츠: " + code + " id가 " + code + "- 접두·중복 없음");
   ok(arr.every(i => i.lang === code && i.text && i.text.trim() && i.ko && i.ko.trim()), "다언어 콘텐츠: " + code + " lang·문장·한국어 뜻 완비");
   ok(arr.every(i => Array.isArray(i.chunks) && i.chunks.length >= 2 && i.chunks.length <= 4 && i.chunks.every(c => c[0] && c[1])), "다언어 콘텐츠: " + code + " 덩어리 2~4개, 내용 있음");
@@ -962,6 +997,11 @@ for (const [arr, code, levels] of [[ITEMS_EN_REAL, "en", ["B1", "B2"]], [ITEMS_E
   ok(arr.every(i => Array.isArray(i.words) && i.words.length === 2 && i.words.every(w => w[0] && w[1])), "다언어 콘텐츠: " + code + " 핵심 단어 정확히 2개씩");
   ok(arr.every(i => FR_TOPICS.includes(i.topic) && levels.includes(i.level)), "다언어 콘텐츠: " + code + " 주제는 기존 체계, 레벨은 " + levels.join("/") + " 범위");
 }
+{ const distE = lv => ITEMS_EN_REAL.filter(i => i.level === lv).length;
+  const distS = lv => ITEMS_ES_REAL.filter(i => i.level === lv).length;
+  ok(distE("A1") === 10 && distE("A2") === 10 && distE("B1") === 6 && distE("B2") === 4, "영어 레벨 분포: A1 10 · A2 10 · B1 6 · B2 4");
+  ok(distS("A1") === 10 && distS("A2") === 14 && distS("B1") === 6, "스페인어 레벨 분포: A1 10 · A2 14 · B1 6");
+  ok(ITEMS_EN_REAL.slice(10).every(i => i.level === "A1" || i.level === "A2") && ITEMS_ES_REAL.slice(10).every(i => i.level === "A1" || i.level === "A2"), "신규 20개씩은 전부 A1~A2 (en-11~30, es-11~30)"); }
 { const enText = ITEMS_EN_REAL.map(i => i.text.toLowerCase()).join(" ");
   ok(["because of", "even though", "used to", "about to", "ended up", "turns out", "would rather", "as long as", "no choice but to"].every(p => enText.includes(p)), "다언어 콘텐츠: 영어 10문장에 핵심 패턴이 실제로 들어 있음"); }
 { const esText = ITEMS_ES_REAL.map(i => i.text.toLowerCase()).join(" ");
@@ -1043,6 +1083,9 @@ const eqHelperSrc = [
   html.match(/function curLang\(\)\{[^}]*\}/)[0],
   html.match(/function P\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function items\(\)\{[^}]*\}/)[0],
+  html.match(/function levelFilter\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function studyItems\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function levelOptions\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function itemText\(it\)\{[^}]*\}/)[0]
 ].join("\n");
 const eqPrelude = [
@@ -1080,7 +1123,13 @@ const eqFns = [
   html.match(/function todayKey\(\)\{[^}]*\}/)[0],
   html.match(/function countToday\(p\)\{[^}]*\}/)[0],
   html.match(/function bindWordProg[\s\S]*?\n\}/)[0],
+  html.match(/function soundEnabled\(\)[^\n]*/)[0],
+  html.match(/const COMPLETE_MOTIFS = \{[\s\S]*?\n\};/)[0],
+  html.match(/const COMPLETE_NOTE_GAP = [^\n]*/)[0],
+  html.match(/const COMPLETE_NOTE_DUR = [^\n]*/)[0],
+  html.match(/function playCompleteSound\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function renderProgress\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function renderLevelChips\(\)\{[\s\S]*?\n\}/)[0],
   rsSrc2, ctSrc, csSrc,
   html.match(/function renderQuizEntry\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function startQuiz[\s\S]*?\n\}/)[0],
@@ -1220,6 +1269,7 @@ async function runEqEnsembleSmoke() {
   const prelude = [
     'let sb = { from(t) { return sbTableEq(t); } };',
     'let sbUser = { id: "user-1" };',
+    'let sbMemberCache = {};',
     'let progress = null;',
     'const document = e2Document;',
     'function renderProfileBtn(){}',
@@ -1241,16 +1291,178 @@ async function runEqEnsembleSmoke() {
   await renderTogetherMembers();
   const h = E2_ELS["view-together"].innerHTML;
   ok(!eqConds.some(c => c.indexOf("progress:lang=") === 0), "동등성 Ensemble: progress는 언어로 걸러지 않고 전 언어 행을 가져옴");
-  ok(h.includes("완료 2 / 10"), "동등성 Ensemble: 메인 진행 바는 활성 언어(es) 기준 2/10 (fr 기록 3개가 섞이지 않음)");
-  ok(h.includes("프랑스어 🌿 Lv.2 · 3문장"), "동등성 Ensemble: 내 카드에 프랑스어 줄 (Lv.2 · 3문장 — 완료 3개=30 XP로 따로 계산)");
-  ok(h.includes("스페인어 🌱 Lv.1 · 2문장"), "동등성 Ensemble: 내 카드에 스페인어 줄 (Lv.1 · 2문장 — 언어가 합산되지 않음)");
-  ok(h.includes("스페인어 🌱 Lv.1 · 1문장") && h.includes("프랑스어 🌱 Lv.1 · 1문장"), "동등성 Ensemble: 다른 참여자 카드에도 언어별 레벨·완료 수가 표시됨");
+  ok(h.includes("완료 2 / 30"), "동등성 Ensemble: 메인 진행 바는 활성 언어(es) 기준 2/30 (fr 기록 3개가 섞이지 않음)");
+  ok(h.includes("프랑스어 🌿 Lv.2 · 3/306문장"), "동등성 Ensemble: 내 카드 칩에 프랑스어 (Lv.2 · 3/306문장 — 완료 3개=30 XP로 따로 계산)");
+  ok(h.includes("스페인어 🌱 Lv.1 · 2/30문장"), "동등성 Ensemble: 내 카드 칩에 스페인어 (Lv.1 · 2/30문장 — 언어가 합산되지 않음)");
+  ok(h.includes("영어 🌱 Lv.1 · 0/30문장"), "동등성 Ensemble: 진도가 없는 언어도 Lv.1 · 0문장으로 표시되어 3개 언어가 전부 보임");
+  ok(h.includes("스페인어 🌱 Lv.1 · 1/30문장") && h.includes("프랑스어 🌱 Lv.1 · 1/306문장"), "동등성 Ensemble: 다른 참여자 카드에도 언어별 레벨·완료 수가 표시됨");
+  ok((h.match(/\(나\)/g) || []).length === 1 && !h.includes("mycard"), "회귀(F): 본인 카드는 참여자 목록에서 한 번만 렌더됨 (별도 내 카드 중복 제거)");
+  ok(!h.includes("sbRefreshBtn") && !h.includes("sbLogoutBtn"), "Ensemble 정리(G): 새로고침·로그아웃 버튼이 목록 화면에 없음 (로그아웃은 내 정보 모달에만)");
   const fakeBtn = { textContent: "" };
   await toggleMemberDone("user-2", fakeBtn);
   const dh = E2_ELS["sbdone-user-2"].innerHTML;
-  ok(dh.includes("프랑스어") && dh.includes("스페인어"), "동등성 Ensemble 펼침: 완료 문장이 언어별로 구분되어 표시됨");
+  ok(dh.includes("프랑스어") && dh.includes("스페인어") && dh.includes("영어"), "동등성 Ensemble 펼침: 3개 언어 섹션이 전부 표시됨");
   ok(dh.includes(ITEMS[0].fr) && dh.includes(ITEMS_ES_REAL[0].text), "동등성 Ensemble 펼침: 각 언어의 실제 완료 문장이 그 언어 데이터로 표시됨");
+  ok(dh.includes("아직 완료한 문장이 없어요"), "동등성 Ensemble 펼침: 진도 없는 언어 섹션에는 빈 상태 문구가 표시됨");
 }
+
+console.log("\n[완료 효과음: 언어별 모티프 (v1.33.0)]");
+const motifSrc = html.match(/const COMPLETE_MOTIFS = \{[\s\S]*?\n\};/)[0];
+const COMPLETE_MOTIFS = eval(motifSrc + "\nCOMPLETE_MOTIFS;");
+ok(["fr", "en", "es"].every(c => Array.isArray(COMPLETE_MOTIFS[c]) && COMPLETE_MOTIFS[c].length >= 2 && COMPLETE_MOTIFS[c].length <= 3), "완료 효과음: 언어별 모티프가 2~3음으로 구성됨");
+ok(["fr", "en", "es"].every(c => COMPLETE_MOTIFS[c].every((f, i, a) => i === 0 || f > a[i - 1])), "완료 효과음: 언어별 모티프가 부드러운 상승 진행");
+ok(new Set(["fr", "en", "es"].map(c => COMPLETE_MOTIFS[c].join(","))).size === 3, "완료 효과음: fr·en·es 모티프가 서로 다름");
+{ const gap = parseFloat(html.match(/const COMPLETE_NOTE_GAP = ([\d.]+);/)[1]);
+  const dur = parseFloat(html.match(/const COMPLETE_NOTE_DUR = ([\d.]+);/)[1]);
+  ok((3 - 1) * gap + dur <= 0.4, "완료 효과음: 3음을 다 재생해도 전체 길이가 0.4초 이내 (" + ((3 - 1) * gap + dur).toFixed(2) + "초)"); }
+const pcsSrc = html.match(/function playCompleteSound\(\)\{[\s\S]*?\n\}/)[0];
+ok(pcsSrc.includes("soundEnabled()") && pcsSrc.includes("COMPLETE_MOTIFS[curLang()]") && pcsSrc.includes("0.18") && pcsSrc.includes("exponentialRampToValueAtTime"), "완료 효과음: 사운드 설정을 존중하고, 언어별 모티프를 작은 볼륨·부드러운 envelope로 합성 (외부 파일 없음)");
+ok(!pcsSrc.includes("http") && !pcsSrc.includes(".mp3") && !pcsSrc.includes("Audio("), "완료 효과음: 외부 오디오 파일을 쓰지 않음 (WebAudio 합성만)");
+ok(csSrc.includes("playCompleteSound()"), "완료 효과음: 문장 완료 처리(completeSentence)에서 호출됨");
+ok(!ctSrc.includes("playCompleteSound") && !cqSrc.includes("playCompleteSound"), "완료 효과음: 단계 정답·복습 퀴즈 정답에서는 호출되지 않음 (신규 문장 완료만)");
+// 완료 효과음 기능 스모크: 가짜 AudioContext로 언어별 주파수·무음 설정을 확인
+const SND_ELS = {};
+const sndPrelude = [
+  'const sndFreqs = [];',
+  'function FakeGain(){ this.gain = { value: 0, setValueAtTime(){}, exponentialRampToValueAtTime(){} }; }',
+  'FakeGain.prototype.connect = function(){};',
+  'function FakeOsc(){ this.type = ""; this.frequency = { value: 0 }; }',
+  'FakeOsc.prototype.connect = function(){};',
+  'FakeOsc.prototype.start = function(){ sndFreqs.push(this.frequency.value); };',
+  'FakeOsc.prototype.stop = function(){};',
+  'function FakeAC(){ this.currentTime = 0; this.state = "running"; this.destination = {}; }',
+  'FakeAC.prototype.createGain = function(){ return new FakeGain(); };',
+  'FakeAC.prototype.createOscillator = function(){ return new FakeOsc(); };',
+  'FakeAC.prototype.resume = function(){};',
+  'const window = { AudioContext: FakeAC };',
+  'let audioCtx = null;',
+  'let progress = { lang: "fr", sound: true };'
+].join("\n");
+eval(sndPrelude + "\n" + langsSrcEq + "\n" + motifSrc + "\n"
+  + html.match(/const COMPLETE_NOTE_GAP = [^\n]*/)[0] + "\n"
+  + html.match(/const COMPLETE_NOTE_DUR = [^\n]*/)[0] + "\n"
+  + html.match(/function curLang\(\)\{[^}]*\}/)[0] + "\n"
+  + html.match(/function soundEnabled\(\)[^\n]*/)[0] + "\n"
+  + pcsSrc + "\n" + [
+  'playCompleteSound();',
+  'ok(sndFreqs.join(",") === COMPLETE_MOTIFS.fr.join(","), "완료 효과음 스모크: 프랑스어에서는 fr 모티프가 재생됨");',
+  'sndFreqs.length = 0; progress.lang = "en";',
+  'playCompleteSound();',
+  'ok(sndFreqs.join(",") === COMPLETE_MOTIFS.en.join(","), "완료 효과음 스모크: 영어에서는 en 모티프가 재생됨");',
+  'sndFreqs.length = 0; progress.lang = "es";',
+  'playCompleteSound();',
+  'ok(sndFreqs.join(",") === COMPLETE_MOTIFS.es.join(","), "완료 효과음 스모크: 스페인어에서는 es 모티프가 재생됨");',
+  'sndFreqs.length = 0; progress.sound = false;',
+  'playCompleteSound();',
+  'ok(sndFreqs.length === 0, "완료 효과음 스모크: 효과음이 꺼져 있으면 아무 소리도 나지 않음");'
+].join("\n"));
+
+console.log("\n[레벨 선택 (v1.33.0)]");
+ok(html.includes('id="levelChips"'), "레벨 선택: 공부 화면 상단에 레벨 칩 행이 있음");
+ok(html.includes('levelFilter:"전체"') && html.includes("function levelFilter()") && html.includes("function studyItems()") && html.includes("function setLevelFilter(lv)"), "레벨 선택: 선택은 언어별 버킷(levelFilter)에 저장되고 기본값은 전체");
+ok(rsSrc2.includes("renderLevelChips()"), "레벨 선택: 공부 화면을 그릴 때 칩 행도 함께 그림");
+ok(html.includes('data-lv="'), "레벨 선택: 칩은 data-lv로 렌더됨");
+eval(eqHelperSrc + "\n" + html.match(/function levelOptions\(\)\{[\s\S]*?\n\}/)[0] + "\n" + html.match(/function currentItem\(\)\{[^}]*\}/)[0] + "\n" + [
+  'let progress = defaultProgress();',
+  'ok(levelOptions().join(",") === "전체,A1,A2,B1,B2", "레벨 선택 의미: 프랑스어 칩은 전체+A1+A2+B1+B2");',
+  'progress.byLang.fr.levelFilter = "A2";',
+  'ok(studyItems().length === 98 && studyItems().every(i => i.level === "A2"), "레벨 선택 의미: A2를 고르면 순차 큐가 A2 98개로 제한됨");',
+  'progress.byLang.fr.levelFilter = "A1";',
+  'ok(studyItems().length === 10 && currentItem().level === "A1", "레벨 선택 의미: A1 큐에서는 현재 문장도 A1");',
+  'progress.lang = "es"; progress.byLang.es.levelFilter = "B2";',
+  'ok(levelFilter() === "전체" && studyItems().length === 30, "레벨 선택 의미: 그 언어에 없는 레벨이 저장돼 있으면 전체로 안전하게 동작");',
+  'ok(levelOptions().join(",") === "전체,A1,A2,B1", "레벨 선택 의미: 스페인어 칩은 있는 레벨만 표시 (B2 없음)");',
+  'progress.byLang.es.levelFilter = "A1";',
+  'ok(studyItems().length === 10 && studyItems().every(i => i.level === "A1"), "레벨 선택 의미: 스페인어 A1 큐도 10개로 제한됨");',
+  'progress.lang = "fr"; progress.byLang.fr.levelFilter = "전체";',
+  'ok(P().completed.length === 0 && progress.byLang.es.levelFilter === "A1", "레벨 선택 의미: 선택은 언어별로 따로 저장됨 (fr 전체, es A1 동시 유지)");'
+].join("\n"));
+// 레벨 칩 DOM 스모크: 칩 클릭 → 필터·시작 위치·상단 표기가 실제로 바뀜
+const LV_ELS = {};
+const LV_CHIPS = [];
+function makeLvEl(id) {
+  const el = { id: id, value: "", style: {}, textContent: "", onclick: null, _html: "", _listeners: {},
+    classList: { toggle() {}, add() {}, remove() {}, contains() { return false; } },
+    setAttribute() {}, getAttribute() { return null; },
+    addEventListener(t, f) { this._listeners[t] = f; },
+    focus() {}, scrollIntoView() {} };
+  Object.defineProperty(el, "innerHTML", {
+    get() { return this._html; },
+    set(v) {
+      this._html = v;
+      const re = /id="([^"]+)"/g; let m; while ((m = re.exec(v))) { if (!LV_ELS[m[1]]) LV_ELS[m[1]] = makeLvEl(m[1]); }
+      if (id === "levelChips") {
+        LV_CHIPS.length = 0;
+        const re2 = /data-lv="([^"]+)"/g; let m2;
+        while ((m2 = re2.exec(v))) { const lvName = m2[1]; LV_CHIPS.push({ _lv: lvName, onclick: null, getAttribute(k) { return k === "data-lv" ? this._lv : null; } }); }
+      }
+    }
+  });
+  return el;
+}
+const lvDocument = {
+  getElementById(id) { if (!LV_ELS[id]) LV_ELS[id] = makeLvEl(id); return LV_ELS[id]; },
+  querySelectorAll(sel) { return sel === "[data-lv]" ? LV_CHIPS : []; }
+};
+const lvPrelude = [
+  'let progress = null;',
+  'let currentStep = 1;',
+  'let quizItem = null;',
+  'let completionInFlight = false;',
+  'let quizAnswered = false;',
+  'let currentTab = "study";',
+  'const document = lvDocument;',
+  'const requestAnimationFrame = fn => fn();',
+  'function saveProgress(){}',
+  'function renderVaultState(){}',
+  'function renderQuizEntry(){}',
+  'function playSound(){}',
+  'function speakFr(){}',
+  'function clearSpeakingUI(){}'
+].join("\n");
+const lvFns = [
+  escSrc, swSrc, dwSrc, normSrc, corrSrc, chSrc, whSrc,
+  lvArrSrc, lvlSrc, xpSrc2, medalArrSrc, medalOfSrc,
+  html.match(/const SPEAKER_SVG = [^\n]*/)[0],
+  html.match(/const SPEAKER_SLOW_SVG = [^\n]*/)[0],
+  html.match(/function slowListenBtnHtml\(\)[^\n]*/)[0],
+  html.match(/function setStep\(n\)\{[^}]*\}/)[0],
+  html.match(/function levelOptions\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function renderLevelChips\(\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function setLevelFilter\(lv\)\{[\s\S]*?\n\}/)[0],
+  html.match(/function currentItem\(\)\{[^}]*\}/)[0],
+  html.match(/function todayKey\(\)\{[^}]*\}/)[0],
+  html.match(/function countToday\(p\)\{[^}]*\}/)[0],
+  html.match(/function bindWordProg[\s\S]*?\n\}/)[0],
+  html.match(/function renderProgress\(\)\{[\s\S]*?\n\}/)[0],
+  rsSrc2, ctSrc
+].join("\n");
+eval(lvPrelude + "\n" + helperSrc + "\n" + lvFns + "\n" + [
+  'progress = migrateProgress(null);',
+  'const B = progress.byLang.fr;',
+  'B.completed = [ITEMS.find(i => i.level === "A2").id];',
+  'currentStep = 1;',
+  'renderStudy();',
+  'const chipsHtml = LV_ELS["levelChips"].innerHTML;',
+  'ok(chipsHtml.includes(\'data-lv="전체"\') && chipsHtml.includes(\'data-lv="A1"\') && chipsHtml.includes(\'data-lv="A2"\') && chipsHtml.includes(\'data-lv="B1"\') && chipsHtml.includes(\'data-lv="B2"\'), "레벨 스모크: 칩 행에 전체·A1·A2·B1·B2가 렌더됨");',
+  'ok(LV_CHIPS.length === 5, "레벨 스모크: 칩 버튼 5개가 클릭 대상으로 잡힘");',
+  'LV_CHIPS.find(c => c._lv === "A2").onclick();',
+  'ok(B.levelFilter === "A2" && currentItem().level === "A2", "레벨 스모크: A2 칩을 누르면 큐가 A2로 제한되고 현재 문장도 A2");',
+  'ok(B.index === 1 && currentStep === 1, "레벨 스모크: 범위 안 첫 미완료 문장(두 번째 A2)부터 1단계로 시작");',
+  'ok(LV_ELS["progressLine"].textContent.indexOf("A2에서 1 / 98문장 완료") === 0 && LV_ELS["progressLine"].textContent.includes("전체 1 / 306문장"), "레벨 스모크: 상단 진행 표기가 범위 기준 + 전체 병행 (실제: " + LV_ELS["progressLine"].textContent + ")");',
+  'ok(LV_ELS["progressPct"].textContent.indexOf("A2 ") === 0, "레벨 스모크: 진행률 표기도 범위 기준");',
+  'LV_CHIPS.find(c => c._lv === "전체").onclick();',
+  'ok(B.levelFilter === "전체" && LV_ELS["progressLine"].textContent.indexOf("지금까지 1 / 306문장 완료") === 0, "레벨 스모크: 전체 칩으로 돌아오면 기존 전체 표기로 복귀");'
+].join("\n"));
+
+console.log("\n[Ensemble 개편: 전 언어 표시·중복 제거·버튼 정리 (v1.33.0)]");
+ok(!html.includes('id="sbRefreshBtn"') && !html.includes('id="sbLogoutBtn"'), "Ensemble 정리(G): 새로고침·로그아웃 버튼이 앱에서 제거됨");
+ok(html.includes('id="profileLogoutBtn"'), "Ensemble 정리(G): 로그아웃은 내 정보 모달에만 남음");
+ok(!rtmSrc.includes("mycard") && !rtmSrc.includes("const mine"), "회귀(F): renderTogetherMembers에 별도 내 카드 렌더 경로가 없음 — 본인은 참여자 목록에서 한 번만 그림");
+ok(rtmSrc.includes("LANG_CODES.map") && rtmSrc.includes("pl.count+'/'+pl.total") && !rtmSrc.includes(".filter(Boolean)"), "Ensemble(E): 카드 칩은 3개 언어 전부를 완료수/전체수로 표시하고, 진도 없는 언어도 생략하지 않음 (기존 생략 규칙이 원인이었음)");
+const tmdSrc = html.match(/async function toggleMemberDone\(userId, btn\)\{[\s\S]*?\n\}/)[0];
+ok(tmdSrc.includes("memlangsec") && tmdSrc.includes("pfill") && tmdSrc.includes("아직 완료한 문장이 없어요"), "Ensemble(E): 펼침은 언어별 섹션(진행 바 + 완료 문장 목록)으로 구성되고, 진도 없는 언어도 섹션과 빈 상태를 보여줌");
+ok(rtmSrc.includes("sbMemberCache") && tmdSrc.includes("sbMemberCache"), "Ensemble(E): 펼침은 목록을 불러올 때 함께 받은 전 언어 진도를 재사용함");
 
 (async function finish() {
   try { await runEqEnsembleSmoke(); } catch (e) { ok(false, "동등성 Ensemble: 스모크 실행 오류", String((e && e.message) || e)); }
