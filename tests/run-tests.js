@@ -557,7 +557,7 @@ console.log("\n[공유 버튼 (v1.21.0)]");
 ok(html.includes('id="shareBtn"') && html.includes("🔗 이 앱 공유하기"), "공유: 더보기 탭에 '🔗 이 앱 공유하기' 버튼 있음");
 ok(html.indexOf('id="tab-about"') > -1 && html.indexOf('id="shareBtn"') > html.indexOf("어떻게 쓰나요") && html.indexOf('id="shareBtn"') < html.indexOf('id="resetZone"'), "공유: 버튼 위치는 더보기 탭 안, 사용법 아래·보관/초기화 영역 위");
 ok(html.includes('const SHARE_URL = "https://sidebatch.github.io/one-phrase/";'), "공유: 공유 주소는 실주소로 고정");
-ok(html.includes('const SHARE_TITLE = "One Phrase — 한 문장 프랑스어";') && html.includes('const SHARE_TEXT = "켜면 바로 시작하는 프랑스어 한 문장 공부";'), "공유: 제목·소개 문구 고정");
+ok(html.includes('const SHARE_TITLE = "One Phrase — 한 문장 외국어";') && html.includes('const SHARE_TEXT = "켜면 바로 시작하는 외국어 한 문장 공부";'), "공유: 제목·소개 문구 고정");
 ok(html.includes('getElementById("shareBtn").onclick') && html.includes('id="shareLink" hidden'), "공유: 버튼 핸들러 연결, 복사 실패 시 보여줄 주소 텍스트(숨김) 있음");
 const shareSrc = html.match(/function shareApp\(\)\{[\s\S]*?\n\}/)[0];
 const shareConstSrc = html.match(/const SHARE_TITLE[\s\S]*?const SHARE_BTN_LABEL = "[^"]*";/)[0];
@@ -784,15 +784,15 @@ if (fs.existsSync(ogPngPath)) {
   ok(ogBuf.readUInt32BE(16) === 1200 && ogBuf.readUInt32BE(20) === 630, "og-image.png 실제 크기 1200×630");
 }
 
-console.log("\n[개명 (v1.31.0) · 아이콘 워드마크 복원 (v1.31.1)]");
+console.log("\n[개명 (v1.31.0) · 아이콘 워드마크 복원 (v1.31.1) · 표기 교체 (v1.31.2)]");
 ok(html.includes('<span class="wordmark">ONE PHRASE</span>'), "워드마크: 헤더가 ONE PHRASE");
 ok(!html.includes("UNE PHRASE"), "개명: 옛 워드마크 UNE PHRASE 없음");
 ok(!html.includes("Une Phrase"), "개명: index.html에 옛 이름 Une Phrase 없음");
-ok(html.includes("<title>One Phrase — 한 문장 프랑스어"), "개명: <title>이 새 이름");
-ok(html.includes('property="og:title" content="One Phrase — 한 문장 프랑스어"'), "개명: og:title이 새 이름");
+ok(html.includes("<title>One Phrase — 한 문장 외국어 | 켜자마자 한 문장</title>"), "개명: <title>이 새 이름 (TEF Canada 표기 없음)");
+ok(html.includes('property="og:title" content="One Phrase — 한 문장 외국어"'), "개명: og:title이 새 이름");
 ok(html.includes('property="og:url" content="https://sidebatch.github.io/one-phrase/"'), "개명: og:url이 새 주소");
 ok(html.includes('const SHARE_URL = "https://sidebatch.github.io/one-phrase/";'), "개명: 공유 주소가 새 주소");
-ok(man.name === "One Phrase — 한 문장 프랑스어" && man.short_name === "One Phrase", "manifest: name·short_name이 새 이름");
+ok(man.name === "One Phrase — 한 문장 외국어" && man.short_name === "One Phrase", "manifest: name·short_name이 새 이름");
 ok(html.includes('class="logo" aria-hidden="true">O</span>') && html.includes('class="footlogo" aria-hidden="true">O</span>'), "로고: 헤더·푸터 로고 타일이 글자 O (개명 전 워드마크 방식)");
 const iconSvg = read("icons/icon.svg");
 ok(iconSvg.includes('fill="#1C3A71"') && iconSvg.includes('fill="#FFFFFF"') && iconSvg.includes(">One</text>") && iconSvg.includes('fill="#FFD166"') && iconSvg.includes(">PHRASE</text>"), "아이콘 소스 SVG: 파랑 배경·흰 'One'·금색 'PHRASE' 워드마크");
