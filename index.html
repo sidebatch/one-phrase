@@ -415,12 +415,12 @@ summary{font-weight:800;cursor:pointer}
 
 <footer>
 <div class="footbrand"><span class="footlogo" id="footTile" aria-hidden="true">O</span><span class="footword" id="footWord">ONE PHRASE</span><span class="footko" id="footKo">한 문장 외국어</span></div>
-<div class="footmeta">v1.33.0 · © 2026 sidebatch</div>
+<div class="footmeta">v1.33.1 · © 2026 sidebatch</div>
 </footer>
 </div>
 <script>
 "use strict";
-const APP_VERSION = "1.33.0";
+const APP_VERSION = "1.33.1";
 const STORAGE_KEY = "une-phrase-progress-v1";
 const SUPABASE_URL = "https://cmhitsgoicxvmlwtrdrb.supabase.co";
 const SUPABASE_KEY = "sb_publishable_iZugJ1l1p3DSk_BB2Y3N3Q_qZwSo637";
@@ -1405,6 +1405,9 @@ let sbSyncedLangs = {};
 let sbMemberCache = {};
 let sbMerging = false;
 let sbUploadTimer = null;
+let sbRestoreDone = false;
+let sbRestorePromise = null;
+let sbAuthInitPromise = null;
 function loadSupabase(){
   if(sb) return Promise.resolve(sb);
   if(sbLoadPromise) return sbLoadPromise;
@@ -1548,6 +1551,24 @@ async function sbAuthReturnInit(){
     else openNickModal(true);
   }catch(e){}
 }
+/* ---------- 부팅 시 세션 복원: 저장된 로그인이 있으면 모든 실행에서 조용히 되살린다 ---------- */
+function sbRestoreSession(){
+  if(sbRestorePromise) return sbRestorePromise;
+  sbRestorePromise = (async()=>{
+    try{
+      const client = await loadSupabase();
+      if(!client){ return; }
+      wireSbAuth();
+      await sbCurrentUser();
+      if(sbUser){
+        await syncSbOnLogin();
+        renderProfileBtn();
+      }
+    }catch(e){}
+    finally{ sbRestoreDone = true; }
+  })();
+  return sbRestorePromise;
+}
 async function sbSetNickname(){
   const inp = document.getElementById("sbNickInput");
   const fb = document.getElementById("sbNickFb");
@@ -1593,10 +1614,19 @@ function renderProfileBtn(){
     b.style.background = "";
   }
 }
-function openProfile(){
+async function openProfile(){
   const ov = document.getElementById("profileOverlay"); if(!ov) return;
-  renderProfile();
   ov.hidden = false;
+  const pending = [];
+  if(!sbRestoreDone) pending.push(sbRestoreSession());
+  if(sbAuthInitPromise) pending.push(sbAuthInitPromise);
+  if(pending.length){
+    const el = document.getElementById("profileBody");
+    if(el && !sbUser) el.innerHTML = '<p class="modaldesc">로그인 상태를 확인하고 있어요…</p>';
+    try{ await Promise.all(pending); }catch(e){}
+    if(ov.hidden) return;
+  }
+  renderProfile();
 }
 function closeProfile(){
   const ov = document.getElementById("profileOverlay"); if(ov) ov.hidden = true;
@@ -1950,7 +1980,8 @@ document.getElementById("shareBtn").onclick = ()=>{ shareApp(); };
 renderResetZone();
 if("serviceWorker" in navigator){ navigator.serviceWorker.register("./sw.js").catch(()=>{}); }
 initStorage().then(()=>{ applyTheme(themeOf(), false); applyLangLabels(); renderSoundBtn(); renderStudy(); });
-if(isOAuthReturn()){ sbAuthReturnInit(); }
+sbRestoreSession();
+if(isOAuthReturn()){ sbAuthInitPromise = sbAuthReturnInit(); sbAuthInitPromise.then(()=>{ sbAuthInitPromise = null; }, ()=>{ sbAuthInitPromise = null; }); }
 </script>
 <script data-goatcounter="https://une-phrase.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>

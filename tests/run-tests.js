@@ -766,7 +766,7 @@ ok(html.includes('id="sbNickBtn">시작하기</button>') && !html.includes('id="
 const snsSrc = html.match(/function sbSetNickname\(\)\{[\s\S]*?\n\}/)[0];
 ok(snsSrc.includes("closeNickModal()") && snsSrc.includes("23505"), "닉네임 모달: 성공하면 닫고, 중복이면 모달을 닫지 않고 오류를 표시 (닫기 호출은 성공 경로에만)");
 ok(html.includes("function isOAuthReturn()") && html.includes("[?&]code=") && html.includes("access_token="), "복귀 감지: code 파라미터·access_token 해시가 있을 때만 로그인 복귀로 판정");
-ok(html.includes("if(isOAuthReturn()){ sbAuthReturnInit(); }") && html.includes("openNickModal(true)"), "복귀 처리: 복귀 시에만 즉시 초기화하고 프로필이 없으면 닉네임 모달을 자동으로 염");
+ok(html.includes("sbAuthInitPromise = sbAuthReturnInit()") && html.includes("openNickModal(true)"), "복귀 처리: 복귀 시에는 즉시 초기화를 기다릴 수 있게 붙잡아 두고 프로필이 없으면 닉네임 모달을 자동으로 염");
 const onmSrc = html.match(/function openNickModal\(auto\)\{[\s\S]*?\n\}/)[0];
 ok(onmSrc.includes("nickAutoShown") && onmSrc.includes("return"), "닉네임 모달: 자동 팝업은 실행당 1회만 (닫으면 그 세션에서 다시 자동으로 띄우지 않음)");
 const rtSrc = html.match(/async function renderTogether\(\)\{[\s\S]*?\n\}/)[0];
@@ -1464,8 +1464,168 @@ const tmdSrc = html.match(/async function toggleMemberDone\(userId, btn\)\{[\s\S
 ok(tmdSrc.includes("memlangsec") && tmdSrc.includes("pfill") && tmdSrc.includes("아직 완료한 문장이 없어요"), "Ensemble(E): 펼침은 언어별 섹션(진행 바 + 완료 문장 목록)으로 구성되고, 진도 없는 언어도 섹션과 빈 상태를 보여줌");
 ok(rtmSrc.includes("sbMemberCache") && tmdSrc.includes("sbMemberCache"), "Ensemble(E): 펼침은 목록을 불러올 때 함께 받은 전 언어 진도를 재사용함");
 
+console.log("\n[로그인 유지: 부팅 시 세션 복원 (v1.33.1)]");
+const srsSrc = html.match(/function sbRestoreSession\(\)\{[\s\S]*?\n\}/)[0];
+ok(srsSrc.includes("loadSupabase()") && srsSrc.includes("wireSbAuth()") && srsSrc.includes("sbCurrentUser()"), "세션 복원: 부팅 복원이 Supabase를 로드해 저장된 세션을 확인함 (getSession 경로)");
+ok(srsSrc.includes("syncSbOnLogin()") && srsSrc.includes("renderProfileBtn()"), "세션 복원: 세션이 있으면 현재 언어 동기화를 돌리고 아바타 버튼을 갱신함");
+ok(srsSrc.includes("if(sbRestorePromise) return sbRestorePromise;") && srsSrc.includes("finally{ sbRestoreDone = true; }"), "세션 복원: 한 번만 실행되고, 성공·실패와 무관하게 완료로 표시됨 (실패·오프라인이면 게스트로 조용히 동작)");
+ok(html.includes("sbRestoreSession();\nif(isOAuthReturn()){ sbAuthInitPromise = sbAuthReturnInit();"), "세션 복원: 모든 부팅에서 복원이 실행됨 (OAuth 복귀 초기화를 대신 실행하는 구조가 아님)");
+const opSrc = html.match(/async function openProfile\(\)\{[\s\S]*?\n\}/)[0];
+ok(opSrc.includes("로그인 상태를 확인하고 있어요") && opSrc.indexOf("로그인 상태를 확인하고 있어요") < opSrc.indexOf("renderProfile();"), "내 정보: 복원이 끝나기 전에는 게스트로 확정 렌더하지 않고 확인 중 표시 뒤에 최종 상태로 그림");
+ok(opSrc.includes("await Promise.all(pending)") && opSrc.includes("if(ov.hidden) return;"), "내 정보: 복원을 기다리는 동안 모달을 닫으면 닫힌 모달에 뒤늦게 렌더하지 않음");
+ok(!drSrc.includes("localStorage.clear") && !html.includes("localStorage.clear"), "초기화 회귀: 기록 초기화를 포함해 앱 어디에도 localStorage 전체 삭제가 없음 (Supabase 인증 토큰 키가 남음)");
+
+async function runBootRestoreSmoke() {
+  function makeBrWorld() {
+    const els = {};
+    function makeEl(id) {
+      const el = { id: id, value: "", style: {}, textContent: "", onclick: null, _html: "", _listeners: {}, hidden: false,
+        classList: { toggle() {}, add() {}, remove() {}, contains() { return false; } },
+        setAttribute() {}, getAttribute() { return null; },
+        addEventListener(t, f) { this._listeners[t] = f; },
+        focus() {}, scrollIntoView() {} };
+      Object.defineProperty(el, "innerHTML", {
+        get() { return this._html; },
+        set(v) { this._html = v; const re = /id="([^"]+)"/g; let m; while ((m = re.exec(v))) { if (!els[m[1]]) els[m[1]] = makeEl(m[1]); } }
+      });
+      return el;
+    }
+    const doc = { documentElement: { dataset: {} },
+      getElementById(id) { if (!els[id]) els[id] = makeEl(id); return els[id]; },
+      querySelectorAll() { return []; } };
+    return { els: els, doc: doc };
+  }
+  function fakeSbClient(store, sessionUser, gate) {
+    return {
+      auth: {
+        onAuthStateChange(cb) { store.authCb = cb; },
+        getSession() { const base = gate ? gate.promise : Promise.resolve(); return base.then(() => ({ data: { session: sessionUser ? { user: sessionUser } : null } })); },
+        signOut() { return Promise.resolve({}); }
+      },
+      from(table) {
+        const chain = { _eqs: [],
+          select() { return chain; },
+          eq(c, v) { chain._eqs.push([c, v]); return chain; },
+          maybeSingle() { const rows = (store[table] || []).filter(r => chain._eqs.every(([c, v]) => r[c] === v)); return Promise.resolve({ data: rows[0] || null, error: null }); },
+          upsert(row) { store.progress = (store.progress || []).filter(r => !(r.user_id === row.user_id && r.lang === row.lang)); store.progress.push(row); return Promise.resolve({ error: null }); }
+        };
+        return chain;
+      }
+    };
+  }
+  let BR_DOC = null, FAKE_CLIENT = null;
+  const brPrelude = [
+    'let sb = null;', 'let sbLoadPromise = null;', 'let sbAuthWired = false;',
+    'let sbUser = null;', 'let sbProfile = null;', 'let sbSyncedLangs = {};', 'let sbMemberCache = {};',
+    'let sbMerging = false;', 'let sbUploadTimer = null;',
+    'let sbRestoreDone = false;', 'let sbRestorePromise = null;', 'let sbAuthInitPromise = null;',
+    'let progress = null;', 'let currentTab = "study";', 'let emailShown = false;',
+    'const document = BR_DOC;',
+    'const window = { supabase: { createClient() { return FAKE_CLIENT; } } };',
+    'function saveProgress(){}', 'function renderVaultState(){}', 'function renderProgress(){}',
+    'function renderTogether(){}', 'function openNickModal(){}', 'function closeProfile(){}',
+    'function sbLogin(){}', 'function sbLogout(){}'
+  ].join("\n");
+  const brFns = [
+    html.match(/const SUPABASE_URL = [^\n]*/)[0],
+    html.match(/const SUPABASE_KEY = [^\n]*/)[0],
+    html.match(/const SUPABASE_JS_URL = [^\n]*/)[0],
+    escSrc, lvArrSrc, lvlSrc, xpSrc2,
+    html.match(/const LEVEL_MEDALS = \[[^\n]*/)[0],
+    html.match(/function medalOf\(lv\)\{[^}]*\}/)[0],
+    html.match(/function langLineOf\(code, count, reviewCorrect\)\{[\s\S]*?\n\}/)[0],
+    html.match(/function langLinesHtml\(lines, activeCode\)\{[\s\S]*?\n\}/)[0],
+    html.match(/function maskEmail\(email\)\{[\s\S]*?\n\}/)[0],
+    html.match(/const PERSON_SVG = [^\n]*/)[0],
+    html.match(/const AVATAR_PASTELS = \[[^\n]*/)[0],
+    html.match(/const AVATAR_PASTELS_DARK = \[[^\n]*/)[0],
+    html.match(/function avatarBg\(nickname\)\{[\s\S]*?\n\}/)[0],
+    html.match(/function avatarHtml\(nickname, big\)\{[\s\S]*?\n\}/)[0],
+    nidSrc, cmpSrc, rriSrc, mpdSrc, ptrSrc,
+    html.match(/function loadSupabase\(\)\{[\s\S]*?\n\}/)[0],
+    html.match(/function wireSbAuth\(\)\{[\s\S]*?\n\}/)[0],
+    html.match(/async function sbCurrentUser\(\)\{[\s\S]*?\n\}/)[0],
+    html.match(/async function loadSbProfile\(\)\{[\s\S]*?\n\}/)[0],
+    html.match(/async function fetchSbRemote\(\)\{[\s\S]*?\n\}/)[0],
+    html.match(/async function pushSbProgress\(\)\{[\s\S]*?\n\}/)[0],
+    html.match(/async function mergeSbAndPush\(\)\{[\s\S]*?\n\}/)[0],
+    html.match(/async function syncSbOnLogin\(\)\{[\s\S]*?\n\}/)[0],
+    html.match(/function sbRestoreSession\(\)\{[\s\S]*?\n\}/)[0],
+    html.match(/function renderProfileBtn\(\)\{[\s\S]*?\n\}/)[0],
+    html.match(/async function openProfile\(\)\{[\s\S]*?\n\}/)[0],
+    html.match(/function renderProfile\(\)\{[\s\S]*?\n\}/)[0]
+  ].join("\n");
+
+  // 시나리오 A: 저장된 세션이 있는 상태로 부팅 → 로그인 복원 + 진도 병합 + 아바타 닉네임
+  const worldA = makeBrWorld(); BR_DOC = worldA.doc;
+  const storeA = { profiles: [{ id: "user-1", nickname: "테스터" }],
+    progress: [{ user_id: "user-1", lang: "fr", completed: { "1": "2026-10-01", "2": "2026-10-02" }, review_correct: { ids: [], count: 1 } }] };
+  FAKE_CLIENT = fakeSbClient(storeA, { id: "user-1", email: "tester@example.com" }, null);
+  eval(brPrelude + "\n" + eqHelperSrc + "\n" + brFns + "\n" + 'progress = defaultProgress();');
+  await sbRestoreSession();
+  ok(worldA.els["profileBtn"].textContent === "테", "부팅 복원 스모크: 저장된 세션이 있으면 부팅만으로 아바타 버튼이 닉네임 첫 글자로 바뀜");
+  ok(storeA.progress.some(r => r.user_id === "user-1" && r.lang === "fr"), "부팅 복원 스모크: 복원 시 현재 언어 진도 동기화(병합 후 업로드)가 실행됨");
+  await openProfile();
+  ok(worldA.els["profileBody"].innerHTML.includes("테스터") && worldA.els["profileBody"].innerHTML.includes('id="profileLogoutBtn"'), "부팅 복원 스모크: 내 정보를 열면 게스트가 아니라 닉네임·로그아웃이 있는 로그인 상태로 표시됨");
+  ok(worldA.els["profileBody"].innerHTML.includes("완료 2 / 306문장") && worldA.els["profileBody"].innerHTML.includes("복습 맞힘 1개"), "부팅 복원 스모크: 서버 진도(완료 2·복습 1)가 병합되어 내 정보 통계에 반영됨");
+
+  // 시나리오 B: 세션 없이 부팅 → 게스트 그대로
+  const worldB = makeBrWorld(); BR_DOC = worldB.doc;
+  FAKE_CLIENT = fakeSbClient({ profiles: [], progress: [] }, null, null);
+  eval(brPrelude + "\n" + eqHelperSrc + "\n" + brFns + "\n" + 'progress = defaultProgress();');
+  await sbRestoreSession();
+  ok(worldB.doc.getElementById("profileBtn").textContent === "", "부팅 복원 스모크: 세션이 없으면 아바타 버튼이 닉네임으로 바뀌지 않음");
+  await openProfile();
+  ok(worldB.els["profileBody"].innerHTML.includes("게스트") && worldB.els["profileBody"].innerHTML.includes("구글로 시작하기"), "부팅 복원 스모크: 세션이 없으면 내 정보는 기존처럼 게스트 화면");
+
+  // 시나리오 C: 복원이 끝나기 전에 내 정보를 열면 게스트로 확정되지 않음
+  const worldC = makeBrWorld(); BR_DOC = worldC.doc;
+  let resolveGate = null;
+  const gate = { promise: new Promise(r => { resolveGate = r; }) };
+  const storeC = { profiles: [{ id: "user-1", nickname: "테스터" }], progress: [] };
+  FAKE_CLIENT = fakeSbClient(storeC, { id: "user-1", email: "tester@example.com" }, gate);
+  eval(brPrelude + "\n" + eqHelperSrc + "\n" + brFns + "\n" + 'progress = defaultProgress();');
+  const openP = openProfile();
+  ok(worldC.els["profileBody"].innerHTML.includes("로그인 상태를 확인하고 있어요"), "부팅 복원 스모크: 복원 중 내 정보를 열면 확인 중 표시가 먼저 나옴");
+  ok(!worldC.els["profileBody"].innerHTML.includes("구글로 시작하기") && !worldC.els["profileBody"].innerHTML.includes("게스트"), "부팅 복원 스모크: 복원 중에는 게스트로 확정 렌더되지 않음");
+  resolveGate();
+  await openP;
+  ok(worldC.els["profileBody"].innerHTML.includes("테스터"), "부팅 복원 스모크: 복원이 끝나면 내 정보가 최종 로그인 상태로 렌더됨");
+}
+
+async function runResetTokenSmoke() {
+  const RT_STORE = new Map();
+  const RT_VAULT = new Set();
+  const rtLocalStorage = { getItem(k) { return RT_STORE.has(k) ? RT_STORE.get(k) : null; }, setItem(k, v) { RT_STORE.set(k, String(v)); }, removeItem(k) { RT_STORE.delete(k); } };
+  const rtPrelude = [
+    'let progress = null;', 'let currentStep = 3;', 'let quizItem = { id: 1 };',
+    'let completionInFlight = true;', 'let quizAnswered = true;', 'let vaultReady = false;',
+    'let resetStage = 0;', 'let resetDoneMsg = false;',
+    'const STORAGE_KEY = "une-phrase-progress-v1";',
+    'const localStorage = rtLocalStorage;',
+    'async function vaultDelete(k) { RT_VAULT.delete(k); }',
+    'function applyTheme(){}', 'function renderVaultState(){}', 'function renderSoundBtn(){}',
+    'function renderResetZone(){}', 'function renderStudy(){}'
+  ].join("\n");
+  const rtFns = [
+    dpSrcEq,
+    html.match(/function themeOf\(\)\{[\s\S]*?\n\}/)[0],
+    html.match(/async function doReset\(\)\{[\s\S]*?\n\}/)[0]
+  ].join("\n");
+  eval(rtPrelude + "\n" + rtFns);
+  progress = defaultProgress();
+  rtLocalStorage.setItem("une-phrase-progress-v1", JSON.stringify(progress));
+  rtLocalStorage.setItem("sb-cmhitsgoicxvmlwtrdrb-auth-token", JSON.stringify({ access_token: "dummy" }));
+  RT_VAULT.add("une-phrase-progress-v1");
+  await doReset();
+  ok(!RT_STORE.has("une-phrase-progress-v1") && !RT_VAULT.has("une-phrase-progress-v1"), "초기화 스모크: 기록 초기화로 진도 키(로컬·보관함)는 지워짐");
+  ok(RT_STORE.get("sb-cmhitsgoicxvmlwtrdrb-auth-token") !== undefined, "초기화 스모크: 기록 초기화를 해도 Supabase 인증 토큰 키는 그대로 남음 (로그인 유지)");
+}
+
 (async function finish() {
   try { await runEqEnsembleSmoke(); } catch (e) { ok(false, "동등성 Ensemble: 스모크 실행 오류", String((e && e.message) || e)); }
+  try { await runBootRestoreSmoke(); } catch (e) { ok(false, "부팅 복원: 스모크 실행 오류", String((e && e.stack) || e)); }
+  try { await runResetTokenSmoke(); } catch (e) { ok(false, "초기화 토큰: 스모크 실행 오류", String((e && e.stack) || e)); }
   console.log("\n결과: PASS " + pass + " / FAIL " + fail);
   process.exit(fail ? 1 : 0);
 })();
