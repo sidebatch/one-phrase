@@ -170,6 +170,17 @@ button.ghost.playing{background:var(--blue);color:#fff;border-color:var(--blue)}
 .avatar{flex:0 0 auto;width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;color:var(--avatar-ink)}
 .memname{flex:1;min-width:0;font-size:16.5px;font-weight:800;overflow-wrap:anywhere}
 .lvbadge{flex:0 0 auto;background:var(--done-chip);color:var(--blue-text);font-size:12px;font-weight:800;border-radius:var(--r-pill);padding:2px 9px;white-space:nowrap}
+button.lvlabel{background:none;border:0;padding:0;font-family:inherit;font-size:inherit;cursor:pointer}
+button.lvlabel:active{opacity:.6}
+button.profilelv{display:block;width:100%;background:none;border:0;padding:0;font:inherit;color:inherit;cursor:pointer}
+button.profilelv:active{opacity:.6}
+.lvlist{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.lvrow{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line-soft);border-radius:var(--r-md)}
+.lvrow.cur{border-color:var(--blue);background:var(--done-bg);box-shadow:0 0 0 1.5px var(--blue) inset}
+.lvrow-medal{font-size:19px;line-height:1}
+.lvrow-name{flex:1 1 auto;font-size:14px;font-weight:700;text-align:left}
+.lvrow-now{margin-left:7px;font-size:11px;font-weight:800;color:var(--blue-text);background:var(--done-chip);border-radius:var(--r-pill);padding:1px 7px;white-space:nowrap}
+.lvrow-xp{flex:0 0 auto;font-size:12.5px;font-weight:700;color:var(--sub);white-space:nowrap}
 .memprog{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:700;color:var(--sub);margin-top:5px}
 .memprog .progress-pct{color:var(--blue-text);font-weight:800}
 .membercard{margin:10px 0;padding:14px 16px}
@@ -336,7 +347,7 @@ summary{font-weight:800;cursor:pointer}
 <div class="progress-top"><span id="progressLine">불러오는 중…</span><span class="todaychip" id="todayChip">오늘 0문장</span></div>
 <div class="pbar" id="pbar" role="progressbar" aria-label="전체 진행률" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="pfill" id="pfill"></div></div>
 <div class="progress-sub"><span class="progress-pct" id="progressPct">전체 0%</span><span id="progressLeft"></span></div>
-<div class="levelrow"><span class="lvlabel" id="lvLabel">Lv.1 문장 새싹</span><div class="pbar lvbar" id="lvBar" role="progressbar" aria-label="다음 레벨까지 진행" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="pfill gold" id="lvFill"></div></div><span class="lvnext" id="lvNext"></span></div>
+<div class="levelrow"><button class="lvlabel" id="lvLabel" aria-haspopup="dialog" title="레벨 안내 보기">Lv.1 문장 새싹</button><div class="pbar lvbar" id="lvBar" role="progressbar" aria-label="다음 레벨까지 진행" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="pfill gold" id="lvFill"></div></div><span class="lvnext" id="lvNext"></span></div>
 </div>
 </header>
 <div class="menuoverlay" id="menuOverlay" hidden>
@@ -384,6 +395,14 @@ summary{font-weight:800;cursor:pointer}
 </div>
 </div>
 
+<div class="modaloverlay" id="levelOverlay" hidden>
+<div class="modalbackdrop" id="levelBackdrop"></div>
+<div class="modalpanel" role="dialog" aria-modal="true" aria-label="레벨 안내">
+<div class="modalhead"><span class="modaltitle">레벨 안내</span><button class="modalclose" id="levelCloseBtn" aria-label="닫기">✕</button></div>
+<div id="levelInfoBody"></div>
+</div>
+</div>
+
 <div id="tab-study">
 <div id="mapStrip"></div>
 <div id="quizArea"></div>
@@ -397,7 +416,6 @@ summary{font-weight:800;cursor:pointer}
 <button class="ghost" id="browseBackBtn" style="margin-bottom:10px">← 공부로 돌아가기</button>
 <p class="lead">주제를 눌러 문장을 골라 볼 수 있어요.</p>
 <div id="topicMap"></div>
-<div id="topicFilter" style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0"></div>
 <div id="browseList"></div>
 </div>
 
@@ -455,12 +473,12 @@ summary{font-weight:800;cursor:pointer}
 
 <footer>
 <div class="footbrand"><span class="footlogo" id="footTile" aria-hidden="true">O</span><span class="footword" id="footWord">ONE PHRASE</span><span class="footko" id="footKo">한 문장 외국어</span></div>
-<div class="footmeta">v1.35.4 · © 2026 sidebatch</div>
+<div class="footmeta">v1.35.5 · © 2026 sidebatch</div>
 </footer>
 </div>
 <script>
 "use strict";
-const APP_VERSION = "1.35.4";
+const APP_VERSION = "1.35.5";
 const STORAGE_KEY = "une-phrase-progress-v1";
 const SUPABASE_URL = "https://cmhitsgoicxvmlwtrdrb.supabase.co";
 const SUPABASE_KEY = "sb_publishable_iZugJ1l1p3DSk_BB2Y3N3Q_qZwSo637";
@@ -991,6 +1009,12 @@ function topicStats(items, completed){
     const pct = t.total ? Math.round(t.done/t.total*100) : 0;
     return { topic:t.topic, total:t.total, done:t.done, pct:pct, conquered:(t.total>0 && t.done===t.total) };
   });
+}
+function allTopicStat(stats){
+  const total = stats.reduce((a,t)=>a+t.total,0);
+  const done = stats.reduce((a,t)=>a+t.done,0);
+  const pct = total ? Math.round(done/total*100) : 0;
+  return { topic:"전체", total:total, done:done, pct:pct, conquered:(total>0 && done===total) };
 }
 function quizPool(items, completed, currentId){
   const done = new Set(completed||[]);
@@ -1555,7 +1579,9 @@ function renderMapSheet(){
   if(!el) return;
   const stats = topicStats(items(), P().completed);
   const cur = topicFilter();
-  el.innerHTML = '<div class="mapgrid">'+stats.map(t=>'<button class="mapcard'+(t.conquered?" conquered":"")+(cur!=="전체"&&t.topic===cur?" selected":"")+'" data-mapsheet="'+esc(t.topic)+'"><span class="map-top"><b>'+esc(t.topic)+'</b>'+(t.conquered?'<span class="conqbadge">정복</span>':'')+'</span><span class="map-count">'+t.done+' / '+t.total+'문장</span><span class="pbar mapbar"><span class="pfill" style="width:'+t.pct+'%"></span></span></button>').join("")+'</div>';
+  const all = allTopicStat(stats);
+  const allCard = '<button class="mapcard'+(all.conquered?" conquered":"")+(cur==="전체"?" selected":"")+'" data-mapsheet="전체"><span class="map-top"><b>전체</b>'+(all.conquered?'<span class="conqbadge">정복</span>':'')+'</span><span class="map-count">'+all.done+' / '+all.total+'문장</span><span class="pbar mapbar"><span class="pfill" style="width:'+all.pct+'%"></span></span></button>';
+  el.innerHTML = '<div class="mapgrid">'+allCard+stats.map(t=>'<button class="mapcard'+(t.conquered?" conquered":"")+(cur!=="전체"&&t.topic===cur?" selected":"")+'" data-mapsheet="'+esc(t.topic)+'"><span class="map-top"><b>'+esc(t.topic)+'</b>'+(t.conquered?'<span class="conqbadge">정복</span>':'')+'</span><span class="map-count">'+t.done+' / '+t.total+'문장</span><span class="pbar mapbar"><span class="pfill" style="width:'+t.pct+'%"></span></span></button>').join("")+'</div>';
   document.querySelectorAll("[data-mapsheet]").forEach(b=>b.onclick=()=>{ const tp = b.getAttribute("data-mapsheet"); closeMapSheet(); goToTopicStudy(tp); });
 }
 function openMapSheet(){
@@ -2126,7 +2152,7 @@ function renderProfile(){
     : '<div class="profileemail"></div>';
   const xp = xpOf(P().completed.length, P().reviewCorrect||0);
   const lv = levelOf(xp);
-  const medalBlock = '<div class="profilemedal" aria-hidden="true">'+medalOf(lv.lv)+'</div><div class="profilelv">Lv.'+lv.lv+' '+esc(lv.title)+'</div>';
+  const medalBlock = '<div class="profilemedal" aria-hidden="true">'+medalOf(lv.lv)+'</div><button class="profilelv" id="profileLvBtn" aria-haspopup="dialog" title="레벨 안내 보기">Lv.'+lv.lv+' '+esc(lv.title)+'</button>';
   const stats = '<div class="pbar"><div class="pfill gold" style="width:'+lv.pct+'%"></div></div>'
     + '<div class="profilenext">'+(lv.nextAt===null ? "최고 레벨이에요" : "다음 레벨까지 "+lv.toNext+" XP")+'</div>'
     + '<div class="profilestats"><span>총 '+xp+' XP</span><span>완료 '+P().completed.length+' / '+items().length+'문장</span><span>복습 맞힘 '+(P().reviewCorrect||0)+'개</span></div>'
@@ -2147,6 +2173,7 @@ function renderProfile(){
     h += '<button class="primary modalbtn" id="profileLoginBtn">구글로 시작하기</button>';
   }
   el.innerHTML = h;
+  const lvb = document.getElementById("profileLvBtn"); if(lvb) lvb.onclick = ()=>openLevelInfo();
   const em = document.getElementById("profileEmail");
   if(em) em.onclick = ()=>{
     emailShown = !emailShown;
@@ -2266,7 +2293,7 @@ async function toggleMemberLang(userId, code, btn){
   const pct = pl.total ? Math.round(list.length / pl.total * 100) : 0;
   box.innerHTML = '<div class="memlangsec">'
     + (list.length
-      ? '<div class="pbar" style="margin-top:10px"><div class="pfill" style="width:'+pct+'%"></div></div><div class="donelist">'+list.map(i=>'<div class="doneitem"><b>'+i.id+'.</b> '+esc(itemText(i))+'<br><span class="meta">'+esc(i.topic)+' · '+esc(i.level)+'</span></div>').join("")+'</div>'
+      ? '<div class="pbar" style="margin-top:10px"><div class="pfill" style="width:'+pct+'%"></div></div><div class="donelist">'+list.map((it,idx)=>'<div class="doneitem"><b>'+(idx+1)+'.</b> '+esc(itemText(it))+'<br><span class="meta">'+esc(it.topic)+' · '+esc(it.level)+'</span></div>').join("")+'</div>'
       : '<p class="meta" style="margin:8px 0 0">아직 완료한 문장이 없어요.</p>')
     + '</div>';
   if(btn) btn.setAttribute("aria-expanded", "true");
@@ -2333,7 +2360,7 @@ function setLang(code){
 }
 
 /* ---------- 오버레이 스크롤 잠금 (시트·모달이 열려 있으면 뒤 페이지 스크롤 차단) ---------- */
-const OVERLAY_IDS = ["menuOverlay", "nickOverlay", "profileOverlay", "mapOverlay"];
+const OVERLAY_IDS = ["menuOverlay", "nickOverlay", "profileOverlay", "mapOverlay", "levelOverlay"];
 function syncScrollLock(){
   const open = OVERLAY_IDS.some(id=>{ const el = document.getElementById(id); return el && !el.hidden; });
   if(document.body && document.body.classList) document.body.classList.toggle("noscroll", open);
@@ -2381,18 +2408,17 @@ function renderTopicMap(){
   const el = document.getElementById("topicMap");
   if(!el) return;
   const stats = topicStats(items(), P().completed);
-  el.innerHTML = '<div class="meta" style="margin-top:4px">정복 지도</div><div class="mapgrid">'+stats.map(t=>'<button class="mapcard'+(t.conquered?" conquered":"")+(browseTopic!=="전체"&&t.topic===browseTopic?" selected":"")+'" data-mtopic="'+esc(t.topic)+'"><span class="map-top"><b>'+esc(t.topic)+'</b>'+(t.conquered?'<span class="conqbadge">정복</span>':'')+'</span><span class="map-count">'+t.done+' / '+t.total+'문장</span><span class="pbar mapbar"><span class="pfill" style="width:'+t.pct+'%"></span></span></button>').join("")+'</div>';
+  const all = allTopicStat(stats);
+  const allCard = '<button class="mapcard'+(all.conquered?" conquered":"")+(browseTopic==="전체"?" selected":"")+'" data-mtopic="전체"><span class="map-top"><b>전체</b>'+(all.conquered?'<span class="conqbadge">정복</span>':'')+'</span><span class="map-count">'+all.done+' / '+all.total+'문장</span><span class="pbar mapbar"><span class="pfill" style="width:'+all.pct+'%"></span></span></button>';
+  el.innerHTML = '<div class="meta" style="margin-top:4px">정복 지도</div><div class="mapgrid">'+allCard+stats.map(t=>'<button class="mapcard'+(t.conquered?" conquered":"")+(browseTopic!=="전체"&&t.topic===browseTopic?" selected":"")+'" data-mtopic="'+esc(t.topic)+'"><span class="map-top"><b>'+esc(t.topic)+'</b>'+(t.conquered?'<span class="conqbadge">정복</span>':'')+'</span><span class="map-count">'+t.done+' / '+t.total+'문장</span><span class="pbar mapbar"><span class="pfill" style="width:'+t.pct+'%"></span></span></button>').join("")+'</div>';
   document.querySelectorAll("[data-mtopic]").forEach(b=>b.onclick=()=>{ browseTopic = b.getAttribute("data-mtopic"); renderBrowse(); scrollToBrowseList(); });
 }
 function renderBrowse(){
   renderTopicMap();
-  const topics = ["전체"].concat([...new Set(items().map(i=>i.topic))]);
-  document.getElementById("topicFilter").innerHTML = topics.map(t=>'<button class="tabbtn'+(t===browseTopic?" on":"")+'" data-topic="'+esc(t)+'">'+esc(t)+'</button>').join("");
-  document.querySelectorAll("[data-topic]").forEach(b=>b.onclick=()=>{ browseTopic=b.getAttribute("data-topic"); renderBrowse(); scrollToBrowseList(); });
   const list = items().filter(i=>browseTopic==="전체"||i.topic===browseTopic);
   document.getElementById("browseList").innerHTML = list.map(i=>{
     const isDone = P().completed.includes(i.id);
-    return '<button class="listitem'+(isDone?" isdone":"")+'" data-idx="'+items().indexOf(i)+'"><span class="li-check" aria-hidden="true">✓</span><span class="li-body"><b>'+i.id+'. '+esc(itemText(i))+'</b><span class="li-ko">'+esc(i.ko)+'</span><span class="li-meta">'+esc(i.topic)+' · '+esc(i.level)+(isDone?' <span class="donebadge">완료</span>':'')+'</span></span></button>';
+    return '<button class="listitem'+(isDone?" isdone":"")+'" data-idx="'+items().indexOf(i)+'"><span class="li-check" aria-hidden="true">✓</span><span class="li-body"><b>'+(items().indexOf(i)+1)+'. '+esc(itemText(i))+'</b><span class="li-ko">'+esc(i.ko)+'</span><span class="li-meta">'+esc(i.topic)+' · '+esc(i.level)+(isDone?' <span class="donebadge">완료</span>':'')+'</span></span></button>';
   }).join("");
   document.querySelectorAll("[data-idx]").forEach(b=>b.onclick=()=>goToItem(parseInt(b.getAttribute("data-idx"),10),1));
 }
@@ -2407,6 +2433,26 @@ function renderWords(){
   document.querySelectorAll("[data-word]").forEach(b=>b.onclick=()=>speakFr(b.getAttribute("data-say") || b.getAttribute("data-word"), 1, b));
 }
 
+/* ---------- 레벨 안내 (레벨 배지를 누르면 전체 레벨표) ---------- */
+function levelRowsHtml(curLv){
+  return LEVELS.map(L=>'<div class="lvrow'+(L.lv===curLv?" cur":"")+'"><span class="lvrow-medal" aria-hidden="true">'+medalOf(L.lv)+'</span><span class="lvrow-name">Lv.'+L.lv+' '+esc(L.title)+(L.lv===curLv?'<span class="lvrow-now">지금 내 레벨</span>':"")+'</span><span class="lvrow-xp">'+L.at+' XP부터</span></div>').join("");
+}
+function renderLevelInfo(){
+  const el = document.getElementById("levelInfoBody"); if(!el) return;
+  const xp = xpOf(P().completed.length, P().reviewCorrect||0);
+  const cur = levelOf(xp);
+  el.innerHTML = '<p class="modaldesc">'+esc(LANGS[curLang()].name)+' 기준 · 지금 '+xp+' XP예요. 문장 완료 +10 XP, 복습 정답 +5 XP로 레벨이 올라요.</p><div class="lvlist">'+levelRowsHtml(cur.lv)+'</div>';
+}
+function openLevelInfo(){
+  renderLevelInfo();
+  const ov = document.getElementById("levelOverlay"); if(ov) ov.hidden = false;
+  syncScrollLock();
+}
+function closeLevelInfo(){
+  const ov = document.getElementById("levelOverlay"); if(ov) ov.hidden = true;
+  syncScrollLock();
+}
+
 /* ---------- 이벤트 ---------- */
 document.getElementById("menuBtn").onclick = ()=>openMenu();
 document.getElementById("menuCloseBtn").onclick = ()=>closeMenu();
@@ -2417,6 +2463,9 @@ document.getElementById("nickCloseBtn").onclick = ()=>closeNickModal();
 document.getElementById("nickBackdrop").onclick = ()=>closeNickModal();
 document.getElementById("mapCloseBtn").onclick = ()=>closeMapSheet();
 document.getElementById("mapBackdrop").onclick = ()=>closeMapSheet();
+document.getElementById("levelCloseBtn").onclick = ()=>closeLevelInfo();
+document.getElementById("levelBackdrop").onclick = ()=>closeLevelInfo();
+document.getElementById("lvLabel").onclick = ()=>openLevelInfo();
 document.getElementById("browseBackBtn").onclick = ()=>{ showTab("study"); window.scrollTo({top:0,behavior:"smooth"}); };
 document.getElementById("profileBtn").onclick = ()=>openProfile();
 document.getElementById("profileCloseBtn").onclick = ()=>closeProfile();

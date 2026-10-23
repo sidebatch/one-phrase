@@ -121,6 +121,7 @@ const lvArrSrc = html.match(/const LEVELS = \[[\s\S]*?\n\];/)[0];
 const lvlSrc = html.match(/function levelOf[\s\S]*?\n\}/)[0];
 const xpSrc2 = html.match(/function xpOf[\s\S]*?\n\}/)[0];
 const tsSrc = html.match(/function topicStats[\s\S]*?\n\}/)[0];
+const atsSrc = html.match(/function allTopicStat\(stats\)\{[\s\S]*?\n\}/)[0];
 const qpSrc = html.match(/function quizPool[\s\S]*?\n\}/)[0];
 eval(lvArrSrc + "\n" + lvlSrc); eval(xpSrc2); eval(tsSrc); eval(qpSrc);
 const LEVELS = eval(lvArrSrc.match(/\[[\s\S]*\]/)[0]);
@@ -177,7 +178,7 @@ const lockSrc = [
   html.match(/function syncScrollLock\(\)\{[\s\S]*?\n\}/)[0]
 ].join("\n");
 const mapSheetSrcs = [
-  lockSrc,
+  lockSrc, atsSrc,
   html.match(/function renderMapSheet\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function openMapSheet\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function closeMapSheet\(\)\{[\s\S]*?\n\}/)[0],
@@ -799,7 +800,7 @@ const bwPrelude = [
   'function speakFr(){}'
 ].join("\n");
 const bwFns = [
-  escSrc, tsSrc,
+  escSrc, tsSrc, atsSrc,
   html.match(/function renderTopicMap\(\)\{[\s\S]*?\n\}/)[0],
   rbSrc,
   html.match(/function renderWords\(\)\{[\s\S]*?\n\}/)[0]
@@ -1195,7 +1196,7 @@ const eqPrelude = [
 ].join("\n");
 const eqFns = [
   escSrc, swSrc, dwSrc, normSrc, corrSrc, chSrc, whSrc,
-  lvArrSrc, lvlSrc, xpSrc2, tsSrc, qpSrc,
+  lvArrSrc, lvlSrc, xpSrc2, tsSrc, atsSrc, qpSrc,
   html.match(/const SPEAKER_SVG = [^\n]*/)[0],
   html.match(/const SPEAKER_SLOW_SVG = [^\n]*/)[0],
   html.match(/function slowListenBtnHtml\(\)[^\n]*/)[0],
@@ -1391,6 +1392,7 @@ async function runEqEnsembleSmoke() {
   ok(E2_ELS["sbdone-user-2-es"].innerHTML === "" && E2_ELS["sbdone-user-2-en"].innerHTML === "", "동등성 Ensemble 펼침: 다른 언어는 펼쳐지지 않음");
   await toggleMemberLang("user-2", "es", fakeBtn);
   ok(E2_ELS["sbdone-user-2-es"].innerHTML.includes(ITEMS_ES_REAL[0].text) && E2_ELS["sbdone-user-2-fr"].innerHTML.includes(ITEMS[0].fr), "동등성 Ensemble 펼침: 스페인어를 펼쳐도 프랑스어 펼침은 유지됨 (언어별 독립 토글)");
+  ok(E2_ELS["sbdone-user-2-es"].innerHTML.includes("<b>1.</b>") && !E2_ELS["sbdone-user-2-es"].innerHTML.includes("es-1"), "번호 통일(v1.35.5): 스페인어 완료 문장도 원본 id(es-1)가 아닌 순서 번호(1.)로 표시됨");
   await toggleMemberLang("user-2", "en", fakeBtn);
   ok(E2_ELS["sbdone-user-2-en"].innerHTML.includes("아직 완료한 문장이 없어요"), "동등성 Ensemble 펼침: 완료 0개 언어 줄은 빈 상태 문구가 펼쳐짐");
   await toggleMemberLang("user-2", "fr", fakeBtn);
@@ -2048,6 +2050,8 @@ eval(rvPrelude + "\n" + helperSrc + "\n" + rvFns + "\n" + mapSheetSrcs + "\n" + 
   'B.completed = []; B.topicFilter = "전체"; B.levelFilter = "전체"; B.index = 0; currentStep = 1;',
   'renderMapStrip(); RV_ELS["mapStripBtn"].onclick();',
   'ok(RV_ELS["mapOverlay"].hidden === false, "쌍 유지 스모크: 지도 시트가 열림");',
+  'ok(RV_ELS["mapSheetGrid"].innerHTML.includes(\'data-mapsheet="전체"\') && RV_ELS["mapSheetGrid"].innerHTML.indexOf(\'data-mapsheet="전체"\') < RV_ELS["mapSheetGrid"].innerHTML.indexOf(\'data-mapsheet="이민"\'), "전체 카드 스모크: 지도 시트 맨 앞에 전체 카드가 있음");',
+  'ok(RV_ELS["mapSheetGrid"].innerHTML.includes(\'class="mapcard selected" data-mapsheet="전체"\'), "전체 카드 스모크: 전체 주제로 공부 중일 때는 전체 카드가 색칠됨");',
   'goToTopicStudy("이민");',
   'ok(RV_ELS["mapOverlay"].hidden === true, "제보1 스모크: 지도에서 주제를 선택하면 시트가 자동으로 닫힘");',
   'ok(B.topicFilter === "이민" && B.levelFilter === "전체" && currentItem().topic === "이민", "쌍 유지 스모크: 지도 선택은 주제만 정하고 레벨은 건드리지 않음");',
@@ -2060,7 +2064,9 @@ eval(rvPrelude + "\n" + helperSrc + "\n" + rvFns + "\n" + mapSheetSrcs + "\n" + 
   'ok(RV_ELS["mapOverlay"].hidden === false, "제보1 스모크: 지도 시트가 다시 열림");',
   'const gi = ITEMS.findIndex(x => x.topic === "건강" && x.level === "B1");',
   'goToItem(gi, 1);',
-  'ok(RV_ELS["mapOverlay"].hidden === true && B.topicFilter === "건강" && B.levelFilter === "B1" && currentItem().id === ITEMS[gi].id, "제보1 스모크: 지도에서 문장을 선택해도 시트가 닫히고 (주제, 레벨) 쌍이 그 문장에 맞춰짐");'
+  'ok(RV_ELS["mapOverlay"].hidden === true && B.topicFilter === "건강" && B.levelFilter === "B1" && currentItem().id === ITEMS[gi].id, "제보1 스모크: 지도에서 문장을 선택해도 시트가 닫히고 (주제, 레벨) 쌍이 그 문장에 맞춰짐");',
+  'goToTopicStudy("전체");',
+  'ok(B.topicFilter === "전체" && B.levelFilter === "B1" && RV_ELS["topicTag"].innerHTML === "", "전체 카드 스모크: 전체를 고르면 주제는 해제되고 레벨(B1) 쌍은 유지되며 주제 태그가 사라짐");'
 ].join("\n"));
 
 
@@ -2089,9 +2095,11 @@ ok(rtmSrc2.includes("selected") && rtmSrc2.includes("browseTopic"), "주제 선�
 ok(rtmSrc2.includes("scrollToBrowseList()"), "주제 선택 피드백: 주제별 지도에서 주제를 누르면 목록으로 스크롤함");
 const sblSrc = html.match(/function scrollToBrowseList\(\)\{[\s\S]*?\n\}/)[0];
 ok(sblSrc.includes("scrollIntoView") && sblSrc.includes('"smooth"'), "주제 선택 피드백: 스크롤은 browseList로 부드럽게 이동함");
-ok(rbSrc.includes("scrollToBrowseList()"), "주제 선택 피드백: 주제 필터 칩을 눌러도 목록으로 스크롤함");
+ok(!rbSrc.includes("data-topic") && !rbSrc.includes('getElementById("topicFilter")') && html.indexOf('id="topicFilter"') === -1, "주제 일원화(v1.35.5): 동그란 주제 필터 버튼 행이 주제별 탭에서 제거됨 (주제 선택은 지도로만)");
+ok(rtmSrc2.includes('data-mtopic="전체"') && rtmSrc2.includes("allTopicStat"), "주제 일원화(v1.35.5): 주제별 지도 맨 앞에 전체 카드가 있음");
 const rmsSrc2 = html.match(/function renderMapSheet\(\)\{[\s\S]*?\n\}/)[0];
 ok(rmsSrc2.includes("selected") && rmsSrc2.includes("topicFilter()"), "주제 선택 피드백: 지도 시트 카드도 현재 공부 주제와 같으면 selected로 색칠됨");
+ok(rmsSrc2.includes('data-mapsheet="전체"') && rmsSrc2.includes("allTopicStat"), "주제 일원화(v1.35.5): 공부 탭 지도 시트 맨 앞에도 전체 카드가 있음");
 // 주제 태그 스모크: 지도에서 고르면 태그가 뜨고, ✕를 누르면 사라짐
 eval(rvPrelude + "\n" + helperSrc + "\n" + rvFns + "\n" + mapSheetSrcs + "\n" + [
   'progress = migrateProgress(null);',
@@ -2115,13 +2123,11 @@ function makeBrEl(id){
 function makeBrBtn(topic){
   return { _topic: topic, onclick: null, getAttribute(){ return this._topic; }, setAttribute(){} };
 }
-const brTopicBtns = [...new Set(ITEMS.map(i=>i.topic))].map(makeBrBtn);
-const brFilterBtns = ["전체"].concat([...new Set(ITEMS.map(i=>i.topic))]).map(makeBrBtn);
+const brTopicBtns = ["전체"].concat([...new Set(ITEMS.map(i=>i.topic))]).map(makeBrBtn);
 const brDocument = {
   getElementById(id){ if(!BR_ELS[id]) BR_ELS[id] = makeBrEl(id); return BR_ELS[id]; },
   querySelectorAll(sel){
     if(sel === "[data-mtopic]") return brTopicBtns;
-    if(sel === "[data-topic]") return brFilterBtns;
     return [];
   },
   body: makeBrEl("body")
@@ -2132,7 +2138,7 @@ const brPrelude = [
   'function goToItem(){}'
 ].join("\n");
 const brSrcs = [
-  escSrc, tsSrc,
+  escSrc, tsSrc, atsSrc,
   html.match(/let browseTopic = "전체";/)[0],
   html.match(/function scrollToBrowseList\(\)\{[\s\S]*?\n\}/)[0],
   html.match(/function renderTopicMap\(\)\{[\s\S]*?\n\}/)[0],
@@ -2145,8 +2151,11 @@ eval(brPrelude + "\n" + helperSrc + "\n" + brSrcs + "\n" + [
   'ok(browseTopic === "이민", "주제별 스모크: 지도 카드를 누르면 그 주제가 선택됨");',
   'ok(BR_ELS["topicMap"].innerHTML.includes(\'class="mapcard selected" data-mtopic="이민"\') && (BR_ELS["topicMap"].innerHTML.match(/ selected"/g) || []).length === 1, "주제별 스모크: 선택한 주제 카드만 색칠됨");',
   'ok(BR_ELS["browseList"].innerHTML.includes("이민") && brScrollCalls.length === 1 && brScrollCalls[0].behavior === "smooth", "주제별 스모크: 선택하면 그 주제 문장이 세팅되고 목록 위치로 부드럽게 스크롤함");',
-  'brFilterBtns.find(b => b._topic === "교통").onclick();',
-  'ok(browseTopic === "교통" && brScrollCalls.length === 2, "주제별 스모크: 필터 칩으로 주제를 바꿔도 다시 목록으로 스크롤함");'
+  'ok(BR_ELS["browseList"].innerHTML.includes("<b>" + (ITEMS.findIndex(x => x.topic === "이민") + 1) + ". "), "번호 통일(v1.35.5) 스모크: 주제별 목록 번호가 순서 번호로 표시됨");',
+  'brTopicBtns.find(b => b._topic === "전체").onclick();',
+  'ok(browseTopic === "전체" && brScrollCalls.length === 2, "주제별 스모크: 전체 카드를 누르면 필터가 해제되고 다시 목록으로 스크롤함");',
+  'ok(BR_ELS["topicMap"].innerHTML.includes(\'class="mapcard selected" data-mtopic="전체"\') && (BR_ELS["topicMap"].innerHTML.match(/ selected"/g) || []).length === 1, "주제별 스모크: 전체를 고르면 전체 카드만 색칠됨");',
+  'ok(BR_ELS["browseList"].innerHTML.includes(ITEMS[0].fr) && BR_ELS["browseList"].innerHTML.includes(ITEMS.find(x => x.topic === "교통").fr), "주제별 스모크: 전체에서는 모든 주제의 문장이 목록에 나옴");'
 ].join("\n"));
 ok(html.includes("body.noscroll{overflow:hidden"), "스크롤 잠금: body.noscroll이 스크롤을 막는 CSS가 있음");
 ok(/\.menuoverlay\{[^}]*overscroll-behavior:contain/.test(html) && /\.modaloverlay\{[^}]*overscroll-behavior:contain/.test(html) && /\.menupanel\{[^}]*overscroll-behavior:contain/.test(html) && /\.modalpanel\{[^}]*overscroll-behavior:contain/.test(html), "스크롤 잠금: 오버레이와 패널이 overscroll 전파를 차단함");
@@ -2382,6 +2391,51 @@ async function runFullBootSmoke() {
     }
   }
 }
+
+console.log("\n[번호 표기 통일·레벨 안내 (v1.35.5)]");
+const tmlSrc2 = html.match(/async function toggleMemberLang\(userId, code, btn\)\{[\s\S]*?\n\}/)[0];
+const tmlPlain = tmlSrc2.replace(/\\/g, "");
+ok(tmlPlain.includes("(idx+1)+'.</b>") && !tmlPlain.includes("i.id+'.</b>"), "번호 통일(v1.35.5): Ensemble 완료 문장 목록은 원본 id가 아니라 순서 번호(1. 2. 3…)로 표시됨");
+ok(rbSrc.includes("(items().indexOf(i)+1)+'. '") && !rbSrc.includes("i.id+'. '"), "번호 통일(v1.35.5): 주제별 목록도 원본 id가 아니라 순서 번호로 표시됨");
+ok(html.includes('id="levelOverlay" hidden') && html.includes('id="levelInfoBody"') && html.includes('id="levelCloseBtn"') && html.includes('id="levelBackdrop"'), "레벨 안내: 바텀시트 오버레이·본문·닫기·배경이 전역에 있고 처음에는 숨겨져 있음");
+ok(html.includes('<button class="lvlabel" id="lvLabel"'), "레벨 안내: 공부 첫 화면의 레벨 배지가 버튼이라 누를 수 있음");
+ok(html.match(/const OVERLAY_IDS = \[[^\n]*/)[0].includes('"levelOverlay"'), "레벨 안내: 배경 스크롤 잠금 대상 오버레이에 포함됨");
+const liOpenSrc = html.match(/function openLevelInfo\(\)\{[\s\S]*?\n\}/)[0];
+const liCloseSrc = html.match(/function closeLevelInfo\(\)\{[\s\S]*?\n\}/)[0];
+ok(liOpenSrc.includes("syncScrollLock();") && liCloseSrc.includes("syncScrollLock();"), "레벨 안내: 열기/닫기 모두 배경 스크롤 잠금을 갱신함");
+const rlInfoSrc = html.match(/function renderLevelInfo\(\)\{[\s\S]*?\n\}/)[0];
+ok(rlInfoSrc.includes("levelOf(") && rlInfoSrc.includes("xpOf(") && html.match(/function levelRowsHtml\(curLv\)\{[\s\S]*?\n\}/)[0].includes("LEVELS.map"), "레벨 안내: 전체 레벨표는 LEVELS 데이터로 만들고, 현재 레벨은 지금 언어의 XP로 판정함");
+ok(html.includes('document.getElementById("lvLabel").onclick = ()=>openLevelInfo();') && html.includes('document.getElementById("levelCloseBtn").onclick = ()=>closeLevelInfo();') && html.includes('document.getElementById("levelBackdrop").onclick = ()=>closeLevelInfo();'), "레벨 안내: 배지 탭·닫기 버튼·배경 탭이 모두 연결됨");
+ok(html.includes('id="profileLvBtn"') && html.includes("lvb.onclick = ()=>openLevelInfo();"), "레벨 안내: 내 정보 창의 레벨 표기도 같은 안내창을 염");
+// 레벨 안내 동작 스모크: 열면 전체 레벨 행 + 현재 레벨 강조 + 배경 잠금, 닫으면 해제
+const LI_ELS = {};
+function makeLiEl(id){
+  const el = { id: id, hidden: true, value: "", textContent: "", innerHTML: "", style: {}, _cls: new Set(),
+    setAttribute(){}, getAttribute(){ return null; }, focus(){}, addEventListener(){},
+    classList: { toggle(c, v){ if(v) el._cls.add(c); else el._cls.delete(c); }, add(c){ el._cls.add(c); }, remove(c){ el._cls.delete(c); }, contains(c){ return el._cls.has(c); } } };
+  return el;
+}
+const liInfoDocument = {
+  getElementById(id){ if(!LI_ELS[id]) LI_ELS[id] = makeLiEl(id); return LI_ELS[id]; },
+  querySelectorAll(){ return []; },
+  body: makeLiEl("body")
+};
+const lvInfoSrcs = [
+  lockSrc, helperSrc, escSrc, lvArrSrc, medalArrSrc, medalOfSrc, lvlSrc, xpSrc2,
+  html.match(/function levelRowsHtml\(curLv\)\{[\s\S]*?\n\}/)[0],
+  rlInfoSrc, liOpenSrc, liCloseSrc
+].join("\n");
+eval('let progress = null;\nconst document = liInfoDocument;\n' + lvInfoSrcs + "\n" + [
+  'progress = migrateProgress(null);',
+  'progress.byLang.fr.completed = [1, 2, 3];',
+  'openLevelInfo();',
+  'ok(LI_ELS["levelOverlay"].hidden === false && liInfoDocument.body.classList.contains("noscroll"), "레벨 안내 스모크: 열면 창이 뜨고 배경 스크롤이 잠김");',
+  'ok((LI_ELS["levelInfoBody"].innerHTML.match(/<div class="lvrow/g) || []).length === LEVELS.length, "레벨 안내 스모크: 전체 레벨 행이 레벨 수만큼 표시됨");',
+  'ok(LI_ELS["levelInfoBody"].innerHTML.includes(\'class="lvrow cur"\') && LI_ELS["levelInfoBody"].innerHTML.includes("Lv.2 문장 걸음마") && LI_ELS["levelInfoBody"].innerHTML.includes("지금 내 레벨"), "레벨 안내 스모크: 완료 3개(30 XP)=Lv.2 행이 강조되고 레벨 이름이 보임");',
+  'ok(LI_ELS["levelInfoBody"].innerHTML.includes("👑") && LI_ELS["levelInfoBody"].innerHTML.includes("2900 XP부터") && LI_ELS["levelInfoBody"].innerHTML.includes("0 XP부터"), "레벨 안내 스모크: 각 행에 메달과 필요 XP가 표시됨");',
+  'closeLevelInfo();',
+  'ok(LI_ELS["levelOverlay"].hidden === true && !liInfoDocument.body.classList.contains("noscroll"), "레벨 안내 스모크: 닫으면 배경 잠금이 풀림");'
+].join("\n"));
 
 (async function finish() {
   try { await runFullBootSmoke(); } catch (e) { ok(false, "부팅 스모크: 실행 오류", String((e && e.stack) || e)); }
