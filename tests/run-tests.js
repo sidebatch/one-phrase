@@ -784,7 +784,7 @@ if (fs.existsSync(ogPngPath)) {
   ok(ogBuf.readUInt32BE(16) === 1200 && ogBuf.readUInt32BE(20) === 630, "og-image.png 실제 크기 1200×630");
 }
 
-console.log("\n[개명·새 아이콘 (v1.31.0)]");
+console.log("\n[개명 (v1.31.0) · 아이콘 워드마크 복원 (v1.31.1)]");
 ok(html.includes('<span class="wordmark">ONE PHRASE</span>'), "워드마크: 헤더가 ONE PHRASE");
 ok(!html.includes("UNE PHRASE"), "개명: 옛 워드마크 UNE PHRASE 없음");
 ok(!html.includes("Une Phrase"), "개명: index.html에 옛 이름 Une Phrase 없음");
@@ -793,15 +793,42 @@ ok(html.includes('property="og:title" content="One Phrase — 한 문장 프랑�
 ok(html.includes('property="og:url" content="https://sidebatch.github.io/one-phrase/"'), "개명: og:url이 새 주소");
 ok(html.includes('const SHARE_URL = "https://sidebatch.github.io/one-phrase/";'), "개명: 공유 주소가 새 주소");
 ok(man.name === "One Phrase — 한 문장 프랑스어" && man.short_name === "One Phrase", "manifest: name·short_name이 새 이름");
-ok(html.includes('class="logo" aria-hidden="true"><svg') && html.includes('class="footlogo" aria-hidden="true"><svg'), "로고: 헤더·푸터 로고 타일이 말풍선 SVG 마크");
+ok(html.includes('class="logo" aria-hidden="true">O</span>') && html.includes('class="footlogo" aria-hidden="true">O</span>'), "로고: 헤더·푸터 로고 타일이 글자 O (개명 전 워드마크 방식)");
 const iconSvg = read("icons/icon.svg");
-ok(iconSvg.includes('fill="#1C3A71"') && iconSvg.includes('fill="#FFFFFF"') && iconSvg.includes("<circle"), "아이콘 소스 SVG: 파랑 배경·흰 말풍선·마침표 요소 포함");
+ok(iconSvg.includes('fill="#1C3A71"') && iconSvg.includes('fill="#FFFFFF"') && iconSvg.includes(">One</text>") && iconSvg.includes('fill="#FFD166"') && iconSvg.includes(">PHRASE</text>"), "아이콘 소스 SVG: 파랑 배경·흰 'One'·금색 'PHRASE' 워드마크");
+function pngPixel(buf, x, y) {
+  const zlib = require("zlib");
+  let pos = 8, w = 0, h = 0, colorType = 2; const idat = [];
+  while (pos < buf.length) {
+    const len = buf.readUInt32BE(pos), type = buf.toString("ascii", pos + 4, pos + 8);
+    if (type === "IHDR") { w = buf.readUInt32BE(pos + 8); h = buf.readUInt32BE(pos + 12); colorType = buf[pos + 17]; }
+    if (type === "IDAT") idat.push(buf.subarray(pos + 8, pos + 8 + len));
+    if (type === "IEND") break;
+    pos += 12 + len;
+  }
+  const raw = zlib.inflateSync(Buffer.concat(idat));
+  const bpp = colorType === 6 ? 4 : 3, stride = w * bpp, out = Buffer.alloc(h * stride);
+  for (let row = 0; row < h; row++) {
+    const f = raw[row * (stride + 1)], src = raw.subarray(row * (stride + 1) + 1, (row + 1) * (stride + 1)), dst = out.subarray(row * stride, (row + 1) * stride), prev = row ? out.subarray((row - 1) * stride, row * stride) : null;
+    for (let i = 0; i < stride; i++) {
+      const a = i >= bpp ? dst[i - bpp] : 0, b = prev ? prev[i] : 0, c = i >= bpp && prev ? prev[i - bpp] : 0;
+      let v = src[i];
+      if (f === 1) v = (v + a) & 255; else if (f === 2) v = (v + b) & 255; else if (f === 3) v = (v + ((a + b) >> 1)) & 255;
+      else if (f === 4) { const p = a + b - c, pa = Math.abs(p - a), pb = Math.abs(p - b), pc = Math.abs(p - c); v = (v + (pa <= pb && pa <= pc ? a : pb <= pc ? b : c)) & 255; }
+      dst[i] = v;
+    }
+  }
+  const off = (y * w + x) * bpp;
+  return [out[off], out[off + 1], out[off + 2]];
+}
 for (const [f, w, h] of [["icons/icon-192.png",192,192],["icons/icon-512.png",512,512],["icons/apple-touch-icon.png",180,180],["icons/maskable-512.png",512,512]]) {
   const fp = path.join(ROOT, f);
   ok(fs.existsSync(fp), "아이콘 파일 있음: " + f);
   if (fs.existsSync(fp)) {
     const b = fs.readFileSync(fp);
     ok(b.readUInt32BE(16) === w && b.readUInt32BE(20) === h, "아이콘 실제 크기 " + w + "×" + h + ": " + f);
+    const corner = pngPixel(b, 0, 0), cornerR = pngPixel(b, w - 1, 0);
+    ok(corner[0] === 28 && corner[1] === 58 && corner[2] === 113 && cornerR[0] === 28 && cornerR[1] === 58 && cornerR[2] === 113, "아이콘 모서리 픽셀 = 배경 파랑 #1C3A71: " + f);
   }
 }
 

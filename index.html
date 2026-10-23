@@ -92,7 +92,6 @@ button:focus-visible,summary:focus-visible{outline:2px solid var(--blue-text);ou
 .masthead{border:0;border-radius:var(--r-xl);padding:var(--sp4) var(--sp4) 13px;background:linear-gradient(180deg,var(--mast-a) 0%,var(--mast-b) 92%);margin-bottom:2px;box-shadow:var(--shadow)}
 .brandrow{display:flex;align-items:center;gap:9px}
 .logo{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;flex:0 0 auto;border-radius:var(--r-sm);background:var(--blue);color:#fff;font-size:19px;font-weight:900;line-height:1;box-shadow:inset 0 -3px 0 rgba(0,0,0,.22)}
-.logo svg{width:23px;height:23px;display:block}
 .wordmark{flex:1;min-width:0;font-weight:900;color:var(--blue-text);letter-spacing:.14em;font-size:15px;white-space:nowrap;overflow:hidden}
 .profilebtn{flex:0 0 auto;width:38px;height:38px;border-radius:50%;border:1px solid var(--line-soft);background:var(--soft);color:var(--avatar-ink);font-size:16px;font-weight:900;cursor:pointer;font:inherit;display:inline-flex;align-items:center;justify-content:center;padding:0;box-shadow:var(--shadow);transition:transform .12s var(--ease)}
 .profilebtn:active{transform:scale(.94)}
@@ -274,7 +273,6 @@ textarea:focus,input[type=text]:focus{border-color:var(--blue-text);box-shadow:v
 footer{margin-top:var(--sp6);border-top:1px solid var(--line-soft);padding:20px 16px 0;text-align:center}
 .footbrand{display:flex;align-items:center;justify-content:center;gap:8px}
 .footlogo{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:7px;background:var(--blue);color:#fff;font-size:13px;font-weight:900;line-height:1}
-.footlogo svg{width:15px;height:15px;display:block}
 .footword{font-weight:900;color:var(--blue-text);letter-spacing:.1em;font-size:13.5px}
 .footko{font-size:13px;color:var(--sub);font-weight:700}
 .footmeta{margin-top:var(--sp2);font-size:12.5px;color:var(--sub)}
@@ -298,7 +296,7 @@ summary{font-weight:800;cursor:pointer}
 <body>
 <div class="wrap">
 <header class="masthead">
-<div class="brandrow"><span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.4" y="4.2" width="19.2" height="12.8" rx="3.4" fill="#fff"/><polygon points="6.1,16.6 9.9,16.6 6.3,21" fill="#fff"/><rect x="5.6" y="9.55" width="8.8" height="1.9" rx=".95" fill="#1C3A71"/><circle cx="17.3" cy="10.5" r=".95" fill="#1C3A71"/></svg></span><span class="wordmark">ONE PHRASE</span><button class="profilebtn" id="profileBtn" aria-label="내 정보" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M5.2 19.8c.8-3.6 3.4-5.4 6.8-5.4s6 1.8 6.8 5.4"/></svg></button><button class="menubtn" id="menuBtn" aria-haspopup="dialog" aria-expanded="false">☰ 메뉴</button></div>
+<div class="brandrow"><span class="logo" aria-hidden="true">O</span><span class="wordmark">ONE PHRASE</span><button class="profilebtn" id="profileBtn" aria-label="내 정보" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M5.2 19.8c.8-3.6 3.4-5.4 6.8-5.4s6 1.8 6.8 5.4"/></svg></button><button class="menubtn" id="menuBtn" aria-haspopup="dialog" aria-expanded="false">☰ 메뉴</button></div>
 <h1>한 문장 프랑스어</h1>
 <div class="progress" id="progressArea">
 <div class="progress-top"><span id="progressLine">불러오는 중…</span><span class="todaychip" id="todayChip">오늘 0문장</span></div>
@@ -401,13 +399,13 @@ summary{font-weight:800;cursor:pointer}
 </div>
 
 <footer>
-<div class="footbrand"><span class="footlogo" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.4" y="4.2" width="19.2" height="12.8" rx="3.4" fill="#fff"/><polygon points="6.1,16.6 9.9,16.6 6.3,21" fill="#fff"/><rect x="5.6" y="9.55" width="8.8" height="1.9" rx=".95" fill="#1C3A71"/><circle cx="17.3" cy="10.5" r=".95" fill="#1C3A71"/></svg></span><span class="footword">ONE PHRASE</span><span class="footko">한 문장 프랑스어</span></div>
-<div class="footmeta">v1.31.0 · © 2026 sidebatch</div>
+<div class="footbrand"><span class="footlogo" aria-hidden="true">O</span><span class="footword">ONE PHRASE</span><span class="footko">한 문장 프랑스어</span></div>
+<div class="footmeta">v1.31.1 · © 2026 sidebatch</div>
 </footer>
 </div>
 <script>
 "use strict";
-const APP_VERSION = "1.31.0";
+const APP_VERSION = "1.31.1";
 const STORAGE_KEY = "une-phrase-progress-v1";
 const SUPABASE_URL = "https://cmhitsgoicxvmlwtrdrb.supabase.co";
 const SUPABASE_KEY = "sb_publishable_iZugJ1l1p3DSk_BB2Y3N3Q_qZwSo637";
