@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="One Phrase">
+  <!-- 브랜드 파랑 배경 (개명 전 워드마크 디자인 복원, PNG는 이 SVG와 같은 비율로 PIL 생성) -->
+  <rect width="512" height="512" fill="#1C3A71"/>
+  <!-- 1행: "One" 큰 흰 볼드 -->
+  <text x="256" y="258" text-anchor="middle" font-family="Noto Sans, sans-serif" font-size="144" font-weight="900" fill="#FFFFFF">One</text>
+  <!-- 2행: "PHRASE" 금색 · 자간 넓게 -->
+  <text x="256" y="353" text-anchor="middle" font-family="Noto Sans, sans-serif" font-size="74" font-weight="900" letter-spacing="6.7" fill="#FFD166">PHRASE</text>
+</svg>
